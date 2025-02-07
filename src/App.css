@@ -1,0 +1,22 @@
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  transition: width 0.3s;
+}
+
+.sidebar-toggle {
+  display: none; /* Show only for smaller screens */
+}
+
+.main-content {
+  flex: 1;
+  transition: margin-left 0.3s;
+}
+
+.sidebar-open .main-content {
+  margin-left: 240px;
+}
