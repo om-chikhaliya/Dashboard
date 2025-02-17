@@ -11,11 +11,11 @@ import {
 function LineChart() {
   const data = [
     { time: '10:30 AM', calls: 2000 },
-    { time: '11:30 AM', calls: 4000 },
+    { time: '11:30 AM', calls: 2000 },
     { time: '12:30 AM', calls: 3000 },
-    { time: '01:30 PM', calls: 5000 },
+    { time: '01:30 PM', calls: 10000 },
     { time: '02:30 PM', calls: 7546 },
-    { time: '03:30 PM', calls: 6000 },
+    { time: '03:30 PM', calls: 6100 },
   ];
 
   return (

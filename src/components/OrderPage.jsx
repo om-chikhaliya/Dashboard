@@ -1,11 +1,16 @@
-import Header from "./Header";
 import OrderPageContent from "./OrderContentPage";
-//import Sidebar from "./Sidebar";
+import Sidebar from "./Sidebar";
+import { useState } from "react";
+
+
 function MainLayout() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   return (
-    <div>
-      {/* <Header /> */}
-      <OrderPageContent />
+    <div className="app">
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen}></Sidebar>
+      <div className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} `}>
+        <OrderPageContent />
+      </div>
     </div>
   );
 }

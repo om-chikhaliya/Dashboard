@@ -1,27 +1,20 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import Checkbox from "./ui/Checkbox";
 import {
-  Search,
-  ChevronDown,
-  User,
   Settings,
-  LogOut,
   Grid,
   List,
 } from "react-feather";
-import { Bell, MessageCircle, ExternalLink, Box } from "react-feather";
+import { Box } from "react-feather";
 import Calendar from "react-calendar";
-import { Link } from "react-router-dom";
 import "react-calendar/dist/Calendar.css";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import myImage from "./ui/watch.jpg";
 import { storeOptions, statusOptions, getTotalItemsInOrder } from "./helper/constant";
-import axios from "axios";
-import { CircleLoader, ClipLoader } from "react-spinners";
+import { ClipLoader } from "react-spinners";
 import Header from "./Header";
 import img1 from "../assets/noorder.png"
+import api from "./helper/api";
 
 
 const tasks = [
@@ -53,46 +46,50 @@ function OrderCard({ order, setSelectAllOrders, selectedOrders, setSelectedOrder
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-2">
           <Checkbox
-            checked={selectedOrders.includes(order.orderObject.orderId)}
+            checked={selectedOrders.includes(order.brickosys_order_id)}
             onChange={(checked) =>
-              handleOrderSelection(order.orderObject.orderId, checked)
+              handleOrderSelection(order.brickosys_order_id, checked)
             }
             className="border-gray-500"
           />
           <div className="bg-gray-100 text-gray-800 text-xs px-2 py-1 heading-radius">
-            O no.#{order.orderObject.orderId}
+            O no.#{order.order_id}
           </div>
         </div>
         <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-lg font-medium">{order.brickosysId}</h3>
+          <h3 className="text-lg font-medium">{order.brickosys_order_id}</h3>
         </div>
-        <p className="text-gray-600 text-sm">{order.orderObject.orderDate}</p>
+        <p className="text-gray-600 text-sm">{new Date(order.order_on).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })}</p>
       </div>
 
       {/* Tags and Status */}
       <div className="flex flex-wrap gap-2 mb-3">
         <span
-          className={`px-3 py-1 text-xs ${order.orderObject.orderFrom === "BrickLink"
+          className={`px-3 py-1 text-xs ${order.platform === "BL"
             ? "bg-purple-100 text-purple-800"
             : "bg-blue-100 text-blue-800"
             } custom-radius`}
         >
-          {order.orderObject.orderFrom}
+          {order.platform}
         </span>
         <span className="bg-[#BCD3FF] text-[#0A0095] px-3 py-1 custom-radius text-xs">
-          {order.orderObject.orderTotal}
+          {order.total_price}
         </span>
         <span
-          className={`px-3 py-1 rounded-full text-xs ${order.orderObject.status === "PACKED"
+          className={`px-3 py-1 rounded-full text-xs ${order.status === "PACKED"
             ? "bg-green-100 text-green-800"
-            : order.orderObject.status === "CANCELLED"
+            : order.status === "CANCELLED"
               ? "bg-red-100 text-red-800"
-              : order.orderObject.status === "Shipped"
+              : order.status === "Shipped"
                 ? "bg-cyan-100 text-cyan-800"
                 : "bg-orange-100 text-orange-800"
             } custom-radius`}
         >
-          {order.orderObject.status}
+          {order.status}
         </span>
       </div>
 
@@ -153,7 +150,10 @@ function OrderPageContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/orders");
+        const res = await api.get("/order/sync");
+        console.log("sync order: ", res.data)
+        const response = await api.get("/order");
+        console.log(response.data)
         setFilteredOrders(response.data);
         setOrders(response.data);
 
@@ -176,20 +176,23 @@ function OrderPageContent() {
 
     const filtered = orders.filter((order) => {
 
-      // console.log(order.orderObject.orderId)
+      // console.log(order.order_id)
       const matchesSearch =
         !searchTerm ||
-        order.orderObject.buyer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.orderObject.orderId.toString().includes(searchTerm) ||
-        order.orderObject.orderDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.orderObject.orderFrom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.orderObject.status.toLowerCase().includes(searchTerm.toLowerCase())
+        order.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.order_id.toString().includes(searchTerm) ||
+        new Date(order.order_on).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        }).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.status.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesStore = selectedStores.includes(
-        order.orderObject.orderFrom === "BrickLink" ? "BrickLink" : "BrickOwl"
+        order.platform === "BL" ? "BL" : "BO"
       )
 
-      const matchesStatus = selectedStatuses.includes(order.orderObject.status)
+      const matchesStatus = selectedStatuses.includes(order.status)
 
 
 
@@ -241,7 +244,7 @@ function OrderPageContent() {
 
   const handleSelectAllOrders = (checked) => {
     setSelectAllOrders(checked)
-    setSelectedOrders(checked ? filteredOrders.map((order) => order.orderObject.orderId) : [])
+    setSelectedOrders(checked ? filteredOrders.map((order) => order.brickosys_order_id) : [])
   }
 
   // Handle individual order selection
@@ -258,20 +261,19 @@ function OrderPageContent() {
   // Handle date change
   const handleDateChange = (date) => {
     setSelectedDate(date);
-
+  
+    // Convert selected date to YYYY-MM-DD (local format)
+    const selectedDateString = date.toLocaleDateString("en-CA"); // "YYYY-MM-DD"
+  
     // Filter orders based on the selected date
-    const formattedDate = date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
+    const filtered = orders.filter((order) => {
+      const orderDate = new Date(order.order_on).toLocaleDateString("en-CA"); // "YYYY-MM-DD"
+      return orderDate === selectedDateString;
     });
-    const filtered = orders.filter((order) =>
-      order.orderObject.orderDate.startsWith(formattedDate) // Match orders with the selected date
-    );
-
+  
     setFilteredOrders(filtered);
   };
-
+  
 
   const handleStartPicking = () => {
     if (selectedOrders.length > 0) {
@@ -402,8 +404,8 @@ function OrderPageContent() {
                             <th className="text-left py-3 px-4 text-sm font-medium">
                               Order#
                             </th>
-                            <th className="text-left py-3 px-4 text-sm font-medium">
-                              Buyer
+                            <th className="text-center py-3 px-4 text-sm font-medium">
+                              Platform
                             </th>
                             <th className="text-left py-3 px-4 text-sm font-medium">
                               Date
@@ -412,7 +414,7 @@ function OrderPageContent() {
                               Lots/Items
                             </th>
                             <th className="text-left py-3 px-4 text-sm font-medium">
-                              Seller
+
                             </th>
                             {/* <th className="text-left py-3 px-4 text-sm text-right font-medium">
                         Payment
@@ -428,12 +430,12 @@ function OrderPageContent() {
 
                         <tbody >
                           {filteredOrders.map((order) => (
-                            <tr key={order.orderObject.orderId} className="border-b border-gray-700">
+                            <tr key={order.brickosys_order_id} className="border-b border-gray-700">
                               <td className="p-2">
                                 <Checkbox
-                                  checked={selectedOrders.includes(order.orderObject.orderId)}
+                                  checked={selectedOrders.includes(order.brickosys_order_id)}
                                   onChange={(checked) =>
-                                    handleOrderSelection(order.orderObject.orderId, checked)
+                                    handleOrderSelection(order.brickosys_order_id, checked)
                                   }
                                   className="border-gray-500"
                                 />
@@ -447,32 +449,36 @@ function OrderPageContent() {
                           >
                             {order.orderFrom}
                           </span> */}
-                                {order.orderObject.orderId}
+                                {order.order_id}
                               </td>
-                              <td className="p-2">{order.orderObject.buyer}</td>
-                              <td className="p-2">{order.orderObject.orderDate}</td>
+                              <td className="p-2 text-center">{order.platform}</td>
+                              <td className="p-2">{new Date(order.order_on).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "long",
+                                year: "numeric",
+                              })}</td>
                               <td className="p-2">
                                 {order.items.length} / {getTotalItemsInOrder(order)}
                               </td>
-                              <td className="p-2">{order.orderObject.seller}</td>
+                              <td className="p-2"></td>
                               {/* <td className="p-2">{order.orderObject.paymentMethod}</td> */}
                               <td className="p-4 text-right">
-                                ${order.orderObject.orderTotal.toFixed(2)}
+                                ${order.total_price.toFixed(2)}
                                 {/* <br />
                               <span className="text-xs text-gray-500">
                                 + ${order.orderObject.shipping.toFixed(2)}
                               </span>
                               <br />
-                              ${(order.orderObject.orderTotal + order.orderObject.shipping).toFixed(2)} */}
+                              ${(order.total_price + order.orderObject.shipping).toFixed(2)} */}
                               </td>
                               <td className="p-2 text-right">
                                 <span
-                                  className={`px-2 py-1 rounded text-sm ${order.orderObject.status.includes('PAID')
+                                  className={`px-2 py-1 rounded text-sm ${order.status.includes('PACKED', 'PAID')
                                     ? "bg-green-100 text-green-800"
                                     : "bg-purple-100 text-purple-800"
                                     }`}
                                 >
-                                  {order.orderObject.status}
+                                  {order.status}
                                 </span>
                               </td>
                             </tr>
@@ -485,9 +491,9 @@ function OrderPageContent() {
               </div>
 
             ) : (<>{!loading && filteredOrders.length === 0 ? <div className="flex justify-center items-center h-96 min-w-96"><img src={img1}></img></div> :
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredOrders.map((order) => (
-                  <OrderCard key={order.orderObject.id} order={order}
+                  <OrderCard key={order.brickosys_order_id} order={order}
                     setSelectAllOrders={setSelectAllOrders}
                     selectedOrders={selectedOrders} setSelectedOrders={setSelectedOrders}
                     filteredOrders={filteredOrders}

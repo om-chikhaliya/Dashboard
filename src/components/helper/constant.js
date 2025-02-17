@@ -1,4 +1,6 @@
-export const storeOptions = ["BrickLink", "BrickOwl"];
+import { color } from "framer-motion";
+
+export const storeOptions = ["BL", "BO"];
 
 // export const statusOptions = [
 //     "Pending (BL/BO)",
@@ -34,6 +36,7 @@ export const statusOptions = [
     { label: "Processing (BL/BO)", values: ["Processing", "PROCESSING"] },
     { label: "Ready (BL)", values: ["READY"] },
     { label: "Paid (BL)", values: ["PAID"] },
+    { label: "Shipped (BL)", values: ["SHIPPED"] },
     { label: "Packed (BL)", values: ["PACKED"] },
     { label: "Cancelled (BL)", values: ["CANCELLED"] },
     { label: "Processed (BO)", values: ["Processed"] },
@@ -246,7 +249,7 @@ export const statusOptions = [
   export function getTotalItemsInOrder(order) {
     return order.items.reduce(
       (totalItems, item) =>
-        totalItems + item.qty,
+        totalItems + item.quantity,
       0
     );
   }
@@ -260,7 +263,7 @@ export function getTotalLotsAndItems(orders) {
     return orders.reduce(
       (totals, order) => {
         const lots = order.items.length; // Count of lots in this order
-        const items = order.items.reduce((itemTotal, item) => itemTotal + item.qty, 0); // Total items in this order
+        const items = order.items.reduce((itemTotal, item) => itemTotal + item.quantity, 0); // Total items in this order
   
         // Add to the overall totals
         return {
@@ -276,12 +279,12 @@ export function getTotalLotsAndItems(orders) {
   export const findOrderIndexForItem = (orders, itemId, orderId) => {
     // Iterate over the orders array
     for (let i = 0; i < orders.length; i++) {
-      const order = orders[i].orderObject;
+      const order = orders[i];
       
       // Check if the current order matches the given orderId
-      if (order.orderId === orderId) {
+      if (order.order_id === orderId) {
         // Check if the order contains the item (assuming items is an array in each order)
-        const itemIndex = order.items.findIndex(item => item.itemId === itemId); // Adjust based on the structure of the item    
+        const itemIndex = order.items.findIndex(item => item.item_id === itemId); // Adjust based on the structure of the item    
       
         // If the item is found, return the index of the item in the order
         if (itemIndex !== -1) {
@@ -291,11 +294,15 @@ export function getTotalLotsAndItems(orders) {
     }
   }
 
-  export const fomartImageSrcString = (type, colorid, sku) => {
-  
+  export const fomartImageSrcString = (type, colorid, sku, brickosys_order_id) => {
+    
+    if (brickosys_order_id?.includes('BO')) {
+      return null; 
+    }
+
     if(type.toLowerCase() == 'set'){
       return `https://img.bricklink.com/ItemImage/IN/0/${sku}.png`;
-    }else if(type.toLowerCase() == "part"){
+    }else if(type.toLowerCase() == 'part'){
       return `https://img.bricklink.com/ItemImage/PN/${colorid}/${sku}.png`;
     }else if(type.toLowerCase() == "sticker"){
         return null;

@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { Search, ChevronDown, User, Settings, LogOut } from "react-feather";
+import { Search, ChevronDown, User, Settings, LogOut, Plus } from "react-feather";
 import { AnimatePresence, motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 // import { Input } from "postcss";
 import Input from "./ui/Input";
+import CreateUserForm from "./CreateUserForm";
 
 function Header({ handleSearch, searchTerm }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showComponent, setShowComponent] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <header className="dashboard-header rounded-xl card-shadow">
-      {location.pathname === "/orders" && (
+      {location.pathname === "/orders" ? (
         <div className="relative">
           {/* <input type="text" value={searchTerm} onChange={(e) => onChange(e.target.value)} placeholder="Search..." className="search-input" /> */}
           <Input
@@ -25,13 +28,23 @@ function Header({ handleSearch, searchTerm }) {
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
           />
         </div>
-      )}
+      ) : (<div className="text-lg font-bold">Welcome to Brickosys</div>)}
+
+
       <div className="relative"></div>
       <div className="account-dropdown">
         <div
-          className="flex items-center gap-2"
+          className="flex items-center gap-3"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
+          {localStorage.getItem('role') === "admin" && (
+            <button
+              className="p-2 rounded-full text-black transition"
+              onClick={() => navigate("/createuser")} // Navigate to /createuser
+            >
+              <Plus size={20} />
+            </button>
+          )}
           <img
             src="https://c8.alamy.com/comp/2RFFRCC/photo-of-impressed-nice-cheerful-person-raise-arms-open-mouth-cant-believe-wear-lime-cropped-top-isolated-on-violet-color-background-2RFFRCC.jpg"
             alt=""
@@ -77,6 +90,7 @@ function Header({ handleSearch, searchTerm }) {
           )}
         </AnimatePresence>
       </div>
+    
     </header>
   );
 }

@@ -11,28 +11,6 @@ import {
 import { Link } from "react-router-dom";
 
 export default function OrdersDetails({allOrders}) {
-  const [orders] = useState([
-    {
-      id: "23635232634",
-      customerName: "bommibricks",
-      date: "28 November 2024",
-      priority: "High priority",
-      weight: "2.2 Oz",
-      lots: "3/4 lots",
-      items: "9/13 items",
-      orderNumber: 1,
-    },
-    {
-      id: "23635232634",
-      customerName: "bommibricks",
-      date: "28 November 2024",
-      priority: "Medium",
-      weight: "2.2 Oz",
-      lots: "3/4 lots",
-      items: "9/13 items",
-      orderNumber: 2,
-    },
-  ]);
 
   return (
     <div className="flex-1 bg-gray-50 min-h-screen">
