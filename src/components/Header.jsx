@@ -12,6 +12,16 @@ function Header({ handleSearch, searchTerm }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken"); // Remove token
+    navigate("/"); // Redirect to login
+  };
+
+  const handleSetting = () => {
+    
+    navigate("/setting"); // Redirect to login
+  };
+
   return (
     <header className="dashboard-header rounded-xl card-shadow">
       {location.pathname === "/orders" ? (
@@ -50,7 +60,7 @@ function Header({ handleSearch, searchTerm }) {
             alt=""
             className="w-8 h-8 rounded-full object-cover"
           />
-          <span className="text-sm font-medium">John Doe</span>
+          <span className="text-sm font-medium">{localStorage.getItem("username")}</span>
           <ChevronDown size={16} />
         </div>
 
@@ -73,6 +83,10 @@ function Header({ handleSearch, searchTerm }) {
                 <a
                   href="#"
                   className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevents page reload
+                    handleSetting(); // Calls the logout function
+                  }}
                 >
                   <Settings size={16} />
                   Settings
@@ -81,6 +95,10 @@ function Header({ handleSearch, searchTerm }) {
                 <a
                   href="#"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevents page reload
+                    handleLogout(); // Calls the logout function
+                  }}
                 >
                   <LogOut size={16} />
                   Logout

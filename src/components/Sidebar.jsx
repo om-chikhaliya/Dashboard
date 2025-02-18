@@ -16,10 +16,10 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
     { icon: Monitor, label: "Dashboard", active: true, path: "/dashboard" },
-    { icon: Archive, label: "Inventory", path: "/inventory" },
+    // { icon: Archive, label: "Inventory", path: "/inventory" },
     { icon: ShoppingCart, label: "Orders", path: "/orders" },
-    { icon: Settings, label: "Settings", path: "/settings" },
-    { icon: HelpCircle, label: "Help", path: "/help" },
+    { icon: Settings, label: "Settings", path: "/setting" },
+    // { icon: HelpCircle, label: "Help", path: "/help" },
     
   ];
   const location = useLocation();

@@ -57,9 +57,9 @@ function StatsCard() {
             isPrimary: false,
             lastChecked: dayjs(currentTime).fromNow(),
             stats: {
-              orders: response.data.brickOwlTotalOrders,
-              lots: response.data.brickOwlTotalLots,
-              items: response.data.brickOwlTotalQuantity,
+              orders: response.data.brickowlTotalOrders,
+              lots: response.data.brickowlTotalLots,
+              items: response.data.brickowlTotalQuantity,
             },
           },
         ]);
@@ -79,28 +79,17 @@ function StatsCard() {
       console.log(res.data)
       const response = await api.get("/inventory/summary");
       const currentTime = dayjs();
-      setSummary([
-        {
-          name: "BrickLink",
-          isPrimary: true,
-          lastChecked: dayjs(currentTime).fromNow(),
+      setSummary((prevSummary) =>
+        prevSummary.map((entry) => ({
+          ...entry,
           stats: {
-            orders: response.data.bricklinkTotalOrders,
-            lots: response.data.bricklinkTotalLots,
-            items: response.data.bricklinkTotalQuantity,
+            orders: response.data[`${entry.name.toLowerCase()}TotalOrders`],
+            lots: response.data[`${entry.name.toLowerCase()}TotalLots`],
+            items: response.data[`${entry.name.toLowerCase()}TotalQuantity`],
           },
-        },
-        {
-          name: "BrickOwl",
-          isPrimary: false,
-          lastChecked: dayjs(currentTime).fromNow(),
-          stats: {
-            orders: response.data.brickOwlTotalOrders,
-            lots: response.data.brickOwlTotalLots,
-            items: response.data.brickOwlTotalQuantity,
-          },
-        },
-      ]);
+        }))
+      );
+      
       toast.success("Sync completed successfully!");
     } catch (error) {
       console.log(error);

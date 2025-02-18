@@ -135,6 +135,7 @@ const LoginSignup = () => {
         // Store access token
         localStorage.setItem("accessToken", loginResponse.data.token);
         localStorage.setItem("role", loginResponse.data.role);
+        localStorage.setItem("username", loginData.email);
   
         // Save credentials if "Remember Me" is checked
         if (loginData.rememberMe) {
@@ -150,14 +151,14 @@ const LoginSignup = () => {
         
         console.log(idResponse.data)
         // Check if all four IDs exist
-        const hasAllIds = idResponse.data.bricklink && idResponse.data.brickowl;
+        // const hasAllIds = await idResponse.data.bricklink && idResponse.data.brickowl;
   
         // Navigate based on the response
         // navigate(hasAllIds ? "/dashboard" : "/addkeys");
 
-        setTimeout(() => {
-          navigate(hasAllIds ? "/dashboard" : "/addkeys");
-        }, 500);
+        // setTimeout(() => {
+          navigate(idResponse.data ? "/dashboard" : "/addkeys");
+        // }, 500);
 
       } catch (error) {
         console.error("Error during login or ID check:", error);
@@ -174,6 +175,7 @@ const LoginSignup = () => {
       })
         .then(response => {
           console.log('Signup successful', response.data);
+          setActiveTab('login')
         })
         .catch(error => {
           console.error('There was an error signing up!', error);

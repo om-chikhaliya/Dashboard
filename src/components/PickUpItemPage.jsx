@@ -15,6 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ClipLoader } from "react-spinners";
 import api from "./helper/api";
 import Sidebar from "./Sidebar";
+import { useNavigate } from "react-router-dom";
 
 
 export default function PickUpItemsPage() {
@@ -30,7 +31,7 @@ export default function PickUpItemsPage() {
   const [missingItemInput, setMissingItemInput] = useState(false);
   const [missingNote, setMissingNote] = useState("");
   const [missingItems, setMissingItems] = useState([]);
-
+  const navigate = useNavigate()
   const fetchOrders = async () => {
     try {
       // Extract the current URL's query parameters
@@ -346,6 +347,7 @@ export default function PickUpItemsPage() {
     }
     finally {
       setProcessOrdersLoader(false)
+      navigate('/orders')
     }
   };
 
@@ -394,6 +396,7 @@ export default function PickUpItemsPage() {
     }
     finally {
       setSaveAndContinueLoading(false);
+      navigate('/orders')
     }
 
   }

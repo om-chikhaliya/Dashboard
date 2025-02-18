@@ -4,6 +4,7 @@ import axios from "axios";
 import img1 from "../assets/noorder.png";
 import api from "./helper/api";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 
 const ExpandingButtonForm = () => {
@@ -41,12 +42,17 @@ const ExpandingButtonForm = () => {
       };
 
       const response = await api.post("/keys/store/bricklink", payload);
-
-      navigate('/dashboard')
+      if (response.status === 200) {
+        toast.success(`Bricklink keys updated successfully!`);
+      }
+      else {
+        toast.error(`Failed to update Bricklink keys.`);
+      }
+      setExpanded("form2");
+      // navigate('/dashboard')
 
     } catch (error) {
-      console.error("Error linking Bricklink API:", error);
-      alert("Failed to link Bricklink API.");
+      toast.error(error.response.data.error);
     }
   };
 
@@ -59,18 +65,25 @@ const ExpandingButtonForm = () => {
         brickowl_api_key: form2Data.brickowl_api_key,
       };
 
-      const response = await axios.post("/keys/store/brickowl", payload);
-      navigate('/dashboard')
+      const response = await api.post("/keys/store/brickowl", payload);
+      if (response.status === 200) {
+        toast.success(`Brickowl keys updated successfully!`);
+        navigate('/dashboard')
+      }
+      else {
+        toast.error(`Failed to update Brickowl keys.`);
+      }
       
     } catch (error) {
-      console.error("Error linking Brickowl API:", error);
-      alert("Failed to link Brickowl API.");
+      toast.error(error.response.data.error);
+      
     }
   };
 
 
   return (
     <div className="flex justify-center items-center h-screen">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="absolute inset-0 bg-cover bg-center blur-lg" style={{ backgroundImage: `url(${img1})` }} />
       <div className="z-10 flex flex-col justify-center items-center h-full w-full p-6">
 

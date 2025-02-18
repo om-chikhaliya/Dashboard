@@ -8,8 +8,12 @@ import "./index.css";
 import LoginSignup from "./components/Login";
 import ExpandingButtonForm from "./components/ExpandingButtonForm";
 import CreateUserForm from "./components/CreateUserForm";
+import Setting from "./components/Setting";
+import Header from "./components/Header";
+import accessdenied from './assets/accessdenied2.png'
 
 const ProtectedRoute = ({ element, requiredRole }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const token = localStorage.getItem("accessToken");
   const userRole = localStorage.getItem("role"); // Retrieve role from localStorage
 
@@ -18,7 +22,20 @@ const ProtectedRoute = ({ element, requiredRole }) => {
   }
 
   if (requiredRole && userRole !== requiredRole) {
-    return <Navigate to="/dashboard" />; // Redirect to dashboard if role doesn't match
+    return (<div className="app">
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <div className={`main-content lg:ml-[240px]`}>
+        
+        <Header />
+        <div className="flex justify-center items-center p-6">
+          {/* <div className=" rounded-lg p-8 w-full md:w-2/3 lg:w-2/4 min-h-[400px]"> */}
+            <img src={accessdenied} alt="" className="w-80 h-80 object-contain" />
+          {/* </div> */}
+          </div>
+        
+      </div>
+    </div>)
+    // return <Navigate to="/dashboard" />; // Redirect to dashboard if role doesn't match
   }
 
   return element;
@@ -36,6 +53,7 @@ function App() {
           <Route path="/orders" element={<ProtectedRoute element={<OrderPage />} />} />
           <Route path="/pickorders" element={<ProtectedRoute element={<PickUpItemsPage />} />} />
           <Route path="/addkeys" element={<ProtectedRoute element={<ExpandingButtonForm />} />} />
+          <Route path="/setting" element={<ProtectedRoute element={<Setting />} requiredRole="admin"/>} />
         </Routes>
       </div>
     </Router>
