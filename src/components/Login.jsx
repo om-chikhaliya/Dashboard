@@ -4,6 +4,7 @@ import axios from 'axios';
 import api from './helper/api';
 import { useNavigate } from "react-router-dom";
 import img1 from '../assets/noorder.png'
+import { ToastContainer, toast } from "react-toastify";
 
 const LoginSignup = () => {
   const [activeTab, setActiveTab] = useState('login');
@@ -161,12 +162,11 @@ const LoginSignup = () => {
         // }, 500);
 
       } catch (error) {
-        console.error("Error during login or ID check:", error);
+        toast.error(error.response.data.error)
+        
       }
 
     } else if (activeTab === 'signup' && validateSignup()) {
-      // Handle signup form submission
-      console.log('Signup form submitted', signupData);
 
       // Send signup request using Axios
       axios.post('http://localhost:4000/api/auth/register-admin', {
@@ -174,11 +174,11 @@ const LoginSignup = () => {
         password: signupData.password
       })
         .then(response => {
-          console.log('Signup successful', response.data);
+          toast.success(response.data.message)
           setActiveTab('login')
         })
         .catch(error => {
-          console.error('There was an error signing up!', error);
+          toast.error(error.response.data.error)
         });
     }
   };
@@ -186,6 +186,7 @@ const LoginSignup = () => {
 
   return (
     <div className="flex justify-center items-center h-screen relative">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="absolute inset-0 bg-cover bg-center blur-lg" style={{ backgroundImage: `url(${img1})` }} />
       <div className="relative z-10 w-full max-w-lg p-10 bg-white shadow-lg rounded-xl border border-gray-300">
         {/* Header */}

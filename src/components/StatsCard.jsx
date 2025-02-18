@@ -12,7 +12,7 @@ function StatsCard() {
   const [summary, setSummary] = useState([
     {
       name: "BrickLink",
-      isPrimary: true,
+      isPrimary: false,
       lastChecked: "1 minute ago",
       stats: {
         orders: 0,
@@ -44,7 +44,7 @@ function StatsCard() {
         setSummary([
           {
             name: "BrickLink",
-            isPrimary: true,
+            isPrimary: response.data.primaryStore === "BrickOwl" ? false : true,
             lastChecked: dayjs(currentTime).fromNow(),
             stats: {
               orders: response.data.bricklinkTotalOrders,
@@ -54,7 +54,7 @@ function StatsCard() {
           },
           {
             name: "BrickOwl",
-            isPrimary: false,
+            isPrimary: response.data.primaryStore === "BrickLink" ? false : true,
             lastChecked: dayjs(currentTime).fromNow(),
             stats: {
               orders: response.data.brickowlTotalOrders,
@@ -108,7 +108,7 @@ function StatsCard() {
       const currentPrimary = summary.find(store => store.isPrimary)?.name;
       const newPrimary = currentPrimary === "BrickLink" ? "BrickOwl" : "BrickLink";
       
-      // await api.post("/keys/update-primary-store", { primary_store: newPrimary });
+      await api.post("/keys/update-primary-store", { primary_store: newPrimary });
   
       setSummary(prevSummary => prevSummary.map(store => ({
         ...store,
