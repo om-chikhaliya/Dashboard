@@ -17,12 +17,12 @@ import img1 from "../assets/noorder.png"
 import api from "./helper/api";
 
 
-const tasks = [
-  { id: 1, title: "Schedule post Dusk&Dawn", completed: true },
-  { id: 2, title: "Design post for Holi", completed: true },
-  { id: 3, title: "Brainstorming new project", completed: false },
-  { id: 4, title: "Re-Branding Discussion", completed: false },
-];
+// const tasks = [
+//   { id: 1, title: "Schedule post Dusk&Dawn", completed: true },
+//   { id: 2, title: "Design post for Holi", completed: true },
+//   { id: 3, title: "Brainstorming new project", completed: false },
+//   { id: 4, title: "Re-Branding Discussion", completed: false },
+// ];
 
 
 
@@ -146,6 +146,9 @@ function OrderPageContent() {
   const [filteredOrders, setFilteredOrders] = useState([])
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("")
+  const [tasks, setTasks] = useState([])
+
+  const [dateRange, setDateRange] = useState([null, null]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -156,6 +159,9 @@ function OrderPageContent() {
         console.log(response.data)
         setFilteredOrders(response.data);
         setOrders(response.data);
+
+        const task_response = await api.get("/task");
+        setTasks(task_response)
 
         // console.log(response.data)
         // console.log(filteredOrders);
@@ -259,21 +265,41 @@ function OrderPageContent() {
 
 
   // Handle date change
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  
-    // Convert selected date to YYYY-MM-DD (local format)
-    const selectedDateString = date.toLocaleDateString("en-CA"); // "YYYY-MM-DD"
-  
-    // Filter orders based on the selected date
-    const filtered = orders.filter((order) => {
-      const orderDate = new Date(order.order_on).toLocaleDateString("en-CA"); // "YYYY-MM-DD"
-      return orderDate === selectedDateString;
-    });
-  
-    setFilteredOrders(filtered);
+  // const handleDateChange = (date) => {
+  //   setSelectedDate(date);
+
+  //   // Convert selected date to YYYY-MM-DD (local format)
+  //   const selectedDateString = date.toLocaleDateString("en-CA"); // "YYYY-MM-DD"
+
+  //   // Filter orders based on the selected date
+  //   const filtered = orders.filter((order) => {
+  //     const orderDate = new Date(order.order_on).toLocaleDateString("en-CA"); // "YYYY-MM-DD"
+  //     return orderDate === selectedDateString;
+  //   });
+
+  //   setFilteredOrders(filtered);
+  // };
+
+  const handleRangeChange = (value) => {
+    // 'value' is either a single Date or an array of two Dates (start and end)
+    if (Array.isArray(value)) {
+      // For a range: value = [startDate, endDate]
+      const [startDate, endDate] = value;
+      setDateRange([startDate, endDate]);
+
+      // Filter orders within the selected range (inclusive)
+      const filtered = filteredOrders.filter((order) => {
+        const orderDate = new Date(order.order_on);
+        return orderDate >= startDate && orderDate <= endDate;
+      });
+
+      setFilteredOrders(filtered);
+    } else {
+      // When using selectRange, this case generally occurs on the first click before a range is selected.
+      setDateRange([value, value]);
+    }
   };
-  
+
 
   const handleStartPicking = () => {
     if (selectedOrders.length > 0) {
@@ -526,9 +552,17 @@ function OrderPageContent() {
                 </button>
               </div>
             </div> */}
+            {dateRange[0] && dateRange[1] && (
+              <div className="mb-4 flex justify-center items-center">
+                <span className="font-semibold">
+                  Selected Range: {dateRange[0].toLocaleDateString()} - {dateRange[1].toLocaleDateString()}
+                </span>
+              </div>
+            )}
             <Calendar
-              onChange={handleDateChange}
-              value={selectedDate}
+              onChange={handleRangeChange}
+              selectRange={true}
+              value={dateRange}
               className="w-full border-none"
             />
           </div>

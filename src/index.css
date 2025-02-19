@@ -261,8 +261,8 @@ p {
 
 /* Change background color for the selected date to lime */
 .react-calendar__tile--active {
-  background-color: lime !important;
-  color: white !important; /* Adjust text color for contrast */
+  background-color: rgba(135, 240, 135, 0.773) !important;
+  color: rgb(5, 5, 5) !important; /* Adjust text color for contrast */
 }
 
 /* Keep today's date highlighted in blue */
