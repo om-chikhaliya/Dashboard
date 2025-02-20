@@ -36,8 +36,14 @@ function StatsCard() {
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [newPrimaryStore, setNewPrimaryStore] = useState(""); // Store for the new primary store
+  const [isPrimaryStoreChanging, setIsPrimaryStoreChanging] = useState(false);
+
 
   useEffect(() => {
+    if (isPrimaryStoreChanging) {
+      return; // Skip fetching new data if primary store is changing
+    }
+
     const fetchData = async () => {
       try {
         const response = await api.get("/inventory/summary");
@@ -72,7 +78,7 @@ function StatsCard() {
       }
     };
     fetchData();
-  }, []);
+  }, [isPrimaryStoreChanging]);
 
   const syncInventory = async () => {
     try {
@@ -113,12 +119,16 @@ function StatsCard() {
     const newPrimary = currentPrimary === "BrickLink" ? "BrickOwl" : "BrickLink";
 
     try {
-      await api.post("/keys/update-primary-store", { primary_store: newPrimary });
-
+      
       setSummary(prevSummary => prevSummary.map(store => ({
         ...store,
         isPrimary: store.name === newPrimary
       })));
+
+      setIsPrimaryStoreChanging(true);
+
+
+      await api.post("/keys/update-primary-store", { primary_store: newPrimary });
 
       toast.success("Primary store changed successfully!");
     } catch (error) {
@@ -131,6 +141,7 @@ function StatsCard() {
 
   const cancelChangePrimaryStore = () => {
     setShowConfirmationModal(false);
+    setIsPrimaryStoreChanging(false);
   };
 
   if (loading) return (
@@ -240,7 +251,7 @@ function StatsCard() {
 
       {showConfirmationModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
-          <div className="bg-white rounded-xl p-6 shadow-lg w-96">
+          <div className="bg-white rounded-xl p-6 shadow-lg w-11/12 sm:w-96">
             <h3 className="text-xl font-semibold mb-4">Change Primary Store</h3>
             <p className="text-sm mb-6">Are you sure you want to change the primary store to {newPrimaryStore}?</p>
             <div className="flex justify-between">
@@ -260,6 +271,7 @@ function StatsCard() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

@@ -160,8 +160,8 @@ function OrderPageContent() {
         setFilteredOrders(response.data);
         setOrders(response.data);
 
-        const task_response = await api.get("/task");
-        setTasks(task_response)
+        // const task_response = await api.get("/task");
+        // setTasks(task_response)
 
         // console.log(response.data)
         // console.log(filteredOrders);

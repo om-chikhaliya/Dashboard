@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { findOrderIndexForItem, fomartImageSrcString } from '../helper/constant';
 
 
-function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote = "", expandItem, toggleMissingItems, missingItems }) {
+function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote = "", expandItem, toggleMissingItems }) {
 
 
 
@@ -64,7 +64,7 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                 <h3 className="text-lg text-black-300">{item.item_name}</h3>
                 <div className='flex flex-wrap items-center gap-5'>
                 <div className="text-sm text-zinc-500">{item.location}</div>
-                <div className="text-sm text-black-500 font-semibold"> Note: {item.note}</div>
+                <div className="text-sm text-black-500 font-semibold"> Note: {missingNote}</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
