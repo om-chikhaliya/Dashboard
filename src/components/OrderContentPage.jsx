@@ -8,7 +8,7 @@ import {
 import { Box } from "react-feather";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { storeOptions, statusOptions, getTotalItemsInOrder } from "./helper/constant";
 import { ClipLoader } from "react-spinners";
@@ -147,6 +147,7 @@ function OrderPageContent() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("")
   const [tasks, setTasks] = useState([])
+  const [sortOption, setSortOption] = useState("date");
 
   const [dateRange, setDateRange] = useState([null, null]);
 
@@ -157,8 +158,13 @@ function OrderPageContent() {
         console.log("sync order: ", res.data)
         const response = await api.get("/order");
         console.log(response.data)
-        setFilteredOrders(response.data);
-        setOrders(response.data);
+        const sortedOrders = response.data.sort((a, b) => {
+          // Ensure that 'date' is in a format that can be compared (e.g., ISO 8601 string or timestamp)
+          return new Date(b.order_on) - new Date(a.order_on); // Sorting by descending order (newest first)
+        });
+
+        setFilteredOrders(sortOrders(response.data, "date"));
+        setOrders(sortedOrders);
 
         // const task_response = await api.get("/task");
         // setTasks(task_response)
@@ -177,6 +183,26 @@ function OrderPageContent() {
 
 
   }, [])
+
+  const sortOrders = (orders, criteria) => {
+    return [...orders].sort((a, b) => {
+      if (criteria === "date") {
+        return new Date(b.order_on) - new Date(a.order_on); // Newest first
+      } else if (criteria === "total") {
+        return b.total_price - a.total_price; // Highest total first
+      } else if (criteria === "platform") {
+        return a.platform.localeCompare(b.platform); // Alphabetical order
+      }
+      return 0;
+    });
+  };
+
+  // Handle sorting change
+  const handleSortChange = (criteria) => {
+    setSortOption(criteria);
+    setFilteredOrders(sortOrders(filteredOrders, criteria));
+    setIsDropdownOpen(false); // Close dropdown after selecting an option
+  };
 
   useEffect(() => {
 
@@ -388,7 +414,42 @@ function OrderPageContent() {
               <span className="text-md font-semibold mb-4">
                 In Progress Orders
               </span>
+
               <div className="flex gap-2">
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="p-2 px-4 rounded flex items-center gap-1 bg-gray-100 hover:bg-gray-200 transition"
+                  >
+                    Sort By <ChevronDown size={16} />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-md rounded-lg z-50">
+                      <ul className="py-2 text-sm text-gray-700">
+                        <li
+                          className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "date" ? "font-semibold" : ""}`}
+                          onClick={() => handleSortChange("date")}
+                        >
+                          Date (Newest)
+                        </li>
+                        <li
+                          className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "total" ? "font-semibold" : ""}`}
+                          onClick={() => handleSortChange("total")}
+                        >
+                          Total (Highest)
+                        </li>
+                        <li
+                          className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "platform" ? "font-semibold" : ""}`}
+                          onClick={() => handleSortChange("platform")}
+                        >
+                          Platform (A-Z)
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   onClick={() => setViewMode("table")}
                   className={`p-2 rounded ${viewMode === "table" ? "bg-gray-100" : ""
@@ -403,6 +464,7 @@ function OrderPageContent() {
                 >
                   <Grid size={20} />
                 </button>
+
               </div>
             </div>
 

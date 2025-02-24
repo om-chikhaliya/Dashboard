@@ -47,13 +47,14 @@ function StatsCard() {
     const fetchData = async () => {
       try {
         const response = await api.get("/inventory/summary");
+        console.log(response.data)
 
         const currentTime = dayjs();
         setSummary([
           {
             name: "BrickLink",
             isPrimary: response.data.primaryStore === "BrickOwl" ? false : true,
-            lastChecked: dayjs(currentTime).fromNow(),
+            lastSynced: response.data.lastSyncedAt,
             stats: {
               orders: response.data.bricklinkTotalOrders,
               lots: response.data.bricklinkTotalLots,
@@ -63,7 +64,7 @@ function StatsCard() {
           {
             name: "BrickOwl",
             isPrimary: response.data.primaryStore === "BrickLink" ? false : true,
-            lastChecked: dayjs(currentTime).fromNow(),
+            lastSynced: response.data.lastSyncedAt,
             stats: {
               orders: response.data.brickowlTotalOrders,
               lots: response.data.brickowlTotalLots,
@@ -72,7 +73,7 @@ function StatsCard() {
           },
         ]);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching data:", err.response.data.error);
       } finally {
         setLoading(false);
       }
@@ -83,9 +84,33 @@ function StatsCard() {
   const syncInventory = async () => {
     try {
       setSyncInProgress(true);
-      const res = await api.get("/inventory/synchronize");
-      console.log(res.data);
-      const response = await api.get("/inventory/summary");
+
+      // First API call
+      let res;
+      try {
+        res = await api.get("/inventory/synchronize");
+        console.log(res.data); // Log the response from synchronization
+        toast.success(res.data.message)
+
+      } catch (error) {
+        toast.error(error.response.data.error);
+        console.error("Error during synchronization:", error);
+        setSyncInProgress(false);
+        return; // Stop further execution if the first API call fails
+      }
+
+      // Second API call
+      let response;
+      try {
+        response = await api.get("/inventory/summary");
+      } catch (error) {
+        toast.error(error.response.data.error);
+        console.error("Error during summary fetch:", error);
+        setSyncInProgress(false);
+        return; // Stop further execution if the second API call fails
+      }
+
+      // If both API calls succeed, update the state
       const currentTime = dayjs();
       setSummary((prevSummary) =>
         prevSummary.map((entry) => ({
@@ -107,6 +132,7 @@ function StatsCard() {
     }
   };
 
+
   const changePrimaryStore = () => {
     const currentPrimary = summary.find(store => store.isPrimary)?.name;
     const newPrimary = currentPrimary === "BrickLink" ? "BrickOwl" : "BrickLink";
@@ -119,7 +145,7 @@ function StatsCard() {
     const newPrimary = currentPrimary === "BrickLink" ? "BrickOwl" : "BrickLink";
 
     try {
-      
+
       setSummary(prevSummary => prevSummary.map(store => ({
         ...store,
         isPrimary: store.name === newPrimary
@@ -130,10 +156,10 @@ function StatsCard() {
 
       await api.post("/keys/update-primary-store", { primary_store: newPrimary });
 
-      toast.success("Primary store changed successfully!");
+      toast.success(response.data.message);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to change primary store.");
+      toast.error(error.response.data.error);
     } finally {
       setShowConfirmationModal(false);
     }
@@ -181,9 +207,10 @@ function StatsCard() {
                   </span>
                 )}
               </div>
-              <p className="text-[12px] text-gray-500 mt-1">
-                Orders checked {store.lastChecked}
-              </p>
+              <div className="flex items-center gap-2">
+
+                <span className="text-sm bg-gray-300 animate-pulse rounded w-32 h-4"></span>
+              </div>
             </div>
 
             <div className="flex items-center gap-6">
@@ -233,7 +260,11 @@ function StatsCard() {
                 <span className="text-sm font-medium">{store.name}</span>
                 {store.isPrimary && <span className="px-2 py-0.5 text-xs primary-element rounded">Primary</span>}
               </div>
-              <p className="text-[12px] text-gray-500 mt-1">Orders checked {store.lastChecked}</p>
+              <p className="text-[12px] text-gray-500 mt-1">Last Synced at {new Date(store.lastSynced).toLocaleTimeString("en-GB", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit", // Optional: Include seconds if you want
+              })}</p>
             </div>
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">

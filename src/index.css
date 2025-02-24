@@ -263,12 +263,14 @@ p {
 .react-calendar__tile--active {
   background-color: rgba(135, 240, 135, 0.773) !important;
   color: rgb(5, 5, 5) !important; /* Adjust text color for contrast */
+  border-radius: 5px;
 }
 
 /* Keep today's date highlighted in blue */
 .react-calendar__tile--now {
-  background-color: blue !important;
+  background-color: rgb(85, 203, 191) !important;
   color: white !important; /* Adjust text color for contrast */
+  border-radius: 5px;
 }
 
 /* Keep today highlighted in blue even when selected */
