@@ -166,8 +166,9 @@ function OrderPageContent() {
         setFilteredOrders(sortOrders(response.data, "date"));
         setOrders(sortedOrders);
 
-        // const task_response = await api.get("/task");
-        // setTasks(task_response)
+        const task_response = await api.get("/order/task");
+        console.log(task_response.data)
+        setTasks(task_response.data)
 
         // console.log(response.data)
         // console.log(filteredOrders);
@@ -245,33 +246,32 @@ function OrderPageContent() {
         ? [...selectedStores, store]
         : selectedStores.filter((s) => s !== store)
     )
+    setDateRange([null, null])
   }
 
   const handleSelectAllStatuses = (checked) => {
-    // setSelectAllStatuses(checked)
-    // setSelectedStatuses(checked ? statusOptions : [])
+
     setSelectAllStatuses(checked);
     setSelectedStatuses(
       checked ? statusOptions.flatMap((status) => status.values) : []
-    ); // Select or deselect all statuses
+    );
+
+    setDateRange([null, null])
   }
 
   // Handle individual status selection
   const handleStatusChange = (status, isChecked) => {
-    // const updatedStatuses = checked
-    //   ? [...selectedStatuses, status]
-    //   : selectedStatuses.filter((s) => s !== status)
-    // setSelectedStatuses(updatedStatuses)
-    // setSelectAllStatuses(updatedStatuses.length === statusOptions.length)
 
     const updatedStatuses = isChecked
-      ? [...selectedStatuses, ...status.values] // Add values when checked
-      : selectedStatuses.filter((value) => !status.values.includes(value)); // Remove values when unchecked
+      ? [...selectedStatuses, ...status.values]
+      : selectedStatuses.filter((value) => !status.values.includes(value));
 
     setSelectedStatuses(updatedStatuses);
     setSelectAllStatuses(
       updatedStatuses.length === statusOptions.flatMap((status) => status.values).length
     ); // Update "Select All" checkbox
+
+    setDateRange([null, null])
   }
 
   const handleSelectAllOrders = (checked) => {
@@ -600,7 +600,7 @@ function OrderPageContent() {
 
         {/* Calendar and Task sections */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl p-4 card-shadow">
+          <div className="bg-white rounded-xl p-4 card-shadow ">
             {/* <div className="flex justify-between items-center mb-4">
               <div className="flex gap-4">
                 <button className="text-purple-600 border-b-2 border-purple-600 pb-1">
@@ -617,7 +617,7 @@ function OrderPageContent() {
             {dateRange[0] && dateRange[1] && (
               <div className="mb-4 flex justify-center items-center">
                 <span className="font-semibold">
-                  Selected Range: {dateRange[0].toLocaleDateString()} - {dateRange[1].toLocaleDateString()}
+                  Selected Range: <br /> {dateRange[0].toLocaleDateString()} - {dateRange[1].toLocaleDateString()}
                 </span>
               </div>
             )}
@@ -625,6 +625,7 @@ function OrderPageContent() {
               onChange={handleRangeChange}
               selectRange={true}
               value={dateRange}
+              maxDate={new Date()}
               className="w-full border-none"
             />
           </div>
@@ -636,28 +637,37 @@ function OrderPageContent() {
                 <Settings size={16} />
               </button>
             </div>
+
+            {loading ? <div className="flex justify-center items-center h-32 min-w-fit">
+                  <ClipLoader size={50} color={"#AAFF00"} loading={loading} />
+                </div>:
             <div className="space-y-3">
-              {tasks.map((task) => (
-                <label key={task.id} className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    className="mt-1 rounded"
-                    onChange={() => { }}
-                  />
-                  <span
-                    className={
-                      task.completed ? "line-through text-gray-500" : ""
-                    }
-                  >
-                    {task.title}
-                  </span>
-                </label>
+              {tasks.map((order) => (
+                <div key={order.order_id} className="mb-6 border-b pb-4">
+                  {/* Order ID */}
+                  <h2 className="text-xl font-bold mb-2">Order ID: {order.order_id}</h2>
+
+                  {/* Items under Order */}
+                  <ul className="space-y-2 list-disc pl-6">
+                    {order.notes.map((note) => (
+                      <li key={note.item_id} className="relative group">
+                        {/* Item Name & Note */}
+                        <p className="text-md font-semibold">{note.item_name}</p>
+                        <p className="text-gray-500 text-sm">{note.note}</p>
+
+                        {/* Tooltip for Item ID (Visible on Hover) */}
+                        <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                          Item ID: {note.item_id}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </div>
-            <button className="w-full mt-4 bg-black text-white rounded-lg py-2">
+            </div> }
+            {/* <button className="w-full mt-4 bg-black text-white rounded-lg py-2">
               Schedule Task
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

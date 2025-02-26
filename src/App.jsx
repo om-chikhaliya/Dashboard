@@ -11,6 +11,7 @@ import CreateUserForm from "./components/CreateUserForm";
 import Setting from "./components/Setting";
 import Header from "./components/Header";
 import accessdenied from './assets/accessdenied2.png'
+import { Unmatchlot } from "./components/Unmatchlot";
 
 const ProtectedRoute = ({ element, requiredRole }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -49,6 +50,7 @@ function App() {
           <Route path="/createuser" element={<ProtectedRoute element={<CreateUserForm />} requiredRole="admin" />} />
           <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
           <Route path="/orders" element={<ProtectedRoute element={<OrderPage />} />} />
+          <Route path="/mismatchlot" element={<ProtectedRoute element={<Unmatchlot />} />} />
           <Route path="/pickorders" element={<ProtectedRoute element={<PickUpItemsPage />} />} />
           <Route path="/addkeys" element={<ProtectedRoute element={<ExpandingButtonForm />} />} />
           <Route path="/setting" element={<ProtectedRoute element={<Setting />} requiredRole="admin" />} />

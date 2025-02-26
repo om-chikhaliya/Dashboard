@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { ShoppingCart, Package, RefreshCw, Repeat } from "react-feather";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+// import dayjs from "dayjs";
+// import relativeTime from "dayjs/plugin/relativeTime";
 import api from "./helper/api";
+import { LastSyncedat } from "./LastSyncedat";
 
-dayjs.extend(relativeTime);
+// dayjs.extend(relativeTime);
 
 function StatsCard() {
   const [summary, setSummary] = useState([
@@ -49,7 +50,7 @@ function StatsCard() {
         const response = await api.get("/inventory/summary");
         console.log(response.data)
 
-        const currentTime = dayjs();
+        // const currentTime = dayjs();
         setSummary([
           {
             name: "BrickLink",
@@ -111,7 +112,7 @@ function StatsCard() {
       }
 
       // If both API calls succeed, update the state
-      const currentTime = dayjs();
+      // const currentTime = dayjs();
       setSummary((prevSummary) =>
         prevSummary.map((entry) => ({
           ...entry,
@@ -123,7 +124,7 @@ function StatsCard() {
         }))
       );
 
-      toast.success("Sync completed successfully!");
+      // toast.success("Sync completed successfully!");
     } catch (error) {
       console.log(error);
       toast.error("Sync failed. Please try again.");
@@ -154,7 +155,7 @@ function StatsCard() {
       setIsPrimaryStoreChanging(true);
 
 
-      await api.post("/keys/update-primary-store", { primary_store: newPrimary });
+      const response = await api.post("/keys/update-primary-store", { primary_store: newPrimary });
 
       toast.success(response.data.message);
     } catch (error) {
@@ -175,13 +176,13 @@ function StatsCard() {
       <div className="flex justify-between items-center mb-6 w-full">
         <span className="text-md font-semibold">Store Synchronisation</span>
         <div className="flex gap-6">
-          <button
+          {localStorage.getItem("role") === 'admin' && <button
             className="flex items-center gap-1 text-gray-400 hover:text-black"
             onClick={changePrimaryStore}
           >
             <Repeat size={18} />
             <span className="text-sm">Change Primary Store</span>
-          </button>
+          </button>}
           <button
             className="flex items-center gap-2 text-gray-400 hover:text-black"
             onClick={syncInventory}
@@ -235,13 +236,13 @@ function StatsCard() {
       <div className="flex justify-between items-center mb-6 w-full">
         <span className="text-md font-semibold">Store Synchronisation</span>
         <div className="flex gap-6">
-          <button
+          {localStorage.getItem("role") === 'admin' && <button
             className="flex items-center gap-1 text-gray-400 hover:text-black"
             onClick={changePrimaryStore}
           >
             <Repeat size={18} />
             <span className="text-sm">Change Primary Store</span>
-          </button>
+          </button> }
           <button
             className="flex items-center gap-2 text-gray-400 hover:text-black"
             onClick={syncInventory}
@@ -260,11 +261,7 @@ function StatsCard() {
                 <span className="text-sm font-medium">{store.name}</span>
                 {store.isPrimary && <span className="px-2 py-0.5 text-xs primary-element rounded">Primary</span>}
               </div>
-              <p className="text-[12px] text-gray-500 mt-1">Last Synced at {new Date(store.lastSynced).toLocaleTimeString("en-GB", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit", // Optional: Include seconds if you want
-              })}</p>
+              <LastSyncedat syncdate={store.lastSynced}></LastSyncedat>
             </div>
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">

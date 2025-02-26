@@ -294,7 +294,7 @@ export function getTotalLotsAndItems(orders) {
     }
   }
 
-  export const fomartImageSrcString = (type, colorid, sku, brickosys_order_id) => {
+  export const fomartImageSrcString = (type, colorid, sku, brickosys_order_id = '') => {
     
     if (brickosys_order_id?.includes('BO')) {
       return null; 

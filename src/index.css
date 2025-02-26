@@ -263,20 +263,27 @@ p {
 .react-calendar__tile--active {
   background-color: rgba(135, 240, 135, 0.773) !important;
   color: rgb(5, 5, 5) !important; /* Adjust text color for contrast */
-  border-radius: 5px;
+  /* border-radius: 5px; */
 }
 
 /* Keep today's date highlighted in blue */
 .react-calendar__tile--now {
   background-color: rgb(85, 203, 191) !important;
   color: white !important; /* Adjust text color for contrast */
-  border-radius: 5px;
+  /* border-radius: 5px; */
 }
 
 /* Keep today highlighted in blue even when selected */
 .react-calendar__tile--now.react-calendar__tile--active {
-  background-color: blue !important;
+  background-color: rgb(85, 203, 191) !important;
 }
+
+div.react-calendar .react-calendar__tile--disabled {
+  background-color: transparent !important;
+  color: #9ca3af !important;
+  opacity: 0.5 !important;
+}
+
 
 .custom-radius {
   border-radius: 9.37px;
