@@ -10,17 +10,19 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { BarChart } from "lucide-react";
 
 function Dashboard() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [months, setMonths] = useState(6)
 
   return (
 
-    <div className="app">
+    <div className="">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-      <div className={`main-content lg:ml-[240px]`}>
+      <div className={isSidebarOpen ? "main-content sidebar-open" : " px-4 py-4"}>
         <ToastContainer position="top-right" autoClose={3000} />
         <Header />
 
@@ -30,8 +32,18 @@ function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             <div className="lg:col-span-2 flex flex-col">
               <div className="bg-white rounded-xl p-6 card-shadow flex-grow">
-                <h2 className="font-medium mb-4">Sales in last 6 Months</h2>
-                <LineChart />
+                <div className="flex items-center justify-between">
+                  <h2 className="font-medium">Sales in last {months} Months</h2>
+                  <select
+                    className="border rounded-md px-3 py-1 text-gray-700"
+                    value={months}
+                    onChange={(e) => setMonths(parseInt(e.target.value))}
+                  >
+                    <option value="6">Last 6 Months</option>
+                    <option value="12">Last 12 Months</option>
+                  </select>
+                </div>
+                <LineChart months={months} />
               </div>
               <div className="bg-white rounded-xl p-6 card-shadow flex-grow mt-6">
                 <h2 className="font-medium mb-1">P&L</h2>

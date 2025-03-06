@@ -53,9 +53,9 @@ function Setting() {
   };
 
   return (
-    <div className="app">
+    <div className="">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      <div className={`main-content lg:ml-[240px]`}>
+      <div className={isSidebarOpen ? "main-content sidebar-open" : " px-4 py-4"}>
         <ToastContainer position="top-right" autoClose={3000} />
         <Header />
 

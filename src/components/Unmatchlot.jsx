@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import { ToastContainer, toast } from 'react-toastify';
 import { ClipLoader } from "react-spinners";
 import api from "./helper/api";
+import img from '../assets/noitems.png'
 
 
 export function Unmatchlot() {
@@ -39,9 +40,9 @@ export function Unmatchlot() {
 
     return (
         <>
-            <div className="app">
+            <div className="">
                 <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen}></Sidebar>
-                <div className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} `}>
+                <div className={isSidebarOpen ? "main-content sidebar-open" : " px-4 py-4"}>
                     <div className="flex-1">
                         <Header />
                         <ToastContainer position="bottom-center" />
@@ -51,10 +52,10 @@ export function Unmatchlot() {
                                 {/* Item Details section */}
                                 {/* <PickUpItems /> */}
 
-                                <div className="flex-1 bg-gray-50">
+                                <div className="flex-1">
                                     <div className="p-6">
                                         <div className="space-y-3">
-                                            {unmatchlots.failedItems.length === 0 ? <div className="flex items-center justify-center min-h-full">no items</div> : unmatchlots.failedItems.map((item, index) => (
+                                            {unmatchlots.failedItems.length === 0 ? <div className="flex items-center justify-center min-h-full"><img src={img} alt="" /></div> : unmatchlots.failedItems.map((item, index) => (
                                                 <div
                                                     className="space-y-4 click_element_smooth_hover"
                                                     key={item?.sku}

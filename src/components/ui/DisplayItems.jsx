@@ -1,101 +1,48 @@
-import React, { useEffect, useState } from 'react'
-
+import React, { useState } from 'react';
 import { findOrderIndexForItem, fomartImageSrcString } from '../helper/constant';
-
+import { FaSearchPlus } from 'react-icons/fa';
 
 function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote = "", expandItem, toggleMissingItems }) {
+    const [modalOpen, setModalOpen] = useState(false);
 
+    const imageSrc = fomartImageSrcString(item.item_type, item.color_id, item.sku, item.brickosys_order_id) || item.image;
 
+    const openModal = () => setModalOpen(true);
+    const closeModal = () => setModalOpen(false);
 
     return (
-        pool === "processed" ? (
+        <>
             <div
                 key={item.item_id}
-                className="flex flex-col md:flex-row items-center gap-4 rounded-lg p-4 cursor-pointer bg-green-200"
-                onClick={(e) => toggleItemProcessed(item.item_id, item.order_id)}
+                className={`flex flex-col md:flex-row items-center gap-4 rounded-lg p-4 cursor-pointer ${pool === "processed" ? "bg-green-200" : pool === "missing" ? "bg-red-200/50" : "bg-white border border-gray-200 shadow-sm"}`}
+                onClick={(e) => {
+                    if (pool === "missing") {
+                        toggleMissingItems(item.brickosys_order_id, item.order_id, item.item_id, missingNote, "remove");
+                    } else {
+                        toggleItemProcessed(item.item_id, item.order_id);
+                    }
+                }}
             >
-                
-                <img
-                    src={fomartImageSrcString(item.item_type, item.color_id, item.sku, item.brickosys_order_id) || item.image}
-                    alt={item.item_name}
-                    className="h-16 w-16 rounded-lg object-cover"
-                    width={16}
-                />
+                {/* Image Container */}
+                <div className="relative" onClick={(e) => { e.stopPropagation(); openModal(); }}>
+                    <button
+                        className=""
+                        onClick={(e) => { e.stopPropagation(); openModal(); }}
+                    >
+                    <img
+                        src={imageSrc}
+                        alt={item.item_name}
+                        className="h-16 w-16 rounded-lg object-cover cursor-pointer"
+                        width={16}
+                    />
+                        {/* <FaSearchPlus className="text-xl" /> */}
+                    </button>
+                </div>
+
+                {/* Item Details */}
                 <div className="flex-1 text-center md:text-left">
                     <div className="flex flex-wrap items-center gap-2">
-                        <div className="bg-blue-100 text-blue-600 rounded-lg w-fit px-2">
-                            {item.item_type}
-                        </div>
-                        <span className="text-amber-800">{item.color}</span>
-                        <span className="text-zinc-600">{item.item_id}</span>
-                    </div>
-                    <h3 className="text-lg text-black-300">{item.item_name}</h3>
-                    <div className="text-sm text-zinc-500">{item.location}</div>
-                    <div className="text-sm text-zinc-500">{missingNote}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="text-xl text-gray-800">{item.quantity}</span>
-                    <div className="rounded bg-purple-400/20 px-2 py-1 text-lg text-purple-600">
-                        {findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex + 1}
-                    </div>
-                </div>
-            </div>
-        ) : pool === "missing" ? (
-            <div
-              key={item.item_id}
-              onClick={() => toggleMissingItems(item.brickosys_order_id, item.order_id, item.item_id, missingNote, "remove")}
-              className="relative flex flex-col md:flex-row items-center gap-4 rounded-lg bg-red-200/50 p-4 hover:cursor-pointer"
-            >
-              {/* Image */}
-              <img
-                src={fomartImageSrcString(item.item_type, item.color_id, item.sku, item.brickosys_order_id) || item.image}
-                alt={item.item_name}
-                className="h-16 w-16 rounded-lg object-cover"
-                width={16}
-              />
-              <div className="flex-1 text-center md:text-left">
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="bg-blue-100 text-blue-600 rounded-lg w-fit px-2">
-                    {item.item_type}
-                  </div>
-                  <span className="text-amber-800">{item.color}</span>
-                  <span className="text-gray-500">{item.item_id}</span>
-                </div>
-                <h3 className="text-lg text-black-300">{item.item_name}</h3>
-                <div className='flex flex-wrap items-center gap-5'>
-                <div className="text-sm text-zinc-500">{item.location}</div>
-                <div className="text-sm text-black-500 font-semibold"> Note: {missingNote}</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl text-gray-800">{item.quantity}</span>
-                <div className="rounded bg-purple-400/20 px-2 py-1 text-lg text-purple-600">
-                  {findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex + 1}
-                </div>
-              </div>
-              {/* Missing Notes (Only visible on hover) */}
-              {/* <div className="absolute top-0 left-0 w-full h-full bg-black/50 text-white text-sm p-4 opacity-0 hover:opacity-100 transition-opacity">
-                {console.log("missing item: ", item)}
-                <p>{item.note}</p>
-              </div> */}
-            </div>
-          ) 
-           : (
-            <div
-                key={item.item_id}
-                className="flex flex-col md:flex-row items-center gap-4 rounded-lg bg-white border border-gray-200 shadow-sm p-4"
-                onClick={(e) => toggleItemProcessed(item.item_id, item.order_id)}
-            >
-                {/* {item.item_type?.toLowerCase() === "part" && console.log(fomartImageSrcString(item.item_type, item.color_id, item.sku)|| `https:`+ item.img)} */}
-                <img
-                    src={fomartImageSrcString(item.item_type, item.color_id, item.sku, item.brickosys_order_id) ||  item.image}
-                    alt={item.item_name}
-                    className="h-16 w-16 rounded-lg object-cover"
-                    width={16}
-                />
-                <div className="flex-1 text-center md:text-left">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <div className="bg-orange-100 text-orange-600 rounded-lg w-fit px-2">
+                        <div className={`${pool === "processed" ? "bg-blue-100 text-blue-600" : "bg-orange-100 text-orange-600"} rounded-lg w-fit px-2`}>
                             {item.item_type}
                         </div>
                         <span className="text-zinc-600">{item.color}</span>
@@ -103,16 +50,55 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                     </div>
                     <h3 className="text-lg text-black-300">{item.item_name}</h3>
                     <div className="text-sm text-zinc-500">{item.location}</div>
+                    {pool === "missing" && <div className="text-sm text-black-500 font-semibold">Note: {missingNote}</div>}
                 </div>
+
+                {/* Quantity and Order Index */}
                 <div className="flex items-center gap-2">
                     <span className="text-xl text-gray-800">{item.quantity}</span>
-                    <div className="rounded bg-orange-400/20 px-2 py-1 text-lg text-orange-600 text-center w-full">
+                    <div className={`rounded px-2 py-1 text-lg ${pool === "processed" ? "bg-purple-400/20 text-purple-600" : "bg-orange-400/20 text-orange-600"}`}>
                         {findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex + 1}
                     </div>
                 </div>
             </div>
-        )
+
+            {/* Modal for Enlarged Image */}
+            {modalOpen && (
+                <div className="fixed -inset-10 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={closeModal}>
+                    <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
+                        <button className="absolute -top-5 -right-5 text-white text-2xl bg-gray-800 rounded-full p-2" onClick={closeModal}>&times;</button>
+                        <img src={imageSrc} alt={item.item_name} className="w-full h-auto rounded-lg" />
+                        <h3 className="text-lg font-semibold text-center mt-4">{item.item_name}</h3>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 
-export default DisplayItems
+export default DisplayItems;
+
+// {/* <div className="relative" onClick={(e) => { e.stopPropagation(); openModal(); }}>
+//                     <button
+//                         className=""
+//                         onClick={(e) => { e.stopPropagation(); openModal(); }}
+//                     >
+//                     <img
+//                         src={imageSrc}
+//                         alt={item.item_name}
+//                         className="h-16 w-16 rounded-lg object-cover cursor-pointer"
+//                         width={16}
+//                     />
+//                         {/* <FaSearchPlus className="text-xl" /> */}
+//                     </button>
+//                 </div> */}
+
+// {modalOpen && (
+//     <div className="fixed -inset-10 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={closeModal}>
+//         <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
+//             <button className="absolute -top-5 -right-5 text-white text-2xl bg-gray-800 rounded-full p-2" onClick={closeModal}>&times;</button>
+//             <img src={imageSrc} alt={item.item_name} className="w-full h-auto rounded-lg" />
+//             <h3 className="text-lg font-semibold text-center mt-4">{item.item_name}</h3>
+//         </div>
+//     </div>
+// )}

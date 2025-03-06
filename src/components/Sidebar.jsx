@@ -4,83 +4,78 @@ import {
   Archive,
   ShoppingCart,
   Settings,
-  HelpCircle,
   LogOut,
   Menu,
   X
 } from "react-feather";
 import { useState, useEffect } from "react";
-
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { User, ChevronLeft, ChevronRight } from "lucide-react";
 
 function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
-    { icon: Monitor, label: "Dashboard", active: true, path: "/dashboard" },
+    { icon: Monitor, label: "Dashboard", path: "/dashboard" },
+    { icon: User, label: "Users", path: "/users" },
     { icon: Archive, label: "Mismatch Lots", path: "/mismatchlot" },
     { icon: ShoppingCart, label: "Orders", path: "/orders" },
     { icon: Settings, label: "Settings", path: "/setting" },
-    // { icon: HelpCircle, label: "Help", path: "/help" },
-    
   ];
+
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-
 
   useEffect(() => {
     const handleResize = () => {
       const mobileView = window.innerWidth < 770;
       setIsMobile(mobileView);
-      if (mobileView) setIsOpen(false); // Automatically close sidebar on resize if small/medium screen
+      if (mobileView) setIsOpen(false); // Auto-close sidebar on small screens
       else setIsOpen(true); // Keep sidebar open on large screens
     };
 
     window.addEventListener("resize", handleResize);
-    handleResize(); // Initialize on mount
+    handleResize();
 
     return () => window.removeEventListener("resize", handleResize);
   }, [setIsOpen]);
 
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.removeItem("accessToken"); // Remove token
-    navigate("/"); // Redirect to login
+    localStorage.removeItem("accessToken");
+    navigate("/");
   };
 
   return (
     <>
-      {isMobile && (
+      {/* {isMobile && (
         <button className="fixed top-7 left-8 z-50 p-2 bg-white rounded-full shadow-md" onClick={() => setIsOpen(true)}>
           <Menu size={24} />
         </button>
-      )}
+      )} */}
 
       <motion.div
-        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-50 w-[240px]`}
+        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-50 w-[240px] transition-all`}
         animate={{ x: isOpen ? 0 : -240 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
+        {/* Sidebar Header */}
         <div className="flex items-center justify-between p-4">
           <span className="text-[20px] font-extrabold border-b-4 border-[#bbe90b]">BrickOsys</span>
-          {isMobile && (
+          {/* {isMobile && (
             <button onClick={() => setIsOpen(false)}>
               <X size={24} />
             </button>
-          )}
+          )} */}
         </div>
 
+        {/* Sidebar Navigation */}
         <nav className="nav-menu p-4">
           {menuItems.map((item, index) => (
             <div key={item.label || index}>
-              
               <NavLink
                 key={item.label}
                 to={item.path}
                 className={({ isActive }) =>
-                  `nav-item ${(location.pathname === "/pickupitems" && item.path === "/orders") ||
-                    isActive
-                    ? "active"
-                    : ""
-                  }`
+                  `nav-item ${(location.pathname === "/pickupitems" && item.path === "/orders") || isActive ? "active" : ""}`
                 }
                 onClick={() => isMobile && setIsOpen(false)}
               >
@@ -98,6 +93,16 @@ function Sidebar({ isOpen, setIsOpen }) {
             <span>Log out</span>
           </button>
         </nav>
+
+        {/* Toggle Button for Sidebar */}
+        <button
+          className={`absolute top-6 transition-all bg-gray-100 hover:bg-gray-200 p-2 rounded-full shadow-md ${
+            isOpen ? "-right-5" : "-right-[50px]"
+          }`}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        </button>
       </motion.div>
     </>
   );

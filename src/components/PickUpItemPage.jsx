@@ -454,15 +454,15 @@ export default function PickUpItemsPage() {
           // For all other items, keep them unchanged
           return {
             brickosysId: order.brickosys_order_id,
-                itemId: item.item_id,
-                isPicked: processedItems.some(
-                  processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.item_id === item.item_id
-                ) ? 'true' : 'false',
-                note: item.note
+            itemId: item.item_id,
+            isPicked: processedItems.some(
+              processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.item_id === item.item_id
+            ) ? 'true' : 'false',
+            note: item.note
           };
         })
       );
-      
+
       const response = await api.post('/order/update-item-progress', updatedItems);
 
       fetchOrders();
@@ -497,10 +497,6 @@ export default function PickUpItemsPage() {
   useEffect(() => {
     setSortedItems([
       ...allItems.filter(item =>
-        missingItems?.some(missingItem =>
-          missingItem.item_id === item.item_id && missingItem.order_id === item.order_id)
-      ),
-      ...allItems.filter(item =>
         processedItems?.some(processedItem =>
           processedItem.item_id === item.item_id && processedItem.order_id === item.order_id)
       ),
@@ -509,16 +505,24 @@ export default function PickUpItemsPage() {
           processedItem.item_id === item.item_id && processedItem.order_id === item.order_id) &&
         !missingItems?.some(missingItem =>
           missingItem.item_id === item.item_id && missingItem.order_id === item.order_id)
-      )
+      ),
+      ...allItems.filter(item =>
+        missingItems?.some(missingItem =>
+          missingItem.item_id === item.item_id && missingItem.order_id === item.order_id)
+      ),
     ]);
 
   }, [allItems, missingItems])
 
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
 
   return (
-    <div className="app">
+    <div className="">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen}></Sidebar>
-      <div className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} `}>
+      <div className={isSidebarOpen ? "main-content sidebar-open" : " px-4 py-4"}>
         <div className="flex-1">
           <Header />
           <ToastContainer position="bottom-center" />
@@ -528,15 +532,42 @@ export default function PickUpItemsPage() {
                 {/* Item Details section */}
                 {/* <PickUpItems /> */}
 
-                <div className="flex-1 bg-gray-50">
+                <div className="flex-1">
                   <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-lg font-semibold text-gray-800">Orders</h2>
+                    <div className="sticky top-0 mb-4 bg-white z-20 shadow-md px-6 py-3 flex justify-between items-center rounded-md">
+                      <h2 className="text-lg font-semibold text-gray-800">Items</h2>
                       <div className="flex items-center gap-6">
-                        <button
-                          className="relative"
-                          onClick={() => setShowProcessed((prev) => !prev)}
-                        >
+                        {/* Progress Summary */}
+                        <div className="flex items-center gap-6 bg-gray-100 px-4 py-1 rounded-lg text-sm font-semibold text-gray-800 shadow-sm">
+                          <div className="flex items-center gap-1">
+                            <span className="text-blue-600 text-base font-bold">{calculateProgress().packedOrders}</span>
+                            <span className="text-gray-600">of</span>
+                            <span className="text-gray-800">{allOrders.length}</span>
+                            <span className="text-gray-600">Orders</span>
+                          </div>
+
+                          <div className="w-px h-5 bg-gray-400"></div> {/* Divider */}
+
+                          <div className="flex items-center gap-1">
+                            <span className="text-green-600 text-base font-bold">{calculateProgress().packedLots}</span>
+                            <span className="text-gray-600">of</span>
+                            <span className="text-gray-800">{totalLotsAndItems.totalLots}</span>
+                            <span className="text-gray-600">Lots</span>
+                          </div>
+
+                          <div className="w-px h-5 bg-gray-400"></div> {/* Divider */}
+
+                          <div className="flex items-center gap-1">
+                            <span className="text-purple-600 text-base font-bold">{calculateProgress().packedItems}</span>
+                            <span className="text-gray-600">of</span>
+                            <span className="text-gray-800">{totalLotsAndItems.totalItems}</span>
+                            <span className="text-gray-600">Items</span>
+                          </div>
+                        </div>
+
+
+                        {/* Eye Icon */}
+                        <button className="relative" onClick={() => setShowProcessed((prev) => !prev)}>
                           {showProcessed ? (
                             <Eye className="w-6 h-6 text-[#6366F1]" />
                           ) : (
@@ -544,6 +575,7 @@ export default function PickUpItemsPage() {
                           )}
                         </button>
                       </div>
+
                     </div>
                     <div className="space-y-3">
                       {sortedItems.map((item, index) => (
@@ -579,11 +611,27 @@ export default function PickUpItemsPage() {
                                         </div>
                                       )}
 
-                                      <img
+                                      {/* <img
                                         src={fomartImageSrcString(item.item_type, item.color_id, item.sku, item.brickosys_order_id) || item.image}
                                         alt="Minifigure Shield"
                                         className="h-[180px] md:h-[200px] w-full object-contain"
-                                      />
+                                      /> */}
+
+                                      <div className="relative" onClick={(e) => { e.stopPropagation(); openModal(); }}>
+                                        <button
+                                          className=""
+                                          onClick={(e) => { e.stopPropagation(); openModal(); }}
+                                        >
+                                          <img
+                                            src={fomartImageSrcString(item.item_type, item.color_id, item.sku, item.brickosys_order_id) || item.image}
+                                            alt={item.item_name}
+                                            className="h-[180px] md:h-[200px] w-full object-contain cursor-pointer"
+                                            width={16}
+                                          />
+                                          {/* <FaSearchPlus className="text-xl" /> */}
+                                        </button>
+                                      </div>
+
                                     </div>
                                   </div>
 
@@ -704,7 +752,8 @@ export default function PickUpItemsPage() {
                             toggleMissingItems={toggleMissingItems}
                           />
                         )
-                      ))}
+                      ))
+                      }
 
                     </div>
 
@@ -727,21 +776,26 @@ export default function PickUpItemsPage() {
               </div>
 
               <div className="lg:col-span-1">
-                <div className="flex-1 bg-gray-50">
+                <div className="flex-1">
                   <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="sticky top-0 mb-4 bg-white z-20 shadow-md px-6 py-3 flex justify-between items-center rounded-md">
                       <h2 className="text-lg font-semibold text-gray-800">Orders</h2>
-                      {/* <div className="flex items-center gap-6">
-                        <button className="relative">
-                          <Calendar className="w-6 h-6 text-[#6366F1]" />
+                      {/* <div className="mt-6 flex justify-center">
+                        <button className="bg-blue-600 text-sm font-semibold text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={handleContinueLater}>
+                          {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
                         </button>
-                        <button className="relative">
+                      </div> */}
+                      <div className="flex items-center gap-6">
+                        <button className="bg-blue-600 text-sm font-semibold text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={handleContinueLater}>
+                          {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
+                        </button>
+                        {/* <button className="relative">
                           <Bell className="w-6 h-6 text-[#6366F1]" />
                         </button>
                         <button className="relative">
                           <MessageCircle className="w-6 h-6 text-[#6366F1]" />
-                        </button>
-                      </div> */}
+                        </button> */}
+                      </div>
                     </div>
 
                     <div className="space-y-4">
@@ -755,7 +809,7 @@ export default function PickUpItemsPage() {
                             <div className="w-full">
                               <div className="flex items-center gap-2">
                                 <div className="bg-black text-white px-3 py-1 rounded-md text-xs sm:text-sm font-semibold">
-                                  Order no.#{order.order_id}
+                                  {order.platform} - Order no.#{order.order_id}
                                 </div>
                               </div>
                               <span className="text-xs sm:text-sm font-semibold block mt-2 ml-2">{order.platform}</span>
@@ -765,7 +819,7 @@ export default function PickUpItemsPage() {
                                 year: "numeric",
                               })}</span>
                               <div className="flex flex-wrap gap-2 mt-2">
-                                
+
                                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-600">
                                   {order.status}
                                 </span>

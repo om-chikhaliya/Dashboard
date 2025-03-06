@@ -18,7 +18,7 @@ function Header({ handleSearch, searchTerm }) {
   };
 
   const handleSetting = () => {
-    
+
     navigate("/setting"); // Redirect to login
   };
 
@@ -108,7 +108,7 @@ function Header({ handleSearch, searchTerm }) {
           )}
         </AnimatePresence>
       </div>
-    
+
     </header>
   );
 }

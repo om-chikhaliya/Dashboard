@@ -8,7 +8,7 @@ function MainLayout() {
   return (
     <div className="app">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen}></Sidebar>
-      <div className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} `}>
+      <div className={isSidebarOpen ? "main-content sidebar-open" : "px-4 py-4"}>
         <OrderPageContent />
       </div>
     </div>

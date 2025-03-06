@@ -32,13 +32,15 @@ export const storeOptions = ["BL", "BO"];
 // ];
 
 export const statusOptions = [
-    { label: "Pending (BL/BO)", values: ["PENDING", "Pending"] },
-    { label: "Processing (BL/BO)", values: ["Processing", "PROCESSING"] },
+    { label: "Processing (BL)", values: ["PROCESSING"] },
+    { label: "Pending (BL)", values: ["PENDING"] },
     { label: "Ready (BL)", values: ["READY"] },
     { label: "Paid (BL)", values: ["PAID"] },
     { label: "Shipped (BL)", values: ["SHIPPED"] },
     { label: "Packed (BL)", values: ["PACKED"] },
     { label: "Cancelled (BL)", values: ["CANCELLED"] },
+    { label: "Processing (BO)", values: ["Processing"] },
+    { label: "Pending (BO)", values: ["Pending"] },
     { label: "Processed (BO)", values: ["Processed"] },
     { label: "Payment Received (BO)", values: ["Payment Received"] },
     { label: "Shipped (BO)", values: ["Shipped"] },
@@ -295,6 +297,7 @@ export function getTotalLotsAndItems(orders) {
   }
 
   export const fomartImageSrcString = (type, colorid, sku, brickosys_order_id = '') => {
+
     
     if (brickosys_order_id?.includes('BO')) {
       return null; 
@@ -307,12 +310,13 @@ export function getTotalLotsAndItems(orders) {
     }else if(type.toLowerCase() == "sticker"){
         return null;
     }else if(type.toLowerCase().substr(0, 4) == "mini"){
-        return null;
+      return `https://img.bricklink.com/ItemImage/MN/0/${sku}.png`;
     }else if(type.toLowerCase().substr(0, 4) == "inst"){
-        return null;
+      return `https://img.bricklink.com/ItemImage/IN/0/${sku}.png`;
     }
   }
 
   export const getContrastTextColor = (colorName) => {
     return colorName.toLowerCase().split(' ').includes('gray') ? 'black' : 'white';
 }
+

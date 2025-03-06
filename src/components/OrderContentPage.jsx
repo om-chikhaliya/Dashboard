@@ -139,7 +139,7 @@ function OrderPageContent() {
 
   const [orders, setOrders] = useState([])
   const [selectedStores, setSelectedStores] = useState(storeOptions)
-  const [selectAllStatuses, setSelectAllStatuses] = useState(true)
+  // const [selectAllStatuses, setSelectAllStatuses] = useState(true)
   const [selectedStatuses, setSelectedStatuses] = useState(statusOptions.flatMap((status) => status.values)) // Initially select all
   const [selectAllOrders, setSelectAllOrders] = useState(false)
   const [selectedOrders, setSelectedOrders] = useState([])
@@ -148,6 +148,12 @@ function OrderPageContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [tasks, setTasks] = useState([])
   const [sortOption, setSortOption] = useState("date");
+
+  const [selectAllStatuses, setSelectAllStatuses] = useState({
+    BrickLink: true,
+    BrickOwl: true
+  });
+
 
   const [dateRange, setDateRange] = useState([null, null]);
 
@@ -249,30 +255,97 @@ function OrderPageContent() {
     setDateRange([null, null])
   }
 
-  const handleSelectAllStatuses = (checked) => {
+  // const handleSelectAllStatuses = (checked) => {
 
-    setSelectAllStatuses(checked);
-    setSelectedStatuses(
-      checked ? statusOptions.flatMap((status) => status.values) : []
-    );
+  //   setSelectAllStatuses(checked);
+  //   setSelectedStatuses(
+  //     checked ? statusOptions.flatMap((status) => status.values) : []
+  //   );
 
-    setDateRange([null, null])
-  }
+  //   setDateRange([null, null])
+  // }
 
-  // Handle individual status selection
-  const handleStatusChange = (status, isChecked) => {
+  const handleSelectAllStatusesBL = (checked) => {
+    const BLStatuses = statusOptions
+      .filter(status => status.label.includes("(BL)"))
+      .flatMap(status => status.values);
 
-    const updatedStatuses = isChecked
-      ? [...selectedStatuses, ...status.values]
-      : selectedStatuses.filter((value) => !status.values.includes(value));
+    const updatedStatuses = checked
+      ? [...selectedStatuses, ...BLStatuses] // Select all BL statuses
+      : selectedStatuses.filter(status => !BLStatuses.includes(status)); // Deselect all BL statuses
 
     setSelectedStatuses(updatedStatuses);
-    setSelectAllStatuses(
-      updatedStatuses.length === statusOptions.flatMap((status) => status.values).length
-    ); // Update "Select All" checkbox
 
-    setDateRange([null, null])
-  }
+    // Directly update "Select All" state based on the checked input
+    setSelectAllStatuses((prev) => ({
+      ...prev,
+      BrickLink: checked
+    }));
+
+    setDateRange([null, null]);
+  };
+
+  const handleSelectAllStatusesBO = (checked) => {
+    const BOStatuses = statusOptions
+      .filter(status => status.label.includes("(BO)"))
+      .flatMap(status => status.values);
+
+    const updatedStatuses = checked
+      ? [...selectedStatuses, ...BOStatuses] // Select all BO statuses
+      : selectedStatuses.filter(status => !BOStatuses.includes(status)); // Deselect all BO statuses
+
+    setSelectedStatuses(updatedStatuses);
+
+    // Directly update "Select All" state based on the checked input
+    setSelectAllStatuses((prev) => ({
+      ...prev,
+      BrickOwl: checked
+    }));
+
+    setDateRange([null, null]);
+  };
+
+  const handleStatusChange = (status, isChecked) => {
+    const store = status.label.includes("(BL)") ? "BrickLink" : "BrickOwl";
+
+    setSelectedStatuses((prev) => {
+      const updatedStatuses = isChecked
+        ? [...prev, ...status.values] // Add new statuses
+        : prev.filter((value) => !status.values.includes(value)); // Remove unchecked statuses
+
+      // Check if all statuses for the respective store are selected
+      const allStatusesForStore = statusOptions
+        .filter((s) => s.label.includes(store === "BrickLink" ? "(BL)" : "(BO)"))
+        .flatMap((s) => s.values);
+
+      const isAllSelected = allStatusesForStore.every((s) => updatedStatuses.includes(s));
+
+      setSelectAllStatuses((prev) => ({
+        ...prev,
+        [store]: isAllSelected, // Set "Select All" only for the respective store
+      }));
+
+      return updatedStatuses;
+    });
+
+    setDateRange([null, null]);
+  };
+
+
+  // Handle individual status selection
+  // const handleStatusChange = (status, isChecked) => {
+
+  //   const updatedStatuses = isChecked
+  //     ? [...selectedStatuses, ...status.values]
+  //     : selectedStatuses.filter((value) => !status.values.includes(value));
+
+  //   setSelectedStatuses(updatedStatuses);
+  //   setSelectAllStatuses(
+  //     updatedStatuses.length === statusOptions.flatMap((status) => status.values).length
+  //   ); // Update "Select All" checkbox
+
+  //   setDateRange([null, null])
+  // }
 
   const handleSelectAllOrders = (checked) => {
     setSelectAllOrders(checked)
@@ -338,13 +411,13 @@ function OrderPageContent() {
   return (
     <div className="py-6 pt-0">
       <Header handleSearch={handleSearch} searchTerm={searchTerm}></Header>
-      <div className="bg-white rounded-xl p-6 card-shadow mb-6">
+      {/* <div className="bg-white rounded-xl p-6 card-shadow mb-6">
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-md font-semibold">Stores</span>
           </div>
 
-          {/* Store checkboxes */}
+          
           <div className="flex gap-4">
 
             {storeOptions.map((store) => (
@@ -362,7 +435,7 @@ function OrderPageContent() {
             ))}
           </div>
 
-          {/* Order status */}
+          
           <div className="space-y-3">
             <span className="text-md font-semibold">Status</span>
             <div className="flex flex-wrap gap-4 font-medium text-sm">
@@ -399,6 +472,126 @@ function OrderPageContent() {
             </div>
           </div>
         </div>
+      </div> */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl p-6 card-shadow mb-6 lg:col-span-3">
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-md font-semibold">Stores</span>
+            </div>
+
+            {/* Store Blocks with Respective Status Filters */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* BrickLink Store */}
+              <div className="bg-gray-100 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Checkbox
+                    id="BL"
+                    checked={selectedStores.includes("BL")}
+                    onChange={(checked) => handleStoreChange("BL", checked)}
+                    className="border-blue-500"
+                  />
+                  <label htmlFor="bricklink" className="text-md font-semibold">BrickLink</label>
+                </div>
+
+                {/* BrickLink Statuses */}
+                <div className="space-y-2">
+                  <span className="text-sm font-semibold">Status</span>
+                  <div className="flex flex-wrap gap-3 font-medium text-sm">
+                    <div className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        id="select-all-bl"
+                        checked={selectAllStatuses.BrickLink}
+                        onChange={(e) => handleSelectAllStatusesBL(e.target.checked)}
+                        className="border-blue-500 mt-2"
+                      />
+                      <label htmlFor="select-all-bl" className="ml-2 mt-2 text-sm">Select All</label>
+                    </div>
+
+                    {statusOptions
+                      .filter(status => status.label.includes("(BL)"))
+                      .map((status) => (
+                        <div key={status.label} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={status.label}
+                            checked={status.values.every(value => selectedStatuses.includes(value))}
+                            onChange={(e) => handleStatusChange(status, e.target.checked)}
+                            className="border-blue-500"
+                          />
+                          <label htmlFor={status.label} className="ml-2 text-sm">{status.label}</label>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* BrickOwl Store */}
+              <div className="bg-gray-100 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Checkbox
+                    id="BO"
+                    checked={selectedStores.includes("BO")}
+                    onChange={(checked) => handleStoreChange("BO", checked)}
+                    className="border-blue-500"
+                  />
+                  <label htmlFor="brickowl" className="text-md font-semibold">BrickOwl</label>
+                </div>
+
+                {/* BrickOwl Statuses */}
+                <div className="space-y-2">
+                  <span className="text-sm font-semibold">Status</span>
+                  <div className="flex flex-wrap gap-3 font-medium text-sm">
+                    <div className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        id="select-all-bo"
+                        checked={selectAllStatuses.BrickOwl}
+                        onChange={(e) => handleSelectAllStatusesBO(e.target.checked)}
+                        className="border-blue-500 mt-2"
+                      />
+                      <label htmlFor="select-all-bo" className="ml-2 mt-2 text-sm">Select All</label>
+                    </div>
+
+                    {statusOptions
+                      .filter(status => status.label.includes("(BO)"))
+                      .map((status) => (
+                        <div key={status.label} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={status.label}
+                            checked={status.values.every(value => selectedStatuses.includes(value))}
+                            onChange={(e) => handleStatusChange(status, e.target.checked)}
+                            className="border-blue-500"
+                          />
+                          <label htmlFor={status.label} className="ml-2 text-sm">{status.label}</label>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="space-y-1 mb-6">
+          <div className="bg-white rounded-xl p-4 card-shadow ">
+            {dateRange[0] && dateRange[1] && (
+              <div className="mb-4 flex justify-center items-center">
+                <span className="font-semibold">
+                  Selected Range: <br /> {dateRange[0].toLocaleDateString()} - {dateRange[1].toLocaleDateString()}
+                </span>
+              </div>
+            )}
+            <Calendar
+              onChange={handleRangeChange}
+              selectRange={true}
+              value={dateRange}
+              maxDate={new Date()}
+              className="w-full border-none"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Order list */}
@@ -416,6 +609,14 @@ function OrderPageContent() {
               </span>
 
               <div className="flex gap-2">
+                {selectedOrders.length > 0 && <button
+                  onClick={handleStartPicking}
+                  className="p-2 px-4 rounded flex items-center gap-1 bg-gray-100 hover:bg-gray-200 transition"
+                >
+                  Pick <ArrowRight size={20} />
+                </button>
+                }
+
                 <div className="relative">
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -464,6 +665,7 @@ function OrderPageContent() {
                 >
                   <Grid size={20} />
                 </button>
+
 
               </div>
             </div>
@@ -600,35 +802,7 @@ function OrderPageContent() {
 
         {/* Calendar and Task sections */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl p-4 card-shadow ">
-            {/* <div className="flex justify-between items-center mb-4">
-              <div className="flex gap-4">
-                <button className="text-purple-600 border-b-2 border-purple-600 pb-1">
-                  Monthly
-                </button>
-                <button className="text-gray-500 pb-1">Daily</button>
-              </div>
-              <div className="flex gap-2">
-                <button className="p-1 rounded hover:bg-gray-100">
-                  <ChevronDown size={20} />
-                </button>
-              </div>
-            </div> */}
-            {dateRange[0] && dateRange[1] && (
-              <div className="mb-4 flex justify-center items-center">
-                <span className="font-semibold">
-                  Selected Range: <br /> {dateRange[0].toLocaleDateString()} - {dateRange[1].toLocaleDateString()}
-                </span>
-              </div>
-            )}
-            <Calendar
-              onChange={handleRangeChange}
-              selectRange={true}
-              value={dateRange}
-              maxDate={new Date()}
-              className="w-full border-none"
-            />
-          </div>
+
 
           <div className="bg-white rounded-xl p-4 card-shadow">
             <div className="flex justify-between items-center mb-4">
@@ -639,32 +813,32 @@ function OrderPageContent() {
             </div>
 
             {loading ? <div className="flex justify-center items-center h-32 min-w-fit">
-                  <ClipLoader size={50} color={"#AAFF00"} loading={loading} />
-                </div>:
-            <div className="space-y-3">
-              {tasks.map((order) => (
-                <div key={order.order_id} className="mb-6 border-b pb-4">
-                  {/* Order ID */}
-                  <h2 className="text-xl font-bold mb-2">Order ID: {order.order_id}</h2>
+              <ClipLoader size={50} color={"#AAFF00"} loading={loading} />
+            </div> :
+              <div className="space-y-3">
+                {tasks.map((order) => (
+                  <div key={order.order_id} className="mb-6 border-b pb-4">
+                    {/* Order ID */}
+                    <h2 className="text-xl font-bold mb-2">Order ID: {order.order_id}</h2>
 
-                  {/* Items under Order */}
-                  <ul className="space-y-2 list-disc pl-6">
-                    {order.notes.map((note) => (
-                      <li key={note.item_id} className="relative group">
-                        {/* Item Name & Note */}
-                        <p className="text-md font-semibold">{note.item_name}</p>
-                        <p className="text-gray-500 text-sm">{note.note}</p>
+                    {/* Items under Order */}
+                    <ul className="space-y-2 list-disc pl-6">
+                      {order.notes.map((note) => (
+                        <li key={note.item_id} className="relative group">
+                          {/* Item Name & Note */}
+                          <p className="text-md font-semibold">{note.item_name}</p>
+                          <p className="text-gray-500 text-sm">{note.note}</p>
 
-                        {/* Tooltip for Item ID (Visible on Hover) */}
-                        <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                          Item ID: {note.item_id}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div> }
+                          {/* Tooltip for Item ID (Visible on Hover) */}
+                          <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                            Item ID: {note.item_id}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>}
             {/* <button className="w-full mt-4 bg-black text-white rounded-lg py-2">
               Schedule Task
             </button> */}

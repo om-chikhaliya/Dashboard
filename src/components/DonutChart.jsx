@@ -4,7 +4,7 @@ function DonutChart() {
   const data = [
     { name: 'New Items(36%)', value: 36, color: '#ef4444' },
     { name: 'Used Items (38%)', value: 38, color: '#3b82f6' },
-    { name: 'Other (26%)', value: 26, color: '#a855f7' },
+    { name: 'Other (26%)', value: 100, color: '#a855f7' },
   ];
 
   return (
