@@ -57,9 +57,17 @@ export function Task() {
       />
       <ScrollArea className="h-[calc(100%-64px)]">
         <div className="p-2 space-y-2">
-        {loading ? <div className="flex justify-center items-center h-32 min-w-fit">
-              <ClipLoader size={50} color={"#AAFF00"} loading={loading} />
-            </div> :
+        {loading ? (
+              // Loader when data is being fetched
+              <div className="flex justify-center items-center h-52 min-w-fit">
+                <ClipLoader size={50} color={"#AAFF00"} loading={loading} />
+              </div>
+            ) : tasks.length === 0 ? (
+              // Show message when no tasks are available
+              <div className="text-center text-gray-500 text-lg h-52 font-semibold flex justify-center items-center"> 
+                No tasks available
+              </div>
+            ) : (
               <div className="space-y-3">
                 {tasks.map((order) => (
                   <div key={order.order_id} className="mb-6 border-b pb-4">
@@ -83,7 +91,8 @@ export function Task() {
                     </ul>
                   </div>
                 ))}
-              </div>}
+              </div>
+            )}
         </div>
       </ScrollArea>
     </div>

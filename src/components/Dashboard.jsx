@@ -45,17 +45,17 @@ function Dashboard() {
                 </div>
                 <LineChart months={months} />
               </div>
-              <div className="bg-white rounded-xl p-6 card-shadow flex-grow mt-6">
+              {/* <div className="bg-white rounded-xl p-6 card-shadow flex-grow mt-6">
                 <h2 className="font-medium mb-1">P&L</h2>
                 <p className="text-sm text-gray-500 mb-4">Total profit growth of 25%</p>
                 <DonutChart />
-              </div>
+              </div> */}
             </div>
 
             <div className="lg:row-span-3 flex flex-col gap-6">
-              <div className="bg-white rounded-xl p-6 card-shadow flex-grow">
+              {/* <div className="bg-white rounded-xl p-6 card-shadow flex-grow">
                 <Task />
-              </div>
+              </div> */}
               <div className="bg-white rounded-xl p-6 card-shadow flex-grow">
                 <ByBuyers />
               </div>

@@ -46,7 +46,7 @@ export function Unmatchlot() {
                     <div className="flex-1">
                         <Header />
                         <ToastContainer position="bottom-center" />
-                        {isLoading ? <div className="flex justify-center items-center h-fit-screen"><ClipLoader className="" size={50} color={"#AAFF00"} /></div> :
+                        {isLoading ? <div className="flex justify-center items-center h-[700px]"><ClipLoader className="" size={50} color={"#AAFF00"} /></div> :
                             <div className="">
                                 {/* <div className="lg:col-span-2"> */}
                                 {/* Item Details section */}
@@ -101,7 +101,7 @@ export function Unmatchlot() {
                                                                         </div>
                                                                         {/* <h2 className="text-lg md:text-xl text-gray-800 font-semibold">{item?.item_name}</h2> */}
                                                                         <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Design Id: </span>{item?.sku}</p>
-                                                                        <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Price: </span>{item?.price}</p>
+                                                                        <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Name: </span>{item?.name}</p>
                                                                     </div>
 
                                                                     {/* Location and Pick Section */}
@@ -124,7 +124,7 @@ export function Unmatchlot() {
                                                                             {/* Pick */}
                                                                             <div>
                                                                                 <label className="mb-1 block text-xs font-medium text-gray-700">
-                                                                                    PICK
+                                                                                    QTY
                                                                                 </label>
                                                                                 <div className="flex items-center">
                                                                                     <span className="h-10 w-16 border border-gray-300 bg-gray-50 text-base relative pt-2 pl-2 text-gray-800 rounded-l-lg">
@@ -135,8 +135,11 @@ export function Unmatchlot() {
                                                                                     </span> */}
                                                                                 </div>
                                                                             </div>
+                                                                            
                                                                         </>
+                                                                        
                                                                     </div>
+                                                                    <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Description: </span>{item?.description}</p>
                                                                 </div>
                                                             </div>
                                                         </div>

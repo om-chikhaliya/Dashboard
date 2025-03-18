@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ShoppingCart, Package, RefreshCw, Repeat } from "react-feather";
+import { ShoppingCart, Package, RefreshCw, Repeat, DollarSign, X } from "react-feather";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import dayjs from "dayjs";
@@ -38,6 +38,38 @@ function StatsCard() {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [newPrimaryStore, setNewPrimaryStore] = useState(""); // Store for the new primary store
   const [isPrimaryStoreChanging, setIsPrimaryStoreChanging] = useState(false);
+  const [hovered, setHovered] = useState({ storeIndex: null, type: null });
+
+  const [showPriceModal, setShowPriceModal] = useState(false); // Price Modal State
+  const [selectedMonths, setSelectedMonths] = useState(1); // Months Selection
+  const [pricePercentage, setPricePercentage] = useState(""); // Percentage Input
+  const [priceChangeType, setPriceChangeType] = useState("Higher");
+  const openPriceChangeModal = () => {
+    setShowPriceModal(true);
+  };
+  const closePriceChangeModal = () => {
+    setShowPriceModal(false);
+    setPricePercentage("");
+  };
+
+  const submitPriceChange = async () => {
+    const adjustedPercentage = priceChangeType === "Decrease" ? -1 * pricePercentage : pricePercentage;
+
+    console.log(selectedMonths, adjustedPercentage)
+
+    try {
+      const response = api.post("price/pricechange", {
+        months: selectedMonths,
+        percentage: adjustedPercentage,
+      });
+
+      toast.success("Price updates started");
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error updating prices");
+    } finally {
+      setShowPriceModal(false);
+    }
+  };
 
 
   useEffect(() => {
@@ -48,7 +80,7 @@ function StatsCard() {
     const fetchData = async () => {
       try {
         const response = await api.get("/inventory/summary");
-        console.log(response.data)
+        console.log("Summary", response.data)
 
         // const currentTime = dayjs();
         setSummary([
@@ -60,6 +92,8 @@ function StatsCard() {
               orders: response.data.bricklinkTotalOrders,
               lots: response.data.bricklinkTotalLots,
               items: response.data.bricklinkTotalQuantity,
+              detailedLot: response.data.bricklinkDetailedLot,
+              detailedItem: response.data.bricklinkDetailedItem
             },
           },
           {
@@ -70,6 +104,8 @@ function StatsCard() {
               orders: response.data.brickowlTotalOrders,
               lots: response.data.brickowlTotalLots,
               items: response.data.brickowlTotalQuantity,
+              detailedLot: response.data.brickowlDetailedLot,
+              detailedItem: response.data.brickowlDetailedItem
             },
           },
         ]);
@@ -120,6 +156,8 @@ function StatsCard() {
             orders: response.data[`${entry.name.toLowerCase()}TotalOrders`],
             lots: response.data[`${entry.name.toLowerCase()}TotalLots`],
             items: response.data[`${entry.name.toLowerCase()}TotalQuantity`],
+            detailedLot: response.data[`${entry.name.toLowerCase()}DetailedLot`],
+            detailedItem: response.data[`${entry.name.toLowerCase()}DetailedItem`],
           },
         }))
       );
@@ -190,6 +228,10 @@ function StatsCard() {
             <RefreshCw size={18} className={`h-4 w-4 ${syncInProgress && "animate-spin"}`} />
             <span className="text-sm">Sync Inventory</span>
           </button>
+          {/* <button className="flex items-center gap-2 text-gray-400 hover:text-black" onClick={openPriceChangeModal}>
+            <DollarSign size={18} />
+            <span className="text-sm">Set Avg Price</span>
+          </button> */}
         </div>
       </div>
       <hr className="border-gray-400" />
@@ -236,13 +278,15 @@ function StatsCard() {
       <div className="flex justify-between items-center mb-6 w-full">
         <span className="text-md font-semibold">Store Synchronisation</span>
         <div className="flex gap-6">
-          {localStorage.getItem("role") === 'admin' && <button
-            className="flex items-center gap-1 text-gray-400 hover:text-black"
-            onClick={changePrimaryStore}
-          >
-            <Repeat size={18} />
-            <span className="text-sm">Change Primary Store</span>
-          </button> }
+          {localStorage.getItem("role") === 'admin' &&
+
+            <button
+              className="flex items-center gap-1 text-gray-400 hover:text-black"
+              onClick={changePrimaryStore}
+            >
+              <Repeat size={18} />
+              <span className="text-sm">Change Primary Store</span>
+            </button>}
           <button
             className="flex items-center gap-2 text-gray-400 hover:text-black"
             onClick={syncInventory}
@@ -250,32 +294,146 @@ function StatsCard() {
             <RefreshCw size={18} className={`h-4 w-4 ${syncInProgress && "animate-spin"}`} />
             <span className="text-sm">Sync Inventory</span>
           </button>
+          {/* <button className="flex items-center gap-2 text-gray-400 hover:text-black" onClick={openPriceChangeModal}>
+            <DollarSign size={18} />
+            <span className="text-sm">Set Avg Price</span>
+          </button> */}
         </div>
       </div>
       <hr className="border-gray-400" />
       <div>
-        {summary.map((store) => (
-          <div key={store.name} className="flex justify-between items-center py-4 border-gray-800">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{store.name}</span>
-                {store.isPrimary && <span className="px-2 py-0.5 text-xs primary-element rounded">Primary</span>}
-              </div>
-              <LastSyncedat syncdate={store.lastSynced}></LastSyncedat>
+      {summary.map((store, index) => (
+        <div
+          key={store.name}
+          className="relative flex justify-between items-center py-4 border-gray-800"
+        >
+          {/* Store Name & Sync Time */}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">{store.name}</span>
+              {store.isPrimary && (
+                <span className="px-2 py-0.5 text-xs primary-element rounded">
+                  Primary
+                </span>
+              )}
             </div>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <ShoppingCart size={18} />
-                <span className="text-sm">{store.stats.orders} orders</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Package size={18} />
-                <span className="text-sm">{store.stats.lots} lots · {store.stats.items} items</span>
-              </div>
+            <LastSyncedat syncdate={store.lastSynced}></LastSyncedat>
+          </div>
+
+          {/* Orders, Lots, and Items */}
+          <div className="flex items-center gap-6">
+            {/* Orders */}
+            <div className="flex items-center gap-2">
+              <ShoppingCart size={18} />
+              <span className="text-sm">{store.stats.orders} orders</span>
+            </div>
+
+            {/* Lots (Hover to Show Breakdown) */}
+            <div
+              className="relative flex items-center gap-2 cursor-pointer"
+              onMouseEnter={() => setHovered({ storeIndex: index, type: "lots" })}
+              onMouseLeave={() => setHovered({ storeIndex: null, type: null })}
+            >
+              <Package size={18} />
+              <span className="text-sm">{store.stats.lots} lots</span>
+
+              {/* Tooltip for Lots Breakdown */}
+              {hovered.storeIndex === index && hovered.type === "lots" && (
+                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-48 bg-white text-black text-xs rounded-lg shadow-lg p-3 z-50">
+                  <strong>Lots Breakdown</strong>
+                  <ul className="mt-1 space-y-1">
+                    {Object.entries(store.stats.detailedLot || {}).map(([type, count]) => (
+                      <li key={type} className="flex justify-between">
+                        <span className="capitalize">{type}</span>
+                        <span className="font-semibold">{count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* Items (Hover to Show Breakdown) */}
+            <div
+              className="relative flex items-center gap-2 cursor-pointer"
+              onMouseEnter={() => setHovered({ storeIndex: index, type: "items" })}
+              onMouseLeave={() => setHovered({ storeIndex: null, type: null })}
+            >
+              <span className="text-sm">{store.stats.items} items</span>
+
+              {/* Tooltip for Items Breakdown */}
+              {hovered.storeIndex === index && hovered.type === "items" && (
+                <div className="absolute bottom-10 left-2/2 transform -translate-x-1/2 w-48 bg-white text-black text-xs rounded-lg shadow-lg p-3 z-50">
+                  <strong>Items Breakdown</strong>
+                  <ul className="mt-1 space-y-1">
+                    {Object.entries(store.stats.detailedItem || {}).map(([type, count]) => (
+                      <li key={type} className="flex justify-between">
+                        <span className="capitalize">{type}</span>
+                        <span className="font-semibold">{count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
-        ))}
+        </div>
+      ))}
       </div>
+      {showPriceModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
+          <div className="bg-white rounded-xl p-6 shadow-lg w-96 relative">
+            {/* <button className="absolute top-3 right-3 text-gray-500 hover:text-gray-700" onClick={closePriceChangeModal}>
+              <X size={20} />
+            </button> */}
+            <h3 className="text-xl font-semibold mb-4">Update Item Prices</h3>
+            <p className="text-sm mb-4 text-gray-700">
+              Update the price of items based on the average price of
+              <span className="font-medium text-gray-900"> {selectedMonths} </span> months
+              by <span className="font-medium text-gray-900">{pricePercentage}%</span>
+              <span className="font-medium text-gray-900"> {priceChangeType}.</span>
+            </p>
+
+            {/* Months Dropdown */}
+            <label className="block text-sm font-medium text-gray-700">Select Months:</label>
+            <select className="border p-2 w-full rounded-lg mb-3" value={selectedMonths} onChange={(e) => setSelectedMonths(e.target.value)}>
+              {[1, 2, 3, 4, 5, 6].map((month) => (
+                <option key={month} value={month}>
+                  {month} {month > 1 ? "Months" : "Month"}
+                </option>
+              ))}
+            </select>
+
+            {/* Percentage Input */}
+            <label className="block text-sm font-medium text-gray-700">Percentage:</label>
+            <input
+              type="number"
+              className="border p-2 w-full rounded-lg mb-3"
+              placeholder="Enter percentage (e.g. 10, 20)"
+              min="1"
+              value={pricePercentage}
+              onChange={(e) => setPricePercentage(e.target.value)}
+            />
+
+            {/* Increase/Decrease Dropdown */}
+            <label className="block text-sm font-medium text-gray-700">Select Change Type:</label>
+            <select className="border p-2 w-full rounded-lg mb-4" value={priceChangeType} onChange={(e) => setPriceChangeType(e.target.value)}>
+              <option>Increase</option>
+              <option>Decrease</option>
+            </select>
+
+            {/* Buttons */}
+            <div className="flex justify-between">
+              <button className="bg-gray-300 text-gray-700 px-4 py-2 rounded w-1/3" onClick={closePriceChangeModal}>
+                Cancel
+              </button>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded w-1/3" onClick={submitPriceChange}>
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showConfirmationModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">

@@ -6,7 +6,9 @@ import {
   Bell,
   MessageCircle,
   Box,
-  ArrowRight
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight
 } from "react-feather";
 import ProgressBar from "./ui/ProgressBar";
 import DisplayItems from "./ui/DisplayItems";
@@ -49,7 +51,7 @@ export default function PickUpItemsPage() {
       // Call the API with the extracted order IDs
       const response = await api.get(`/order/pick-orders?brickosys_order_ids=${idsParam}`);
       const orders = response.data;
-
+      console.log(orders)
       setAllOrders(orders);
 
       setTotalLotsAndItems(getTotalLotsAndItems(orders))
@@ -318,7 +320,7 @@ export default function PickUpItemsPage() {
         .map(order => ({
           source: order.platform, // Replace with actual field name
           brickosysId: order.brickosys_order_id, // Replace with actual field name
-          status: "PACKED", // Set the desired status
+          status: order.brickosys_order_id.includes("BO") ? "Shipped" : "PACKED", // Set the desired status
           pickUpDate: new Date().toISOString(), // Use the current date/time or a specific value
           pickUpBy: "holboxai", // Replace with actual logic to get the picker name
         }));
@@ -514,9 +516,12 @@ export default function PickUpItemsPage() {
 
   }, [allItems, missingItems])
 
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
+  const openModal = (item) => { setSelectedItem(item); setModalOpen(true); }
+  const closeModal = () => { setModalOpen(false); setSelectedItem(null) };
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const [showOrders, setShowOrders] = useState(true);
 
 
   return (
@@ -528,7 +533,8 @@ export default function PickUpItemsPage() {
           <ToastContainer position="bottom-center" />
           {isLoading ? <div className="flex justify-center items-center h-fit-screen"><ClipLoader className="" size={50} color={"#AAFF00"} /></div> :
             <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
+
+              <div className={`transition-all duration-300 ${showOrders ? "lg:col-span-2" : "lg:col-span-3"}`}>
                 {/* Item Details section */}
                 {/* <PickUpItems /> */}
 
@@ -536,6 +542,7 @@ export default function PickUpItemsPage() {
                   <div className="p-6">
                     <div className="sticky top-0 mb-4 bg-white z-20 shadow-md px-6 py-3 flex justify-between items-center rounded-md">
                       <h2 className="text-lg font-semibold text-gray-800">Items</h2>
+
                       <div className="flex items-center gap-6">
                         {/* Progress Summary */}
                         <div className="flex items-center gap-6 bg-gray-100 px-4 py-1 rounded-lg text-sm font-semibold text-gray-800 shadow-sm">
@@ -575,7 +582,12 @@ export default function PickUpItemsPage() {
                           )}
                         </button>
                       </div>
-
+                      {/* <button
+                        className="bg-gray-200 p-2 rounded-full transition-all hover:bg-gray-300 absolute -right-5"
+                        onClick={() => setShowOrders((prev) => !prev)}
+                      >
+                        {showOrders ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                      </button> */}
                     </div>
                     <div className="space-y-3">
                       {sortedItems.map((item, index) => (
@@ -617,10 +629,10 @@ export default function PickUpItemsPage() {
                                         className="h-[180px] md:h-[200px] w-full object-contain"
                                       /> */}
 
-                                      <div className="relative" onClick={(e) => { e.stopPropagation(); openModal(); }}>
+                                      <div className="relative flex justify-center items-center" onClick={(e) => { e.stopPropagation(); openModal(); }}>
                                         <button
                                           className=""
-                                          onClick={(e) => { e.stopPropagation(); openModal(); }}
+                                          onClick={(e) => { e.stopPropagation(); openModal(item); }}
                                         >
                                           <img
                                             src={fomartImageSrcString(item.item_type, item.color_id, item.sku, item.brickosys_order_id) || item.image}
@@ -721,6 +733,8 @@ export default function PickUpItemsPage() {
                               </div>
                             </div>
                           </div>
+
+
                         ) : !showProcessed &&
                           processedItems?.some(
                             (processedItem) =>
@@ -757,6 +771,16 @@ export default function PickUpItemsPage() {
 
                     </div>
 
+                    {modalOpen && selectedItem && (
+                      <div className="fixed -inset-10 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={closeModal}>
+                        <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
+                          <button className="absolute -top-5 -right-5 text-white text-2xl bg-gray-800 rounded-full p-2" onClick={closeModal}>&times;</button>
+                          <img src={fomartImageSrcString(selectedItem.item_type, selectedItem.color_id, selectedItem.sku, selectedItem.brickosys_order_id) || selectedItem.image} alt={selectedItem.item_name} className="w-full h-auto rounded-lg" />
+                          <h3 className="text-lg font-semibold text-center mt-4">{selectedItem.item_name}</h3>
+                        </div>
+                      </div>
+                    )}
+
                     {calculateProgress().packedOrders > 0 && (
                       <div className="mt-6 flex justify-center">
                         <button
@@ -774,11 +798,20 @@ export default function PickUpItemsPage() {
                   </div>
                 </div>
               </div>
+                    
+              <button
+                className={`absolute top-[160px] z-30 transition-all bg-gray-100 hover:bg-gray-200 p-2 rounded-full shadow-md  ${showOrders ? "right-8" : "right-8"
+                }`}
+                onClick={() => setShowOrders((prev) => !prev)}
+              >
+                {showOrders ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              </button>
 
-              <div className="lg:col-span-1">
+              {showOrders && (<div className="lg:col-span-1 traansition-all duration-300">
                 <div className="flex-1">
                   <div className="p-6">
                     <div className="sticky top-0 mb-4 bg-white z-20 shadow-md px-6 py-3 flex justify-between items-center rounded-md">
+
                       <h2 className="text-lg font-semibold text-gray-800">Orders</h2>
                       {/* <div className="mt-6 flex justify-center">
                         <button className="bg-blue-600 text-sm font-semibold text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={handleContinueLater}>
@@ -868,7 +901,7 @@ export default function PickUpItemsPage() {
                 </div>
                 {/* OrderDetails Section end */}
 
-              </div>
+              </div>)}
             </div>
           }
         </div>

@@ -250,39 +250,85 @@ p {
 }
 
 /* Remove border around the entire calendar */
+/* Remove borders and add smooth shadows for a cleaner look */
 .react-calendar {
   border: none !important;
+  background: white;
+  border-radius: 10px;
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+  padding: 10px;
 }
 
 /* Remove borders around calendar tiles (dates) */
 .react-calendar__tile {
   border: none !important;
+  transition: background-color 0.2s ease-in-out, transform 0.1s;
+  border-radius: 8px;
+  padding: 8px;
 }
 
-/* Change background color for the selected date to lime */
+/* Style hover effect for a better UX */
+.react-calendar__tile:hover {
+  background-color: rgba(200, 230, 255, 0.6);
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+/* Active (selected) date - soft green with better contrast */
 .react-calendar__tile--active {
-  background-color: rgba(135, 240, 135, 0.773) !important;
-  color: rgb(5, 5, 5) !important; /* Adjust text color for contrast */
-  /* border-radius: 5px; */
+  background-color: #48c78e !important; /* Soft green */
+  color: white !important;
+  font-weight: bold;
+  border-radius: 2px;
 }
 
-/* Keep today's date highlighted in blue */
+/* Highlight today's date with a modern blue color */
 .react-calendar__tile--now {
-  background-color: rgb(85, 203, 191) !important;
-  color: white !important; /* Adjust text color for contrast */
-  /* border-radius: 5px; */
+  background-color: #3b82f6 !important; /* Soft blue */
+  color: white !important;
+  font-weight: bold;
+  border-radius: 8px;
 }
 
-/* Keep today highlighted in blue even when selected */
+/* Keep today highlighted even when selected */
 .react-calendar__tile--now.react-calendar__tile--active {
-  background-color: rgb(85, 203, 191) !important;
+  background-color: #2563eb !important; /* A deeper blue */
 }
 
-div.react-calendar .react-calendar__tile--disabled {
-  background-color: transparent !important;
-  color: #9ca3af !important;
-  opacity: 0.5 !important;
+/* Disabled dates - softer, grayed out with less opacity */
+.react-calendar__tile:disabled {
+  background-color: white !important;
+  color: #878d98 !important;
+  opacity: 0.4 !important;
+  cursor: not-allowed;
 }
+
+/* Header navigation buttons (prev/next month) */
+.react-calendar__navigation button {
+  color: #2563eb !important;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  transition: background 0.2s ease-in-out;
+}
+
+.react-calendar__navigation button:hover {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Weekday labels */
+.react-calendar__month-view__weekdays {
+  color: #4b5563;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+/* Prevent unwanted text selection */
+.react-calendar * {
+  user-select: none;
+}
+
 
 
 .custom-radius {

@@ -7,10 +7,14 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Line,
+  Legend,
+  ComposedChart
 } from "recharts";
 import api from "./helper/api";
+import { ClipLoader } from "react-spinners";
 
-function BarChart({ months }) {
+function SalesChart({ months }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,6 +29,7 @@ function BarChart({ months }) {
         const formattedData = result.map((item) => ({
           month: item.month,
           sales: parseFloat(item.sales.replace("$", "")), // Convert sales to number
+          orders: item.orders || 0, // Orders count
         }));
 
         // Get only last `months` months
@@ -42,58 +47,88 @@ function BarChart({ months }) {
   }, [months]); // Re-fetch when months change
 
   return (
-    <div className="h-[300px] w-full mt-5">
+    <div className="h-[400px] w-full mt-5  p-4">
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <div className="flex justify-center items-center h-full">
+          <ClipLoader size={50} color={"#AAFF00"} />
+        </div>
       ) : error ? (
         <p className="text-center text-red-500">Error: {error}</p>
       ) : (
         <ResponsiveContainer width="100%" height="100%">
-          <RechartsBarChart
+          <ComposedChart
             data={data}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 20, right: 40, left: 20, bottom: 5 }}
           >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              stroke="#f0f0f0"
-            />
+            {/* Grid */}
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
+
+            {/* X Axis (Months) */}
             <XAxis
               dataKey="month"
               axisLine={false}
               tickLine={false}
               tick={{ fill: "#64748b", fontSize: 12 }}
             />
+
+            {/* Y Axis Left (Sales $) */}
             <YAxis
-              axisLine={false}
-              tickLine={false}
+              yAxisId="left"
               tick={{ fill: "#64748b", fontSize: 12 }}
+              label={{ value: "Sales ($)", angle: -90, position: "insideLeft" }}
             />
+
+            {/* Y Axis Right (Orders) */}
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fill: "#64748b", fontSize: 12 }}
+              label={{ value: "Orders", angle: 90, position: "insideRight" }}
+            />
+
+            {/* Tooltip */}
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="bg-white p-2 rounded-lg shadow-lg border">
-                      <p className="text-sm font-medium">
-                        {payload[0].value} USD
-                      </p>
+                    <div className="bg-white p-3 rounded-lg shadow-lg border text-sm">
+                      <p className="font-semibold text-gray-900">{payload[0].payload.month}</p>
+                      <p className="text-green-600">💰 Sales: ${payload[0].value}</p>
+                      <p className="text-blue-600">📦 Orders: {payload[1]?.value}</p>
                     </div>
                   );
                 }
                 return null;
               }}
             />
+
+            {/* Legend */}
+            <Legend />
+
+            {/* Bar Chart for Sales */}
             <Bar
+              yAxisId="left"
               dataKey="sales"
-              fill="#bbe90b" // Change color if needed
-              radius={[4, 4, 0, 0]} // Rounded top corners
+              fill="#BBE90B" // Green color for sales
+              radius={[6, 6, 0, 0]} // Rounded top corners
               barSize={40} // Adjust bar width
             />
-          </RechartsBarChart>
+
+            {/* Line Chart for Orders */}
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="orders"
+              stroke="#007BFF" // Blue color for orders
+              strokeWidth={2}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+          </ComposedChart>
         </ResponsiveContainer>
       )}
     </div>
   );
 }
 
-export default BarChart;
+export default SalesChart;

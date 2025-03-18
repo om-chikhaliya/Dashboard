@@ -5,20 +5,25 @@ import {
   ShoppingCart,
   Settings,
   LogOut,
+  List,
   Menu,
-  X
+  X,
+  DollarSign
 } from "react-feather";
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { User, ChevronLeft, ChevronRight } from "lucide-react";
+import { User, ChevronLeft, ChevronRight, Info } from "lucide-react";
 
 function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
     { icon: Monitor, label: "Dashboard", path: "/dashboard" },
+    { icon: ShoppingCart, label: "Orders", path: "/orders" },
+    { icon: DollarSign, label: "Price", path: "/price" },
     { icon: User, label: "Users", path: "/users" },
     { icon: Archive, label: "Mismatch Lots", path: "/mismatchlot" },
-    { icon: ShoppingCart, label: "Orders", path: "/orders" },
     { icon: Settings, label: "Settings", path: "/setting" },
+    { icon: List, label: "WishList", path: "/wishlist" },
+    { icon: Info, label: "Logs", path: "/logs" },
   ];
 
   const location = useLocation();
@@ -26,7 +31,7 @@ function Sidebar({ isOpen, setIsOpen }) {
 
   useEffect(() => {
     const handleResize = () => {
-      const mobileView = window.innerWidth < 770;
+      const mobileView = window.innerWidth < 1025;
       setIsMobile(mobileView);
       if (mobileView) setIsOpen(false); // Auto-close sidebar on small screens
       else setIsOpen(true); // Keep sidebar open on large screens
@@ -96,9 +101,8 @@ function Sidebar({ isOpen, setIsOpen }) {
 
         {/* Toggle Button for Sidebar */}
         <button
-          className={`absolute top-6 transition-all bg-gray-100 hover:bg-gray-200 p-2 rounded-full shadow-md ${
-            isOpen ? "-right-5" : "-right-[50px]"
-          }`}
+          className={`absolute top-6 transition-all bg-gray-100 hover:bg-gray-200 p-2 rounded-full shadow-md ${isOpen ? "-right-5" : "-right-[50px]"
+            }`}
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}

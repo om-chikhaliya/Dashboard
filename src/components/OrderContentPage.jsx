@@ -15,6 +15,9 @@ import { ClipLoader } from "react-spinners";
 import Header from "./Header";
 import img1 from "../assets/noorder.png"
 import api from "./helper/api";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { X } from "lucide-react";
 
 
 // const tasks = [
@@ -145,6 +148,7 @@ function OrderPageContent() {
   const [selectedOrders, setSelectedOrders] = useState([])
   const [filteredOrders, setFilteredOrders] = useState([])
   const [loading, setLoading] = useState(true);
+  const [taskloading, setTaskloading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("")
   const [tasks, setTasks] = useState([])
   const [sortOption, setSortOption] = useState("date");
@@ -156,6 +160,7 @@ function OrderPageContent() {
 
 
   const [dateRange, setDateRange] = useState([null, null]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -172,9 +177,10 @@ function OrderPageContent() {
         setFilteredOrders(sortOrders(response.data, "date"));
         setOrders(sortedOrders);
 
-        const task_response = await api.get("/order/task");
-        console.log(task_response.data)
-        setTasks(task_response.data)
+        // const task_response = await api.get("/order/task");
+        // console.log(task_response.data)
+        // setTasks(task_response.data)
+        // setTaskloading(false)
 
         // console.log(response.data)
         // console.log(filteredOrders);
@@ -183,6 +189,30 @@ function OrderPageContent() {
         console.error("Error fetching data:", err);
       } finally {
         setLoading(false); // Stop loading spinner
+      }
+    };
+
+    fetchData();
+
+
+  }, [])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+
+        const task_response = await api.get("/order/task");
+        console.log(task_response.data)
+        setTasks(task_response.data)
+
+
+        // console.log(response.data)
+        // console.log(filteredOrders);
+      } catch (err) {
+        // setError(err.message); // Save error message to state
+        console.error("Error fetching data:", err);
+      } finally {
+        setTaskloading(false) // Stop loading spinner
       }
     };
 
@@ -379,25 +409,47 @@ function OrderPageContent() {
   //   setFilteredOrders(filtered);
   // };
 
+  // const handleRangeChange = (value) => {
+  //   // 'value' is either a single Date or an array of two Dates (start and end)
+  //   if (Array.isArray(value)) {
+  //     // For a range: value = [startDate, endDate]
+  //     const [startDate, endDate] = value;
+  //     setDateRange([startDate, endDate]);
+
+  //     // Filter orders within the selected range (inclusive)
+  //     const filtered = filteredOrders.filter((order) => {
+  //       const orderDate = new Date(order.order_on);
+  //       return orderDate >= startDate && orderDate <= endDate;
+  //     });
+
+  //     setFilteredOrders(filtered);
+  //   } else {
+  //     // When using selectRange, this case generally occurs on the first click before a range is selected.
+  //     setDateRange([value, value]);
+  //   }
+  // };
+  const [startDate, endDate] = dateRange;
   const handleRangeChange = (value) => {
-    // 'value' is either a single Date or an array of two Dates (start and end)
     if (Array.isArray(value)) {
-      // For a range: value = [startDate, endDate]
-      const [startDate, endDate] = value;
-      setDateRange([startDate, endDate]);
+      const [newStartDate, newEndDate] = value;
+      setDateRange([newStartDate, newEndDate]);
 
-      // Filter orders within the selected range (inclusive)
-      const filtered = filteredOrders.filter((order) => {
-        const orderDate = new Date(order.order_on);
-        return orderDate >= startDate && orderDate <= endDate;
-      });
+      if (newStartDate && newEndDate) {
+        const filtered = orders.filter((order) => {
+          const orderDate = new Date(order.order_on);
+          return orderDate >= newStartDate && orderDate <= newEndDate;
+        });
 
-      setFilteredOrders(filtered);
-    } else {
-      // When using selectRange, this case generally occurs on the first click before a range is selected.
-      setDateRange([value, value]);
+        setFilteredOrders(filtered);
+      }
     }
   };
+
+  const clearDateFilter = () => {
+    setDateRange([null, null]);
+    setFilteredOrders(orders); // Reset filtered orders
+  };
+
 
 
   const handleStartPicking = () => {
@@ -575,23 +627,46 @@ function OrderPageContent() {
           </div>
         </div>
         <div className="space-y-1 mb-6">
-          <div className="bg-white rounded-xl p-4 card-shadow ">
-            {dateRange[0] && dateRange[1] && (
-              <div className="mb-4 flex justify-center items-center">
-                <span className="font-semibold">
-                  Selected Range: <br /> {dateRange[0].toLocaleDateString()} - {dateRange[1].toLocaleDateString()}
-                </span>
+          <div className="bg-white w-full rounded-xl p-4 card-shadow">
+            {/* Container with same width as calendar */}
+            <div className="w-full flex flex-col items-center">
+              {/* Date Picker and Clear Button inside a div with full width */}
+              <div className="w-full flex items-center gap-2 mb-4">
+                <div className=" flex-1">
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(update) => handleRangeChange(update)}
+                    startDate={startDate}
+                    endDate={endDate}
+                    selectsRange
+                    maxDate={new Date()}
+                    className=" p-2 border rounded-md"
+                    placeholderText="Select date range"
+                  />
+                </div>
+                {/* Clear Button */}
+                <button
+                  onClick={clearDateFilter}
+                  className="p-2 rounded-md text-gray-600 hover:bg-gray-200 transition"
+                >
+                  <X size={18} />
+                </button>
               </div>
-            )}
-            <Calendar
-              onChange={handleRangeChange}
-              selectRange={true}
-              value={dateRange}
-              maxDate={new Date()}
-              className="w-full border-none"
-            />
+
+              {/* Calendar - Ensure it's same width as Date Picker */}
+              <div className="w-full">
+                <Calendar
+                  onChange={handleRangeChange}
+                  selectRange={true}
+                  value={dateRange}
+                  maxDate={new Date()}
+                  className="w-full border-none"
+                />
+              </div>
+            </div>
           </div>
         </div>
+
       </div>
 
       {/* Order list */}
@@ -763,7 +838,7 @@ function OrderPageContent() {
                               </td>
                               <td className="p-2 text-right">
                                 <span
-                                  className={`px-2 py-1 rounded text-sm ${order.status.includes('PACKED', 'PAID')
+                                  className={`px-2 py-1 rounded text-sm ${["PACKED", "Shipped"].includes(order.status)
                                     ? "bg-green-100 text-green-800"
                                     : "bg-purple-100 text-purple-800"
                                     }`}
@@ -812,9 +887,17 @@ function OrderPageContent() {
               </button>
             </div>
 
-            {loading ? <div className="flex justify-center items-center h-32 min-w-fit">
-              <ClipLoader size={50} color={"#AAFF00"} loading={loading} />
-            </div> :
+            {taskloading ? (
+              // Loader when data is being fetched
+              <div className="flex justify-center items-center h-52 min-w-fit">
+                <ClipLoader size={50} color={"#AAFF00"} loading={taskloading} />
+              </div>
+            ) : tasks.length === 0 ? (
+              // Show message when no tasks are available
+              <div className="text-center text-gray-500 text-lg h-52 font-semibold flex justify-center items-center"> 
+                No tasks available
+              </div>
+            ) : (
               <div className="space-y-3">
                 {tasks.map((order) => (
                   <div key={order.order_id} className="mb-6 border-b pb-4">
@@ -838,7 +921,9 @@ function OrderPageContent() {
                     </ul>
                   </div>
                 ))}
-              </div>}
+              </div>
+            )}
+
             {/* <button className="w-full mt-4 bg-black text-white rounded-lg py-2">
               Schedule Task
             </button> */}
