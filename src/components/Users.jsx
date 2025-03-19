@@ -49,7 +49,7 @@ const Users = () => {
 
     try {
 
-    console.log(selectedUser.email, " ", newPassword)
+    
       await api.post("/admin/users/password", {
         email: selectedUser.email,
         newPassword: newPassword

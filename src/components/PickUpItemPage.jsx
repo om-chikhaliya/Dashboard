@@ -51,7 +51,7 @@ export default function PickUpItemsPage() {
       // Call the API with the extracted order IDs
       const response = await api.get(`/order/pick-orders?brickosys_order_ids=${idsParam}`);
       const orders = response.data;
-      console.log(orders)
+      
       setAllOrders(orders);
 
       setTotalLotsAndItems(getTotalLotsAndItems(orders))
@@ -61,7 +61,7 @@ export default function PickUpItemsPage() {
       orders.forEach((order) => {
         order.items.forEach((item) => {
           // if (item.picked === true || item.picked === 'true') {
-          //   console.log("picked true")
+          
           //   toggleItemProcessed(item.item_id, order.order_id, order.brickosys_order_id);
           // }
 

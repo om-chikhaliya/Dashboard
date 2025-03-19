@@ -55,7 +55,7 @@ function StatsCard() {
   const submitPriceChange = async () => {
     const adjustedPercentage = priceChangeType === "Decrease" ? -1 * pricePercentage : pricePercentage;
 
-    console.log(selectedMonths, adjustedPercentage)
+    
 
     try {
       const response = api.post("price/pricechange", {
@@ -80,7 +80,7 @@ function StatsCard() {
     const fetchData = async () => {
       try {
         const response = await api.get("/inventory/summary");
-        console.log("Summary", response.data)
+        
 
         // const currentTime = dayjs();
         setSummary([
@@ -126,7 +126,7 @@ function StatsCard() {
       let res;
       try {
         res = await api.get("/inventory/synchronize");
-        console.log(res.data); // Log the response from synchronization
+        
         toast.success(res.data.message)
 
       } catch (error) {
@@ -164,7 +164,7 @@ function StatsCard() {
 
       // toast.success("Sync completed successfully!");
     } catch (error) {
-      console.log(error);
+      
       toast.error("Sync failed. Please try again.");
     } finally {
       setSyncInProgress(false);
@@ -197,7 +197,7 @@ function StatsCard() {
 
       toast.success(response.data.message);
     } catch (error) {
-      console.log(error);
+      
       toast.error(error.response.data.error);
     } finally {
       setShowConfirmationModal(false);

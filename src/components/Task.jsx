@@ -14,11 +14,9 @@ export function Task() {
     const fetchData = async () => {
       try {
         const task_response = await api.get("/order/task");
-        console.log(task_response.data)
+        
         setTasks(task_response.data)
 
-        // console.log(response.data)
-        // console.log(filteredOrders);
       } catch (err) {
         // setError(err.message); // Save error message to state
         console.error("Error fetching data:", err);

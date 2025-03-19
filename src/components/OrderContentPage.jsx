@@ -166,9 +166,9 @@ function OrderPageContent() {
     const fetchData = async () => {
       try {
         const res = await api.get("/order/sync");
-        console.log("sync order: ", res.data)
+        
         const response = await api.get("/order");
-        console.log(response.data)
+        
         const sortedOrders = response.data.sort((a, b) => {
           // Ensure that 'date' is in a format that can be compared (e.g., ISO 8601 string or timestamp)
           return new Date(b.order_on) - new Date(a.order_on); // Sorting by descending order (newest first)
@@ -178,12 +178,11 @@ function OrderPageContent() {
         setOrders(sortedOrders);
 
         // const task_response = await api.get("/order/task");
-        // console.log(task_response.data)
+        
         // setTasks(task_response.data)
         // setTaskloading(false)
 
-        // console.log(response.data)
-        // console.log(filteredOrders);
+
       } catch (err) {
         // setError(err.message); // Save error message to state
         console.error("Error fetching data:", err);
@@ -202,12 +201,9 @@ function OrderPageContent() {
       try {
 
         const task_response = await api.get("/order/task");
-        console.log(task_response.data)
+        
         setTasks(task_response.data)
 
-
-        // console.log(response.data)
-        // console.log(filteredOrders);
       } catch (err) {
         // setError(err.message); // Save error message to state
         console.error("Error fetching data:", err);
@@ -245,7 +241,6 @@ function OrderPageContent() {
 
     const filtered = orders.filter((order) => {
 
-      // console.log(order.order_id)
       const matchesSearch =
         !searchTerm ||
         order.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -454,7 +449,7 @@ function OrderPageContent() {
 
   const handleStartPicking = () => {
     if (selectedOrders.length > 0) {
-      console.log(selectedOrders)
+      
       const orderIds = selectedOrders.join(',');
       window.location.href = `/pickorders?brickosys_orderId=${orderIds}`;  // Using window.location.href
     }

@@ -21,12 +21,8 @@ export function WishList() {
             try {
                 const response = await api.get("/order/wishlist");
 
-                console.log(response.data)
-
                 setItems(response.data)
 
-                // console.log(response.data)
-                // console.log(filteredOrders);
             } catch (err) {
                 // setError(err.message); // Save error message to state
                 console.error("Error fetching data:", err);

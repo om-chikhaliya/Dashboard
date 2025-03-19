@@ -18,12 +18,12 @@ function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
     { icon: Monitor, label: "Dashboard", path: "/dashboard" },
     { icon: ShoppingCart, label: "Orders", path: "/orders" },
-    { icon: DollarSign, label: "Price", path: "/price" },
-    { icon: User, label: "Users", path: "/users" },
     { icon: Archive, label: "Mismatch Lots", path: "/mismatchlot" },
-    { icon: Settings, label: "Settings", path: "/setting" },
     { icon: List, label: "WishList", path: "/wishlist" },
+    { icon: DollarSign, label: "Avg Price", path: "/price" },
     { icon: Info, label: "Logs", path: "/logs" },
+    { icon: User, label: "Users", path: "/users" },
+    { icon: Settings, label: "Settings", path: "/setting" },
   ];
 
   const location = useLocation();

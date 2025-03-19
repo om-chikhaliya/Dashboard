@@ -19,7 +19,7 @@ export function Unmatchlot() {
 
             // Call the API with the extracted order IDs
             const response = await api.get(`/inventory/failed-syncs`);
-            console.log(response.data)
+            
 
             setUnmatchlots(response.data);
 

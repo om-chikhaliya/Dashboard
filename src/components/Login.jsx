@@ -150,7 +150,7 @@ const LoginSignup = () => {
         
         const idResponse = await api.get('/keys/my-keys');
         
-        console.log(idResponse.data)
+        
         // Check if all four IDs exist
         // const hasAllIds = await idResponse.data.bricklink && idResponse.data.brickowl;
   
