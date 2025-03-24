@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ShoppingCart, Package, RefreshCw, Repeat, DollarSign, X } from "react-feather";
+import { ShoppingCart, Package, RefreshCw, Repeat, DollarSign, X, Info } from "react-feather";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import dayjs from "dayjs";
@@ -9,7 +9,7 @@ import { LastSyncedat } from "./LastSyncedat";
 
 // dayjs.extend(relativeTime);
 
-function StatsCard() {
+function StatsCard({ data }) {
   const [summary, setSummary] = useState([
     {
       name: "BrickLink",
@@ -55,7 +55,7 @@ function StatsCard() {
   const submitPriceChange = async () => {
     const adjustedPercentage = priceChangeType === "Decrease" ? -1 * pricePercentage : pricePercentage;
 
-    
+
 
     try {
       const response = api.post("price/pricechange", {
@@ -71,6 +71,8 @@ function StatsCard() {
     }
   };
 
+  const [detailedStoreData, setDetailedStoreData] = useState(null);
+  const [showModalBreakdown, setShowModalBreakdown] = useState(false);
 
   useEffect(() => {
     if (isPrimaryStoreChanging) {
@@ -79,33 +81,35 @@ function StatsCard() {
 
     const fetchData = async () => {
       try {
-        const response = await api.get("/inventory/summary");
-        
+        // const response = await api.get("/inventory/summary");
+
 
         // const currentTime = dayjs();
         setSummary([
           {
             name: "BrickLink",
-            isPrimary: response.data.primaryStore === "BrickOwl" ? false : true,
-            lastSynced: response.data.lastSyncedAt,
+            isPrimary: data.primaryStore === "BrickOwl" ? false : true,
+            lastSynced: data.lastSyncedAt,
             stats: {
-              orders: response.data.bricklinkTotalOrders,
-              lots: response.data.bricklinkTotalLots,
-              items: response.data.bricklinkTotalQuantity,
-              detailedLot: response.data.bricklinkDetailedLot,
-              detailedItem: response.data.bricklinkDetailedItem
+              orders: data.bricklinkTotalOrders,
+              lots: data.bricklinkTotalLots,
+              items: data.bricklinkTotalQuantity,
+              detailedLot: data.bricklinkDetailedLot,
+              detailedItem: data.bricklinkDetailedItem,
+              detailedPrice: data.bricklinkDetailedPrice,
             },
           },
           {
             name: "BrickOwl",
-            isPrimary: response.data.primaryStore === "BrickLink" ? false : true,
-            lastSynced: response.data.lastSyncedAt,
+            isPrimary: data.primaryStore === "BrickLink" ? false : true,
+            lastSynced: data.lastSyncedAt,
             stats: {
-              orders: response.data.brickowlTotalOrders,
-              lots: response.data.brickowlTotalLots,
-              items: response.data.brickowlTotalQuantity,
-              detailedLot: response.data.brickowlDetailedLot,
-              detailedItem: response.data.brickowlDetailedItem
+              orders: data.brickowlTotalOrders,
+              lots: data.brickowlTotalLots,
+              items: data.brickowlTotalQuantity,
+              detailedLot: data.brickowlDetailedLot,
+              detailedItem: data.brickowlDetailedItem,
+              detailedPrice: data.brickowlDetailedPrice,
             },
           },
         ]);
@@ -118,6 +122,18 @@ function StatsCard() {
     fetchData();
   }, [isPrimaryStoreChanging]);
 
+  const openDetailedModal = (storeName) => {
+    const storeData = summary.find(store => store.name === storeName);
+    setDetailedStoreData(storeData);
+    setShowModalBreakdown(true);
+  };
+
+  const closeModal = () => {
+    setShowModalBreakdown(false);
+    setDetailedStoreData(null);
+  };
+
+
   const syncInventory = async () => {
     try {
       setSyncInProgress(true);
@@ -126,7 +142,7 @@ function StatsCard() {
       let res;
       try {
         res = await api.get("/inventory/synchronize");
-        
+
         toast.success(res.data.message)
 
       } catch (error) {
@@ -164,7 +180,7 @@ function StatsCard() {
 
       // toast.success("Sync completed successfully!");
     } catch (error) {
-      
+
       toast.error("Sync failed. Please try again.");
     } finally {
       setSyncInProgress(false);
@@ -197,7 +213,7 @@ function StatsCard() {
 
       toast.success(response.data.message);
     } catch (error) {
-      
+
       toast.error(error.response.data.error);
     } finally {
       setShowConfirmationModal(false);
@@ -302,83 +318,90 @@ function StatsCard() {
       </div>
       <hr className="border-gray-400" />
       <div>
-      {summary.map((store, index) => (
-        <div
-          key={store.name}
-          className="relative flex justify-between items-center py-4 border-gray-800"
-        >
-          {/* Store Name & Sync Time */}
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">{store.name}</span>
-              {store.isPrimary && (
-                <span className="px-2 py-0.5 text-xs primary-element rounded">
-                  Primary
-                </span>
-              )}
+        {summary.map((store, index) => (
+          <div
+            key={store.name}
+            className="relative flex justify-between items-center py-4 border-gray-800"
+          >
+            {/* Store Name & Sync Time */}
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{store.name}</span>
+                {store.isPrimary && (
+                  <span className="px-2 py-0.5 text-xs primary-element rounded">
+                    Primary
+                  </span>
+                )}
+              </div>
+              <LastSyncedat syncdate={store.lastSynced}></LastSyncedat>
             </div>
-            <LastSyncedat syncdate={store.lastSynced}></LastSyncedat>
+
+            {/* Orders, Lots, and Items */}
+            <div className="flex items-center gap-6">
+              {/* Orders */}
+              <div className="flex items-center gap-2">
+                <ShoppingCart size={18} />
+                <span className="text-sm">{store.stats.orders} orders</span>
+              </div>
+
+              {/* Lots (Hover to Show Breakdown) */}
+              <div
+                className="relative flex items-center gap-2 cursor-pointer"
+                onMouseEnter={() => setHovered({ storeIndex: index, type: "lots" })}
+                onMouseLeave={() => setHovered({ storeIndex: null, type: null })}
+              >
+                <Package size={18} />
+                <span className="text-sm">{store.stats.lots} lots</span>
+
+                {/* Tooltip for Lots Breakdown */}
+                {hovered.storeIndex === index && hovered.type === "lots" && (
+                  <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-48 bg-white text-black text-xs rounded-lg shadow-lg p-3 z-50">
+                    <strong>Lots Breakdown</strong>
+                    <ul className="mt-1 space-y-1">
+                      {Object.entries(store.stats.detailedLot || {}).map(([type, count]) => (
+                        <li key={type} className="flex justify-between">
+                          <span className="capitalize">{type}</span>
+                          <span className="font-semibold">{count}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Items (Hover to Show Breakdown) */}
+              <div
+                className="relative flex items-center gap-2 cursor-pointer"
+                onMouseEnter={() => setHovered({ storeIndex: index, type: "items" })}
+                onMouseLeave={() => setHovered({ storeIndex: null, type: null })}
+              >
+                <span className="text-sm">{store.stats.items} items</span>
+
+                {/* Tooltip for Items Breakdown */}
+                {hovered.storeIndex === index && hovered.type === "items" && (
+                  <div className="absolute bottom-10 left-2/2 transform -translate-x-1/2 w-48 bg-white text-black text-xs rounded-lg shadow-lg p-3 z-50">
+                    <strong>Items Breakdown</strong>
+                    <ul className="mt-1 space-y-1">
+                      {Object.entries(store.stats.detailedItem || {}).map(([type, count]) => (
+                        <li key={type} className="flex justify-between">
+                          <span className="capitalize">{type}</span>
+                          <span className="font-semibold">{count}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <button
+                className="text-gray-500 hover:text-black"
+                onClick={() => openDetailedModal(store.name)} // Call the function to open the modal
+              >
+                <Info size={18} />
+              </button>
+            </div>
           </div>
+        ))}
 
-          {/* Orders, Lots, and Items */}
-          <div className="flex items-center gap-6">
-            {/* Orders */}
-            <div className="flex items-center gap-2">
-              <ShoppingCart size={18} />
-              <span className="text-sm">{store.stats.orders} orders</span>
-            </div>
-
-            {/* Lots (Hover to Show Breakdown) */}
-            <div
-              className="relative flex items-center gap-2 cursor-pointer"
-              onMouseEnter={() => setHovered({ storeIndex: index, type: "lots" })}
-              onMouseLeave={() => setHovered({ storeIndex: null, type: null })}
-            >
-              <Package size={18} />
-              <span className="text-sm">{store.stats.lots} lots</span>
-
-              {/* Tooltip for Lots Breakdown */}
-              {hovered.storeIndex === index && hovered.type === "lots" && (
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-48 bg-white text-black text-xs rounded-lg shadow-lg p-3 z-50">
-                  <strong>Lots Breakdown</strong>
-                  <ul className="mt-1 space-y-1">
-                    {Object.entries(store.stats.detailedLot || {}).map(([type, count]) => (
-                      <li key={type} className="flex justify-between">
-                        <span className="capitalize">{type}</span>
-                        <span className="font-semibold">{count}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Items (Hover to Show Breakdown) */}
-            <div
-              className="relative flex items-center gap-2 cursor-pointer"
-              onMouseEnter={() => setHovered({ storeIndex: index, type: "items" })}
-              onMouseLeave={() => setHovered({ storeIndex: null, type: null })}
-            >
-              <span className="text-sm">{store.stats.items} items</span>
-
-              {/* Tooltip for Items Breakdown */}
-              {hovered.storeIndex === index && hovered.type === "items" && (
-                <div className="absolute bottom-10 left-2/2 transform -translate-x-1/2 w-48 bg-white text-black text-xs rounded-lg shadow-lg p-3 z-50">
-                  <strong>Items Breakdown</strong>
-                  <ul className="mt-1 space-y-1">
-                    {Object.entries(store.stats.detailedItem || {}).map(([type, count]) => (
-                      <li key={type} className="flex justify-between">
-                        <span className="capitalize">{type}</span>
-                        <span className="font-semibold">{count}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      ))}
       </div>
       {showPriceModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
@@ -433,6 +456,45 @@ function StatsCard() {
             </div>
           </div>
         </div>
+      )}
+
+      {showModalBreakdown && detailedStoreData && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
+        <div className="bg-white rounded-xl p-6 shadow-lg w-[90%] md:w-[800px] lg:w-[1000px] max-h-[80vh] relative">
+          <button
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+            onClick={closeModal}
+          >
+            <X size={20} />
+          </button>
+          <h3 className="text-xl font-semibold mb-4 text-center">
+            {detailedStoreData.name} Detailed Breakdown
+          </h3>
+      
+          {/* Table Wrapper */}
+          <table className="min-w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Type</th>
+                <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Lot Count</th>
+                <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Item Count</th>
+                <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(detailedStoreData.stats.detailedLot || {}).map(([type, count]) => (
+                <tr key={type} className="border-t">
+                  <td className="py-2 px-4 border-b text-sm">{type}</td>
+                  <td className="py-2 px-4 border-b text-sm">{count}</td>
+                  <td className="py-2 px-4 border-b text-sm">{detailedStoreData.stats.detailedItem[type]}</td>
+                  <td className="py-2 px-4 border-b text-sm">${detailedStoreData.stats.detailedPrice[type].toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       )}
 
       {showConfirmationModal && (

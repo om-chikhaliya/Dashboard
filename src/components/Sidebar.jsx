@@ -29,6 +29,18 @@ function Sidebar({ isOpen, setIsOpen }) {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
+  const userRole = localStorage.getItem("role"); // Get role from localStorage
+
+  // Filter menu items based on user role
+  const filteredMenuItems = userRole === "admin"
+    ? menuItems // Show all items for admin
+    : menuItems.filter(item => 
+        item.label === "Dashboard" || 
+        item.label === "Orders" || 
+        item.label === "Mismatch Lots" || 
+        item.label === "WishList"
+    );
+
   useEffect(() => {
     const handleResize = () => {
       const mobileView = window.innerWidth < 1025;
@@ -74,7 +86,7 @@ function Sidebar({ isOpen, setIsOpen }) {
 
         {/* Sidebar Navigation */}
         <nav className="nav-menu p-4">
-          {menuItems.map((item, index) => (
+          {filteredMenuItems.map((item, index) => (
             <div key={item.label || index}>
               <NavLink
                 key={item.label}

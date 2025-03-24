@@ -14,7 +14,7 @@ import {
 import api from "./helper/api";
 import { ClipLoader } from "react-spinners";
 
-function SalesChart({ months }) {
+function SalesChart({ months, salesdata }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,15 +22,18 @@ function SalesChart({ months }) {
   useEffect(() => {
     const fetchSalesData = async () => {
       try {
-        const response = await api.get("/order/monthly-sales");
-        const result = await response.data;
-
+        // const response = await api.get("/order/monthly-sales");
+        const result = salesdata
+        console.log(result)
         // Format sales data (convert "$0.00" to number)
-        const formattedData = result.map((item) => ({
-          month: item.month,
-          sales: parseFloat(item.sales.replace("$", "")), // Convert sales to number
-          orders: item.orders || 0, // Orders count
-        }));
+        const formattedData = Array.isArray(salesdata)
+        ? salesdata.map((item) => ({
+            month: item.month, 
+            sales: parseFloat(item.sales.replace("$", "")),
+            orders: item.orders || 0,
+          }))
+        : [];
+      
 
         // Get only last `months` months
         const filteredData = formattedData.slice(-months);

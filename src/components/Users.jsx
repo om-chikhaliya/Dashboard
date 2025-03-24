@@ -6,6 +6,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Key, Trash2, UserCircle, X } from "lucide-react";
 import { ClipLoader } from "react-spinners";
+import { useNavigate } from "react-router-dom";
+
 
 const Users = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -15,7 +17,7 @@ const Users = () => {
   const [newPassword, setNewPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
+  const navigate = useNavigate();
   // Fetch Users API Call
   const fetchUsers = async () => {
     setLoading(true);
@@ -83,6 +85,10 @@ const Users = () => {
     }
   };
 
+  const handleAddUser = async() => {
+   navigate("/createuser")
+  }
+
   return (
     <div className="">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
@@ -91,7 +97,17 @@ const Users = () => {
         <Header />
         <ToastContainer position="top-right" autoClose={3000} />
         <div className="p-6  rounded-lg">
-          <h2 className="text-lg font-semibold mb-4">Users List</h2>
+        <h2 className="text-lg font-semibold mb-4 flex justify-between items-center">
+        <span>Users List</span>
+        <button
+          onClick={handleAddUser} // Call the function when clicked
+          className="bg-blue-600 text-sm text-white font-semibold px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        >
+          Add User
+          
+        </button>
+      </h2>
+
 
           {loading ? (
             <div className="flex justify-center items-center h-[700px]"><ClipLoader className="" size={50} color={"#AAFF00"} /></div>

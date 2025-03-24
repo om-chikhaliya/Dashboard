@@ -51,7 +51,7 @@ export default function PickUpItemsPage() {
       // Call the API with the extracted order IDs
       const response = await api.get(`/order/pick-orders?brickosys_order_ids=${idsParam}`);
       const orders = response.data;
-      
+
       setAllOrders(orders);
 
       setTotalLotsAndItems(getTotalLotsAndItems(orders))
@@ -61,7 +61,7 @@ export default function PickUpItemsPage() {
       orders.forEach((order) => {
         order.items.forEach((item) => {
           // if (item.picked === true || item.picked === 'true') {
-          
+
           //   toggleItemProcessed(item.item_id, order.order_id, order.brickosys_order_id);
           // }
 
@@ -320,7 +320,7 @@ export default function PickUpItemsPage() {
         .map(order => ({
           source: order.platform, // Replace with actual field name
           brickosysId: order.brickosys_order_id, // Replace with actual field name
-          status: order.brickosys_order_id.includes("BO") ? "Shipped" : "PACKED", // Set the desired status
+          status: order.brickosys_order_id.includes("BO") ? "Processed" : "PACKED", // Set the desired status
           pickUpDate: new Date().toISOString(), // Use the current date/time or a specific value
           pickUpBy: "holboxai", // Replace with actual logic to get the picker name
         }));
@@ -544,6 +544,11 @@ export default function PickUpItemsPage() {
                       <h2 className="text-lg font-semibold text-gray-800">Items</h2>
 
                       <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-6">
+                          <button className="bg-blue-600 text-sm font-semibold text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={handleContinueLater}>
+                            {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
+                          </button>
+                        </div>
                         {/* Progress Summary */}
                         <div className="flex items-center gap-6 bg-gray-100 px-4 py-1 rounded-lg text-sm font-semibold text-gray-800 shadow-sm">
                           <div className="flex items-center gap-1">
@@ -781,8 +786,9 @@ export default function PickUpItemsPage() {
                       </div>
                     )}
 
-                    {calculateProgress().packedOrders > 0 && (
-                      <div className="mt-6 flex justify-center">
+                    <div className="flex justify-center mt-6 gap-2">
+                      {calculateProgress().packedOrders > 0 && (
+
                         <button
                           onClick={handleProcessOrders}
                           className="bg-blue-600 text-sm text-white font-semibold px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -793,15 +799,22 @@ export default function PickUpItemsPage() {
                           <ArrowRight size={18} />
 
                         </button>
-                      </div>
-                    )}
+
+                      )}
+
+                      <button className="bg-blue-600 text-sm text-white font-semibold px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2" onClick={handleContinueLater}>
+                        {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
+                      </button>
+
+
+                    </div>
                   </div>
                 </div>
               </div>
-                    
+
               <button
                 className={`absolute top-[160px] z-30 transition-all bg-gray-100 hover:bg-gray-200 p-2 rounded-full shadow-md  ${showOrders ? "right-8" : "right-8"
-                }`}
+                  }`}
                 onClick={() => setShowOrders((prev) => !prev)}
               >
                 {showOrders ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
@@ -818,17 +831,7 @@ export default function PickUpItemsPage() {
                           {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
                         </button>
                       </div> */}
-                      <div className="flex items-center gap-6">
-                        <button className="bg-blue-600 text-sm font-semibold text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={handleContinueLater}>
-                          {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
-                        </button>
-                        {/* <button className="relative">
-                          <Bell className="w-6 h-6 text-[#6366F1]" />
-                        </button>
-                        <button className="relative">
-                          <MessageCircle className="w-6 h-6 text-[#6366F1]" />
-                        </button> */}
-                      </div>
+                      
                     </div>
 
                     <div className="space-y-4">
@@ -845,8 +848,8 @@ export default function PickUpItemsPage() {
                                   {order.platform} - Order no.#{order.order_id}
                                 </div>
                               </div>
-                              <span className="text-xs sm:text-sm font-semibold block mt-2 ml-2">{order.platform}</span>
-                              <span className="text-xs font-semibold text-gray-500 block mt-2 ml-2">{new Date(order.order_on).toLocaleDateString("en-GB", {
+                              <span className="text-xs sm:text-sm font-semibold block mt-2 ml-2"></span>
+                              <span className="text-xs font-semibold  block mt-2 ml-2">{new Date(order.order_on).toLocaleDateString("en-GB", {
                                 day: "2-digit",
                                 month: "long",
                                 year: "numeric",
@@ -892,11 +895,11 @@ export default function PickUpItemsPage() {
                     </div>
 
 
-                    <div className="mt-6 flex justify-center">
+                    {/* <div className="mt-6 flex justify-center">
                       <button className="bg-blue-600 text-sm font-semibold text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={handleContinueLater}>
                         {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 {/* OrderDetails Section end */}

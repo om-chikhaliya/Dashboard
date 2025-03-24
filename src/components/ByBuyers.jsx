@@ -12,29 +12,49 @@ export function ByBuyers() {
 
   useEffect(() => {
     const fetchBuyersData = async () => {
-      try {
-        const response = await api.get("/order/buyers-summary");
-        const buyersData = response.data.map((buyer) => ({
-          ...buyer,
-          avatar: "/placeholder.svg", // Add default avatar
-          email: `${buyer.buyer.replace(/\s+/g, "").toLowerCase()}@example.com`, // Generate a mock email
-          lastOrder: "Unknown", // Placeholder for last order time (Modify if needed)
-        }));
-
-        setBuyers(buyersData);
-      } catch (error) {
-        console.error("Error fetching buyers:", error);
-        setError("Failed to fetch buyers");
-      } finally {
+      const sessionData = sessionStorage.getItem("buyersData");
+      const sessionTimestamp = sessionStorage.getItem("buyersDataTimestamp");
+  
+      // Check if session data exists and if it hasn't expired (10 seconds)
+      const currentTime = new Date().getTime();
+      const expirationTime = 10 * 1000; // 10 seconds in milliseconds
+  
+      if (sessionData && sessionTimestamp && currentTime - sessionTimestamp < expirationTime) {
+        // If data is in session and has not expired
+        setBuyers(JSON.parse(sessionData));
         setLoading(false);
+      } else {
+        try {
+          const response = await api.get("/order/buyers-summary");
+          const buyersData = response.data.map((buyer) => ({
+            ...buyer,
+            avatar: "/placeholder.svg", // Add default avatar
+            email: `${buyer.buyer.replace(/\s+/g, "").toLowerCase()}@example.com`, // Generate a mock email
+            lastOrder: "Unknown", // Placeholder for last order time (Modify if needed)
+          }));
+  
+          // Store the fetched data and current timestamp in sessionStorage
+          sessionStorage.setItem("buyersData", JSON.stringify(buyersData));
+          sessionStorage.setItem("buyersDataTimestamp", currentTime.toString());
+  
+          // Update state with the fetched data
+          setBuyers(buyersData);
+        } catch (error) {
+          console.error("Error fetching buyers:", error);
+          setError("Failed to fetch buyers");
+        } finally {
+          setLoading(false); // Stop loading spinner
+        }
       }
     };
-
+  
     fetchBuyersData();
   }, []);
+  
+  
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden h-full">
+    <div className="bg-white rounded-lg  overflow-hidden h-full">
       <div className="p-4">
         <h2
           className="text-lg font-semibold"
@@ -65,7 +85,7 @@ export function ByBuyers() {
           <p className="text-center text-gray-500 p-4">No buyers found</p>
         ) : (
           <div className="p-2 space-y-2">
-            {buyers.map((buyer, index) => (
+            {buyers.slice(0, 5).map((buyer, index) => (
               <div
                 key={index}
                 className="flex flex-col p-3 rounded-lg hover:bg-gray-50 transition-colors"
