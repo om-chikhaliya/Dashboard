@@ -14,9 +14,10 @@ import accessdenied from './assets/accessdenied2.png'
 import { Unmatchlot } from "./components/Unmatchlot";
 import Users from "./components/Users";
 import { WishList } from "./components/WishList";
-import { Price } from "./components/Price";
+import {Price} from './components/Price';
 
 import AdminLogs from "./components/AdminLogs";
+import ProfilePage from "./components/Profile";
 
 const ProtectedRoute = ({ element, requiredRole }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -63,6 +64,7 @@ function App() {
           <Route path="/wishlist" element={<ProtectedRoute element={<WishList />}  />} />
           <Route path="/price" element={<ProtectedRoute element={<Price />} requiredRole="admin" />} />
           <Route path="/logs" element={<ProtectedRoute element={<AdminLogs />} requiredRole="admin" />} />
+          <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
         </Routes>
       </div>
     </Router>

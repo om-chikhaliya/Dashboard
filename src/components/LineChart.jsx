@@ -24,7 +24,7 @@ function SalesChart({ months, salesdata }) {
       try {
         // const response = await api.get("/order/monthly-sales");
         const result = salesdata
-        console.log(result)
+  
         // Format sales data (convert "$0.00" to number)
         const formattedData = Array.isArray(salesdata)
         ? salesdata.map((item) => ({

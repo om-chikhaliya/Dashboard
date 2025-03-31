@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 // import dayjs from "dayjs";
 // import relativeTime from "dayjs/plugin/relativeTime";
 import api from "./helper/api";
+import { formatDistanceToNow } from "date-fns";
 import { LastSyncedat } from "./LastSyncedat";
 
 // dayjs.extend(relativeTime);
@@ -333,7 +334,10 @@ function StatsCard({ data }) {
                   </span>
                 )}
               </div>
-              <LastSyncedat syncdate={store.lastSynced}></LastSyncedat>
+              <p className="text-[12px] text-gray-500 mt-1">
+                Last Synced at {formatDistanceToNow(new Date(store.lastSynced), { addSuffix: true })}
+
+              </p>
             </div>
 
             {/* Orders, Lots, and Items */}
@@ -460,40 +464,40 @@ function StatsCard({ data }) {
 
       {showModalBreakdown && detailedStoreData && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
-        <div className="bg-white rounded-xl p-6 shadow-lg w-[90%] md:w-[800px] lg:w-[1000px] max-h-[80vh] relative">
-          <button
-            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-            onClick={closeModal}
-          >
-            <X size={20} />
-          </button>
-          <h3 className="text-xl font-semibold mb-4 text-center">
-            {detailedStoreData.name} Detailed Breakdown
-          </h3>
-      
-          {/* Table Wrapper */}
-          <table className="min-w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Type</th>
-                <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Lot Count</th>
-                <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Item Count</th>
-                <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(detailedStoreData.stats.detailedLot || {}).map(([type, count]) => (
-                <tr key={type} className="border-t">
-                  <td className="py-2 px-4 border-b text-sm">{type}</td>
-                  <td className="py-2 px-4 border-b text-sm">{count}</td>
-                  <td className="py-2 px-4 border-b text-sm">{detailedStoreData.stats.detailedItem[type]}</td>
-                  <td className="py-2 px-4 border-b text-sm">${detailedStoreData.stats.detailedPrice[type].toFixed(2)}</td>
+          <div className="bg-white rounded-xl p-6 shadow-lg w-[90%] md:w-[800px] lg:w-[1000px] max-h-[80vh] relative">
+            <button
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              onClick={closeModal}
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-xl font-semibold mb-4 text-center">
+              {detailedStoreData.name} Detailed Breakdown
+            </h3>
+
+            {/* Table Wrapper */}
+            <table className="min-w-full table-auto border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Type</th>
+                  <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Lot Count</th>
+                  <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Item Count</th>
+                  <th className="text-left py-2 px-4 border-b text-sm font-medium text-gray-600">Price</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {Object.entries(detailedStoreData.stats.detailedLot || {}).map(([type, count]) => (
+                  <tr key={type} className="border-t">
+                    <td className="py-2 px-4 border-b text-sm">{type}</td>
+                    <td className="py-2 px-4 border-b text-sm">{count}</td>
+                    <td className="py-2 px-4 border-b text-sm">{detailedStoreData.stats.detailedItem[type]}</td>
+                    <td className="py-2 px-4 border-b text-sm">${detailedStoreData.stats.detailedPrice[type].toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
       )}
 

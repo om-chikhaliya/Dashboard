@@ -10,47 +10,63 @@ export function ByBuyers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchBuyersData = async () => {
-      const sessionData = sessionStorage.getItem("buyersData");
-      const sessionTimestamp = sessionStorage.getItem("buyersDataTimestamp");
+  const fetchAndStoreBuyers = async () => {
+    try {
+      const res = await api.get("/order/buyers-summary");
   
-      // Check if session data exists and if it hasn't expired (10 seconds)
-      const currentTime = new Date().getTime();
-      const expirationTime = 10 * 1000; // 10 seconds in milliseconds
+      const dataToStore = {
+        data: res.data,
+        timestamp: Date.now(), // Save current time
+      };
   
-      if (sessionData && sessionTimestamp && currentTime - sessionTimestamp < expirationTime) {
-        // If data is in session and has not expired
-        setBuyers(JSON.parse(sessionData));
-        setLoading(false);
+      sessionStorage.setItem("buyerData", JSON.stringify(dataToStore));
+      setBuyers(res.data);
+    } catch (err) {
+      console.error("Fetch failed:", err);
+  
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please log in again.");
+        // Optionally redirect to login
       } else {
-        try {
-          const response = await api.get("/order/buyers-summary");
-          const buyersData = response.data.map((buyer) => ({
-            ...buyer,
-            avatar: "/placeholder.svg", // Add default avatar
-            email: `${buyer.buyer.replace(/\s+/g, "").toLowerCase()}@example.com`, // Generate a mock email
-            lastOrder: "Unknown", // Placeholder for last order time (Modify if needed)
-          }));
+        toast.error("Failed to load dashboard data.");
+      }
   
-          // Store the fetched data and current timestamp in sessionStorage
-          sessionStorage.setItem("buyersData", JSON.stringify(buyersData));
-          sessionStorage.setItem("buyersDataTimestamp", currentTime.toString());
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchBuyers = async () => {
+      try {
+        const cached = sessionStorage.getItem("buyerData");
   
-          // Update state with the fetched data
-          setBuyers(buyersData);
-        } catch (error) {
-          console.error("Error fetching buyers:", error);
-          setError("Failed to fetch buyers");
-        } finally {
-          setLoading(false); // Stop loading spinner
+        if (cached) {
+          const { data, timestamp } = JSON.parse(cached);
+          const now = Date.now();
+          const diffInMinutes = (now - timestamp) / (1000 * 60);
+  
+          if (diffInMinutes < 10) {
+            setBuyers(data);
+            setLoading(false);
+            return;
+          } else {
+            // Expired: remove stale data
+            sessionStorage.removeItem("buyerData");
+          }
         }
+  
+        // If no data or expired, fetch from API
+        await fetchAndStoreBuyers();
+      } catch (err) {
+        console.error("Dashboard fetch error", err);
+        setLoading(false);
       }
     };
   
-    fetchBuyersData();
+    fetchBuyers();
   }, []);
-  
   
 
   return (

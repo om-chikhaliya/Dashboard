@@ -162,41 +162,41 @@ function OrderPageContent() {
   const [dateRange, setDateRange] = useState([null, null]);
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = api.get("/order/sync");
 
-        const response = await api.get("/order");
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const res = api.get("/order/sync");
 
-
-
-        const sortedOrders = response.data.sort((a, b) => {
-          // Ensure that 'date' is in a format that can be compared (e.g., ISO 8601 string or timestamp)
-          return new Date(b.order_on) - new Date(a.order_on); // Sorting by descending order (newest first)
-        });
-
-        setFilteredOrders(sortOrders(response.data, "date"));
-        setOrders(sortedOrders);
-
-        // const task_response = await api.get("/order/task");
-
-        // setTasks(task_response.data)
-        // setTaskloading(false)
+  //       const response = await api.get("/order");
 
 
-      } catch (err) {
-        // setError(err.message); // Save error message to state
-        console.error("Error fetching data:", err);
-      } finally {
-        setLoading(false); // Stop loading spinner
-      }
-    };
 
-    fetchData();
+  //       const sortedOrders = response.data.sort((a, b) => {
+  //         return new Date(b.order_on) - new Date(a.order_on); // Sorting by descending order (newest first)
+  //       });
+
+  //       setFilteredOrders(sortOrders(response.data, "date"));
+  //       setOrders(sortedOrders);
+
+  //       // const task_response = await api.get("/order/task");
+
+  //       // setTasks(task_response.data)
+  //       // setTaskloading(false)
 
 
-  }, [])
+  //     } catch (err) {
+  //       // setError(err.message); // Save error message to state
+  //       console.error("Error fetching data:", err);
+  //     } finally {
+  //       setLoading(false); // Stop loading spinner
+  //     }
+  //   };
+
+  //   fetchData();
+
+
+  // }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -389,42 +389,6 @@ function OrderPageContent() {
     )
   }
 
-
-  // Handle date change
-  // const handleDateChange = (date) => {
-  //   setSelectedDate(date);
-
-  //   // Convert selected date to YYYY-MM-DD (local format)
-  //   const selectedDateString = date.toLocaleDateString("en-CA"); // "YYYY-MM-DD"
-
-  //   // Filter orders based on the selected date
-  //   const filtered = orders.filter((order) => {
-  //     const orderDate = new Date(order.order_on).toLocaleDateString("en-CA"); // "YYYY-MM-DD"
-  //     return orderDate === selectedDateString;
-  //   });
-
-  //   setFilteredOrders(filtered);
-  // };
-
-  // const handleRangeChange = (value) => {
-  //   // 'value' is either a single Date or an array of two Dates (start and end)
-  //   if (Array.isArray(value)) {
-  //     // For a range: value = [startDate, endDate]
-  //     const [startDate, endDate] = value;
-  //     setDateRange([startDate, endDate]);
-
-  //     // Filter orders within the selected range (inclusive)
-  //     const filtered = filteredOrders.filter((order) => {
-  //       const orderDate = new Date(order.order_on);
-  //       return orderDate >= startDate && orderDate <= endDate;
-  //     });
-
-  //     setFilteredOrders(filtered);
-  //   } else {
-  //     // When using selectRange, this case generally occurs on the first click before a range is selected.
-  //     setDateRange([value, value]);
-  //   }
-  // };
   const [startDate, endDate] = dateRange;
   const handleRangeChange = (value) => {
     if (Array.isArray(value)) {
@@ -454,6 +418,42 @@ function OrderPageContent() {
 
       const orderIds = selectedOrders.join(',');
       window.location.href = `/pickorders?brickosys_orderId=${orderIds}`;  // Using window.location.href
+    }
+  };
+
+  const [currentPage, setCurrentPage] = useState(1); // Track the current page
+  const [totalPages, setTotalPages] = useState(1); // Total number of pages
+  const [limit, setLimit] = useState(9); // Set the limit of items per page
+  const [totalOrders, setTotalOrders] = useState(0); // Track total number of orders for pagination
+
+  const fetchData = async () => {
+    try {
+      const response = await api.get("/order", {
+        params: {
+          limit,
+          offset: (currentPage - 1) * limit, // Calculate offset
+        },
+      });
+
+      setOrders(response.data.orders)
+      setFilteredOrders(response.data.orders); // Assuming response.data contains orders
+      setTotalOrders(response.data.total); // Assuming response.data contains the total number of orders
+      setTotalPages(Math.ceil(response.data.total / limit)); // Calculate total pages based on total orders and limit
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false); // Stop loading spinner
+    }
+  };
+
+  useEffect(() => {
+    fetchData(); // Fetch data when currentPage or limit changes
+  }, [currentPage, limit]);
+
+  const handlePageChange = (page) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page); // Update current page
+      handleSelectAllOrders(false)
     }
   };
 
@@ -713,57 +713,58 @@ function OrderPageContent() {
                   </div> :
                     <>
                       {!loading && filteredOrders.length === 0 ? <div className="flex justify-center items-center h-96 min-w-fit"><img src={img1}></img></div> :
-                        <table className="min-w-full">
-                          <thead>
-                            <tr className="border-b border-gray-400">
-                              <th className="text-left py-3 px-2 text-sm text-left font-medium">
-                                <Checkbox
-                                  checked={selectAllOrders}
-                                  onChange={(checked) => handleSelectAllOrders(checked)}
-                                  className="border-gray-500"
-                                />
-                              </th>
-                              <th className="text-left py-3 px-4 text-sm font-medium">
-                                Order#
-                              </th>
-                              <th className="text-center py-3 px-4 text-sm font-medium">
-                                Platform
-                              </th>
-                              <th className="text-left py-3 px-4 text-sm font-medium">
-                                Date
-                              </th>
-                              <th className="text-left py-3 px-1 text-sm font-medium">
-                                Lots/Items
-                              </th>
-                              <th className="text-left py-3 px-4 text-sm font-medium">
-
-                              </th>
-                              {/* <th className="text-left py-3 px-4 text-sm text-right font-medium">
-                          Buyer
-                        </th> */}
-                              <th className="text-left py-3 px-4 text-sm text-right font-medium">
-                                Total
-                              </th>
-                              <th className="text-left py-3 px-4 text-sm text-right font-medium">
-                                Status
-                              </th>
-                            </tr>
-                          </thead>
-
-                          <tbody >
-                            {filteredOrders.map((order) => (
-                              <tr key={order.brickosys_order_id} className="border-b border-gray-700">
-                                <td className="p-2">
+                        <div>
+                          <table className="min-w-full">
+                            <thead>
+                              <tr className="border-b border-gray-400">
+                                <th className="text-left py-3 px-2 text-sm text-left font-medium">
                                   <Checkbox
-                                    checked={selectedOrders.includes(order.brickosys_order_id)}
-                                    onChange={(checked) =>
-                                      handleOrderSelection(order.brickosys_order_id, checked)
-                                    }
+                                    checked={selectAllOrders}
+                                    onChange={(checked) => handleSelectAllOrders(checked)}
                                     className="border-gray-500"
                                   />
-                                </td>
-                                <td className="p-2">
-                                  {/* <span
+                                </th>
+                                <th className="text-left py-3 px-4 text-sm font-medium">
+                                  Order#
+                                </th>
+                                <th className="text-center py-3 px-4 text-sm font-medium">
+                                  Platform
+                                </th>
+                                <th className="text-left py-3 px-4 text-sm font-medium">
+                                  Date
+                                </th>
+                                <th className="text-left py-3 px-1 text-sm font-medium">
+                                  Lots/Items
+                                </th>
+                                <th className="text-left py-3 px-4 text-sm font-medium">
+
+                                </th>
+                                {/* <th className="text-left py-3 px-4 text-sm text-right font-medium">
+                          Buyer
+                        </th> */}
+                                <th className="text-left py-3 px-4 text-sm text-right font-medium">
+                                  Total
+                                </th>
+                                <th className="text-left py-3 px-4 text-sm text-right font-medium">
+                                  Status
+                                </th>
+                              </tr>
+                            </thead>
+
+                            <tbody >
+                              {filteredOrders.map((order) => (
+                                <tr key={order.brickosys_order_id} className="border-b border-gray-700">
+                                  <td className="p-2">
+                                    <Checkbox
+                                      checked={selectedOrders.includes(order.brickosys_order_id)}
+                                      onChange={(checked) =>
+                                        handleOrderSelection(order.brickosys_order_id, checked)
+                                      }
+                                      className="border-gray-500"
+                                    />
+                                  </td>
+                                  <td className="p-2">
+                                    {/* <span
                               className={`mr-2 ${order.orderFrom === "BrickLink"
                                 ? "text-blue-400"
                                 : "text-green-400"
@@ -771,48 +772,70 @@ function OrderPageContent() {
                             >
                               {order.orderFrom}
                             </span> */}
-                                  {order.order_id}
-                                </td>
-                                <td className="p-2 text-center">{order.platform}</td>
-                                <td className="p-2">{new Date(order.order_on).toLocaleDateString("en-GB", {
-                                  day: "2-digit",
-                                  month: "long",
-                                  year: "numeric",
-                                })}</td>
-                                <td className="p-2">
-                                  {order.items.length} / {getTotalItemsInOrder(order)}
-                                </td>
-                                <td className="p-2"></td>
-                                {/* <td className="p-2">{order.orderObject.paymentMethod}</td> */}
-                                <td className="p-4 text-right">
-                                  ${order.total_price.toFixed(2)}
-                                  {/* <br />
+                                    {order.order_id}
+                                  </td>
+                                  <td className="p-2 text-center">{order.platform}</td>
+                                  <td className="p-2">{new Date(order.order_on).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "long",
+                                    year: "numeric",
+                                  })}</td>
+                                  <td className="p-2">
+                                    {order.items.length} / {getTotalItemsInOrder(order)}
+                                  </td>
+                                  <td className="p-2"></td>
+                                  {/* <td className="p-2">{order.orderObject.paymentMethod}</td> */}
+                                  <td className="p-4 text-right">
+                                    ${order.total_price.toFixed(2)}
+                                    {/* <br />
                                 <span className="text-xs text-gray-500">
                                   + ${order.orderObject.shipping.toFixed(2)}
                                 </span>
                                 <br />
                                 ${(order.total_price + order.orderObject.shipping).toFixed(2)} */}
-                                </td>
-                                <td className="p-2 text-right">
-                                  <span
-                                    className={`px-2 py-1 rounded text-sm ${["PACKED", "Processed"].includes(order.status)
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-purple-100 text-purple-800"
-                                      }`}
-                                  >
-                                    {order.status}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
+                                  </td>
+                                  <td className="p-2 text-right">
+                                    <span
+                                      className={`px-2 py-1 rounded text-sm ${["PACKED", "Processed"].includes(order.status)
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-purple-100 text-purple-800"
+                                        }`}
+                                    >
+                                      {order.status}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
 
-                        </table>
+                          </table>
+                          <div className="flex justify-center mt-4">
+                            <button
+                              onClick={() => handlePageChange(currentPage - 1)}
+                              disabled={currentPage === 1}
+                              className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
+                            >
+                              &lt; {/* "<" icon */}
+                            </button>
+                            <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
+                            <button
+                              onClick={() => handlePageChange(currentPage + 1)}
+                              disabled={currentPage === totalPages}
+                              className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
+                            >
+                              &gt; {/* ">" icon */}
+                            </button>
+                          </div>
+
+
+                        </div>
                       }</>
+
                   }
                 </div>
 
               ) : (<>{!loading && filteredOrders.length === 0 ? <div className="flex justify-center items-center h-96 min-w-96"><img src={img1}></img></div> :
+                <div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredOrders.map((order) => (
                     <OrderCard key={order.brickosys_order_id} order={order}
@@ -822,6 +845,24 @@ function OrderPageContent() {
                     />
                   ))}
                 </div>
+                <div className="flex justify-center mt-4">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
+                >
+                  &lt; {/* "<" icon */}
+                </button>
+                <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
+                >
+                  &gt; {/* ">" icon */}
+                </button>
+              </div>
+              </div>
               }
               </>
               )}
@@ -933,7 +974,7 @@ function OrderPageContent() {
 
       </div>
 
-    </div>
+    </div >
   );
 }
 

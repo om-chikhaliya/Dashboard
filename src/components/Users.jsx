@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Key, Trash2, UserCircle, X } from "lucide-react";
 import { ClipLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
-
+import img from '../assets/noitems.png'
 
 const Users = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -19,21 +19,19 @@ const Users = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
   // Fetch Users API Call
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/admin/users"); // Fetch users from API
-      setUsers(response.data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      toast.error("Failed to load users.");
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get("/admin/users");
+        setUsers(Array.isArray(response.data) ? response.data : []); // Ensure it's an array
+      } catch (err) {
+        console.error("Error fetching users:", err);
+      }
+    };
+
     fetchUsers();
   }, []);
+
 
   // Open Password Modal
   const openPasswordModal = (user) => {
@@ -51,7 +49,7 @@ const Users = () => {
 
     try {
 
-    
+
       await api.post("/admin/users/password", {
         email: selectedUser.email,
         newPassword: newPassword
@@ -85,8 +83,8 @@ const Users = () => {
     }
   };
 
-  const handleAddUser = async() => {
-   navigate("/createuser")
+  const handleAddUser = async () => {
+    navigate("/createuser")
   }
 
   return (
@@ -97,52 +95,62 @@ const Users = () => {
         <Header />
         <ToastContainer position="top-right" autoClose={3000} />
         <div className="p-6  rounded-lg">
-        <h2 className="text-lg font-semibold mb-4 flex justify-between items-center">
-        <span>Users List</span>
-        <button
-          onClick={handleAddUser} // Call the function when clicked
-          className="bg-blue-600 text-sm text-white font-semibold px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-        >
-          Add User
-          
-        </button>
-      </h2>
+          <h2 className="text-lg font-semibold mb-4 flex justify-between items-center">
+            <span>Users List</span>
+            <button
+              onClick={handleAddUser} // Call the function when clicked
+              className="bg-blue-600 text-sm text-white font-semibold px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              Add User
+
+            </button>
+          </h2>
 
 
           {loading ? (
-            <div className="flex justify-center items-center h-[700px]"><ClipLoader className="" size={50} color={"#AAFF00"} /></div>
+            <div className="flex justify-center items-center h-[700px]">
+              <ClipLoader className="" size={50} color={"#AAFF00"} />
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {users.map(user => (
-                <div key={user.id} className="flex items-center gap-4 p-4 bg-gray-100 rounded-lg shadow-md">
-                  {/* User Icon */}
-                  <div className="flex-shrink-0">
-                    <UserCircle size={40} className="text-gray-600" />
-                  </div>
-
-                  {/* User Info */}
-                  <div className="flex-1">
-                    <h3 className="text-md font-semibold text-gray-800">{user.name}</h3>
-                    <p className="text-sm text-gray-600">{user.email}</p>
-                  </div>
-
-                  {/* Action Icons */}
-                  <div className="flex items-center gap-3">
-                    <Key
-                      size={24}
-                      className="text-blue-600 cursor-pointer hover:text-blue-800"
-                      onClick={() => openPasswordModal(user)}
-                    />
-                    <Trash2
-                      size={24}
-                      className="text-red-600 cursor-pointer hover:text-red-800"
-                      onClick={() => openDeleteModal(user)}
-                    />
-                  </div>
+              {Array.isArray(users) && users.length === 0 ? (
+                <div className="flex items-center justify-center min-h-full">
+                  <img src={img} alt="" />
                 </div>
-              ))}
+              ) : (
+                users.map(user => (
+                  <div key={user.id} className="flex items-center gap-4 p-4 bg-gray-100 rounded-lg shadow-md">
+                    {/* User Icon */}
+                    <div className="flex-shrink-0">
+                      <UserCircle size={40} className="text-gray-600" />
+                    </div>
+
+                    {/* User Info */}
+                    <div className="flex-1">
+                      <h3 className="text-md font-semibold text-gray-800">{user.name}</h3>
+                      <p className="text-sm text-gray-600">{user.email}</p>
+                    </div>
+
+                    {/* Action Icons */}
+                    <div className="flex items-center gap-3">
+                      <Key
+                        size={24}
+                        className="text-blue-600 cursor-pointer hover:text-blue-800"
+                        onClick={() => openPasswordModal(user)}
+                      />
+                      <Trash2
+                        size={24}
+                        className="text-red-600 cursor-pointer hover:text-red-800"
+                        onClick={() => openDeleteModal(user)}
+                      />
+                    </div>
+                  </div>
+                ))
+
+              )}
             </div>
           )}
+
         </div>
       </div>
 

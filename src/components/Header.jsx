@@ -3,6 +3,7 @@ import { Search, ChevronDown, User, LogOut } from "react-feather";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import Input from "./ui/Input";
+import user from '../assets/user.jpg'
 
 
 function Header({ handleSearch, searchTerm }) {
@@ -48,7 +49,7 @@ function Header({ handleSearch, searchTerm }) {
         >
           
           <img
-            src="https://c8.alamy.com/comp/2RFFRCC/photo-of-impressed-nice-cheerful-person-raise-arms-open-mouth-cant-believe-wear-lime-cropped-top-isolated-on-violet-color-background-2RFFRCC.jpg"
+            src={user}
             alt=""
             className="w-8 h-8 rounded-full object-cover"
           />
@@ -66,7 +67,7 @@ function Header({ handleSearch, searchTerm }) {
             >
               <div className="py-1">
                 <a
-                  href="#"
+                  href="/profile"
                   className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50"
                 >
                   <User size={16} />
