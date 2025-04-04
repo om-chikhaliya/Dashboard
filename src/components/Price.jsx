@@ -9,6 +9,7 @@ import { ClipLoader } from "react-spinners";
 
 export function Price() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [guideType, setGuideType] = useState("sold");
 
     const [selectedStore, setSelectedStore] = useState("BrickLink");
     const [selectedRows, setSelectedRows] = useState([]);
@@ -79,26 +80,27 @@ export function Price() {
             toast.error("Please select at least one item.");
             return;
         }
-    
+
         // Create the request payload
         const requestData = {
             months: selectedMonths,
             percentage: pricePercentage,
             itemTypes: selectedRows,
             priceChangeType: priceChangeType,
+            guideType: guideType
         };
 
         console.log("submitted data: ", requestData)
-    
+
         // Call the price change API
         try {
-            const response =  api.post("/price/pricechange", requestData);
+            const response = api.post("/price/pricechange", requestData);
             toast.success(`Price change started`);
         } catch (error) {
             console.error("Error during price change:", error);
             toast.error(error.response?.data?.error || "Failed to change prices.");
         }
-    
+
         // Logic to update prices for selected rows
     };
 
@@ -140,9 +142,9 @@ export function Price() {
                         </div>
 
                         {/* Table for Detailed Breakdown */}
-                        <div className="flex justify-between gap-8 mb-4 mx-auto mt-5">
+                        <div className="flex justify-between gap-8 mb-4 mx-auto mt-5 relative">
                             {/* Table Component */}
-                            <div className="flex-1">
+                            <div className={`flex-1 ${selectedStore === "BrickOwl" ? "blur-sm pointer-events-none select-none" : ""}`}>
                                 <table className="w-full table-auto border-collapse rounded-xl p-6 shadow-lg h-full">
                                     <thead>
                                         <tr className="bg-gray-100">
@@ -172,27 +174,60 @@ export function Price() {
                                     </tbody>
                                 </table>
                             </div>
-
+                            {selectedStore === "BrickOwl" && (
+                                <div className="absolute inset-0 bg-white bg-opacity-80 backdrop-blur-sm flex items-center justify-center rounded-xl z-10">
+                                    <p className="text-xl font-semibold text-gray-700">🚧 This Feature is coming soon...</p>
+                                </div>
+                            )}
                             {/* Price Change Component */}
                             <div className="flex-1">
                                 <div className="bg-white rounded-xl p-6">
                                     <h3 className="text-xl font-semibold mb-4">Update Item Prices</h3>
                                     <p className="text-sm mb-4 text-gray-700">
-                                        Update the price of items based on the average price of
-                                        <span className="font-medium text-gray-900"> {selectedMonths} </span> months
-                                        by <span className="font-medium text-gray-900">{pricePercentage}%</span>
-                                        <span className="font-medium text-gray-900"> {priceChangeType}.</span>
+                                        Update the price of items based on the{" "}
+                                        {guideType === "Sold" ? (
+                                            <>
+                                                average price of <span className="font-medium text-gray-900">{selectedMonths} </span> month
+                                                {selectedMonths > 1 && "s"}
+                                            </>
+                                        ) : (
+                                            <>stock values</>
+                                        )}{" "}
+                                        by <span className="font-medium text-gray-900">{pricePercentage}%</span>{" "}
+                                        <span className="font-medium text-gray-900">{priceChangeType}.</span>
                                     </p>
 
-                                    {/* Months Dropdown */}
-                                    <label className="block text-sm font-medium text-gray-700">Select Months:</label>
-                                    <select className="border p-2 w-full rounded-lg mb-3" value={selectedMonths} onChange={(e) => setSelectedMonths(e.target.value)}>
-                                        {[1, 2, 3, 4, 5, 6].map((month) => (
-                                            <option key={month} value={month}>
-                                                {month} {month > 1 ? "Months" : "Month"}
-                                            </option>
-                                        ))}
+
+                                    {/* Guide Type Dropdown */}
+                                    <label className="block text-sm font-medium text-gray-700">Based on:</label>
+                                    <select
+                                        className="border p-2 w-full rounded-lg mb-3"
+                                        value={guideType}
+                                        onChange={(e) => setGuideType(e.target.value)}
+                                    >
+                                        <option value="sold">Last 6 months Sales data</option>
+                                        <option value="stock">Current Market Price</option>
                                     </select>
+
+
+                                    {/* Months Dropdown */}
+                                    {guideType === "sold" && (
+                                        <>
+                                            <label className="block text-sm font-medium text-gray-700">Select Months:</label>
+                                            <select
+                                                className="border p-2 w-full rounded-lg mb-3"
+                                                value={selectedMonths}
+                                                onChange={(e) => setSelectedMonths(e.target.value)}
+                                            >
+                                                {[1, 2, 3, 4, 5, 6].map((month) => (
+                                                    <option key={month} value={month}>
+                                                        {month} {month > 1 ? "Months" : "Month"}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </>
+                                    )}
+
 
                                     {/* Percentage Input */}
                                     <label className="block text-sm font-medium text-gray-700">Percentage:</label>

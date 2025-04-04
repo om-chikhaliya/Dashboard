@@ -322,13 +322,13 @@ export default function PickUpItemsPage() {
           brickosysId: order.brickosys_order_id, // Replace with actual field name
           status: order.brickosys_order_id.includes("BO") ? "Processed" : "PACKED", // Set the desired status
           pickUpDate: new Date().toISOString(), // Use the current date/time or a specific value
-          pickUpBy: "holboxai", // Replace with actual logic to get the picker name
+          pickUpBy: localStorage.getItem("username"), // Replace with actual logic to get the picker name
         }));
 
 
       // Step 3: Construct the API request body
       const body = updates;
-
+      console.log("body: ", body);
 
       // Step 4: Call the API to update order status
       const response = await api.post('/order/update-order-status', body);

@@ -39,7 +39,7 @@ const CreateUserForm = () => {
       navigate('/dashboard')
 
     } catch (error) {
-      toast.error("Something Went Wrong.")
+      toast.error(error.response.data.error)
       
     }
 
@@ -49,7 +49,7 @@ const CreateUserForm = () => {
     <div className="app">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} `}>
-      <ToastContainer position="bottom-right" />
+      <ToastContainer position="top-right" />
         <Header />
 
         <div className="flex justify-center items-center max-h-screen max-w-screen p-6">

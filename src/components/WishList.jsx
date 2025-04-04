@@ -6,7 +6,7 @@ import api from "./helper/api";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { toast, ToastContainer } from "react-toastify";
-import { fomartImageSrcString } from './helper/constant'
+import { fomartImageSrcString, fomartItemSrcString } from './helper/constant'
 import { ClipLoader } from "react-spinners";
 
 export function WishList() {
@@ -14,13 +14,13 @@ export function WishList() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isXMLProcessing, setXMLProcessing] = useState(false)
 
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await api.get("/order/wishlist");
-
                 setItems(response.data)
 
             } catch (err) {
@@ -51,6 +51,66 @@ export function WishList() {
         setModalOpen(false);
     };
 
+    const downloadXML = () => {
+        setXMLProcessing(true);
+        const xmlContent = generateBrickLinkXML(items); // Replace `data` with your state variable holding the list
+        const blob = new Blob([xmlContent], { type: "text/xml" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "wanted_list.xml";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setXMLProcessing(false);
+    };
+    const getItemTypeCode = (type) => {
+        const map = {
+            PART: "P",
+            SET: "S",
+            MINIFIG: "M",
+            BOOK: "B",
+            GEAR: "G",
+            CATALOG: "C",
+            INSTRUCTION: "I",
+            BOX: "O",
+        };
+
+        return map[type?.toUpperCase()] || "P"; // fallback to 'P' (Part) if unknown
+    };
+
+    const generateBrickLinkXML = (items) => {
+        let xml = `<INVENTORY>\n`;
+
+        items.forEach((entry) => {
+            const item = entry.item || {};
+
+            xml += `  <ITEM>\n`;
+            xml += `    <ITEMTYPE>${getItemTypeCode(item.type)}</ITEMTYPE>\n`;
+            xml += `    <ITEMID>${item.no}</ITEMID>\n`;
+
+            if (entry.color_id) xml += `    <COLOR>${entry.color_id}</COLOR>\n`;
+            if (entry.unit_price && parseFloat(entry.unit_price) > 0) xml += `    <MAXPRICE>${parseFloat(entry.unit_price)}</MAXPRICE>\n`;
+            if (entry.quantity && parseInt(entry.quantity) > 0) xml += `    <MINQTY>${parseInt(entry.quantity)}</MINQTY>\n`;
+            if (entry.new_or_used) xml += `    <CONDITION>${entry.new_or_used}</CONDITION>\n`;
+            if (entry.remarks) xml += `    <REMARKS>${sanitizeXML(entry.remarks)}</REMARKS>\n`;
+            if (entry.description) xml += `    <REMARKS>${sanitizeXML(entry.description)}</REMARKS>\n`;
+            xml += `    <NOTIFY>Y</NOTIFY>\n`;
+            xml += `  </ITEM>\n`;
+        });
+
+        xml += `</INVENTORY>`;
+        return xml;
+    };
+
+    const sanitizeXML = (text) => {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    };
+
 
     return (
         <div className="">
@@ -59,7 +119,23 @@ export function WishList() {
             <div className={isSidebarOpen ? "main-content sidebar-open" : "px-4 py-4"}>
                 <Header />
                 <ToastContainer position="top-right" autoClose={3000} />
-                {loading ? <div className="flex justify-center items-center h-[700px]"><ClipLoader className="" size={50} color={"#AAFF00"} /></div> : <div className="grid gap-4">
+                
+
+                {loading ? <div className="flex justify-center items-center h-[700px]"><ClipLoader className="" size={50} color={"#AAFF00"} /></div> : 
+                <>
+                <div className="flex justify-end mb-2">
+                    <button
+                        onClick={downloadXML}
+                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+                    >
+                        {isXMLProcessing ? (
+                            <ClipLoader size={20} color="#ffffff" />
+                        ) : (
+                            "Download XML"
+                        )}
+                    </button>
+                </div>
+                <div className="grid gap-4">
                     {items.map((item) => {
                         const isBrickOwl = "boid" in items[0]; // Check if it's a BrickOwl item
                         const itemId = isBrickOwl ? item.boid : item.item.no;
@@ -72,7 +148,7 @@ export function WishList() {
                         const itemImage = isBrickOwl ? item.img : fomartImageSrcString(item.item.type, item.color_id, item.item.no) || item.image;
                         const itemUrl = isBrickOwl
                             ? item.url
-                            : `https://www.bricklink.com/v2/catalog/catalogitem.page?P=${item.item.no}#T=C&C=${item.color_id}`;
+                            : fomartItemSrcString(item.item.type, item.color_id, item.item.no);
 
                         return (
                             <div
@@ -183,7 +259,7 @@ export function WishList() {
                             </div>
                         </div>
                     )}
-                </div>}
+                </div> </>}
             </div>
         </div>
     );

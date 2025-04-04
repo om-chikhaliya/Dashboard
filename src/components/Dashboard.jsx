@@ -13,6 +13,9 @@ import Header from "./Header";
 import { BarChart } from "lucide-react";
 import api from "./helper/api";
 import { ClipLoader } from "react-spinners";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 function Dashboard() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -42,45 +45,61 @@ function Dashboard() {
     },
   ]);
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.toasts) {
+      // Show toasts
+      location.state.toasts.forEach((t) => {
+        if (t.type === 'success') toast.success(t.message);
+        else if (t.type === 'error') toast.error(t.message);
+      });
+
+      // Clear location state by replacing the history entry
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
+
   const fetchAndStoreDashboard = async () => {
     try {
       const res = await api.get("/inventory/summary");
-  
+
       const dataToStore = {
         data: res.data,
         timestamp: Date.now(), // Save current time
       };
-  
+
       sessionStorage.setItem("dashboardData", JSON.stringify(dataToStore));
       setDashboardData(res.data);
     } catch (err) {
       console.error("Fetch failed:", err);
-  
+
       if (err.response?.status === 401) {
         toast.error("Session expired. Please log in again.");
         // Optionally redirect to login
       } else {
         toast.error("Failed to load dashboard data.");
       }
-  
+
       throw err;
     } finally {
       setLoading(false);
     }
   };
-  
-  
+
+
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const cached = sessionStorage.getItem("dashboardData");
-  
+
         if (cached) {
           const { data, timestamp } = JSON.parse(cached);
           const now = Date.now();
           const diffInMinutes = (now - timestamp) / (1000 * 60);
-  
-          if (diffInMinutes < 10) {
+
+          if (diffInMinutes < 5) {
             setDashboardData(data);
             setLoading(false);
             return;
@@ -89,7 +108,7 @@ function Dashboard() {
             sessionStorage.removeItem("dashboardData");
           }
         }
-  
+
         // If no data or expired, fetch from API
         await fetchAndStoreDashboard();
       } catch (err) {
@@ -97,11 +116,11 @@ function Dashboard() {
         setLoading(false);
       }
     };
-  
+
     fetchDashboard();
   }, []);
-  
-  
+
+
 
   return (
 
@@ -109,7 +128,9 @@ function Dashboard() {
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       <div className={isSidebarOpen ? "main-content sidebar-open" : " px-4 py-4"}>
-        <ToastContainer position="top-right" autoClose={3000} />
+        <ToastContainer position="top-right" autoClose={false}
+          closeOnClick={false}
+          closeButton={true} />
         <Header />
 
         <div className="py-6 pt-0">
@@ -120,19 +141,19 @@ function Dashboard() {
                 <div className="flex gap-6">
                   {localStorage.getItem("role") === 'admin' && <button
                     className="flex items-center gap-1 text-gray-400"
-                    disabled = {true}
+                    disabled={true}
                   >
                     <Repeat size={18} />
                     <span className="text-sm">Change Primary Store</span>
                   </button>}
                   <button
                     className="flex items-center gap-2 text-gray-400"
-                    disabled = {true}
+                    disabled={true}
                   >
                     <RefreshCw size={18} className={`h-4 w-4`} />
                     <span className="text-sm">Sync Inventory</span>
                   </button>
-                  
+
                 </div>
               </div>
               <hr className="border-gray-400" />

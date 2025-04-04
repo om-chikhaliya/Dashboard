@@ -128,7 +128,7 @@ const LoginSignup = () => {
       try {
   
         // Login API Request
-        const loginResponse = await axios.post("http://15.207.144.111:4000/api/auth/login", {
+        const loginResponse = await axios.post("https://backend.brickosys.com/api/auth/login", {
           email: loginData.email,
           password: loginData.password,
         });
@@ -169,7 +169,7 @@ const LoginSignup = () => {
     } else if (activeTab === 'signup' && validateSignup()) {
 
       // Send signup request using Axios
-      axios.post('http://15.207.144.111:4000/api/auth/register-admin', {
+      axios.post('https://backend.brickosys.com/api/auth/register-admin', {
         email: signupData.email,
         password: signupData.password
       })

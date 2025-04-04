@@ -12,7 +12,7 @@ import img from '../assets/noitems.png'
 const Users = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newPassword, setNewPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -24,6 +24,7 @@ const Users = () => {
       try {
         const response = await api.get("/admin/users");
         setUsers(Array.isArray(response.data) ? response.data : []); // Ensure it's an array
+        setLoading(false)
       } catch (err) {
         console.error("Error fetching users:", err);
       }
@@ -48,8 +49,6 @@ const Users = () => {
     }
 
     try {
-
-
       await api.post("/admin/users/password", {
         email: selectedUser.email,
         newPassword: newPassword
@@ -112,43 +111,47 @@ const Users = () => {
               <ClipLoader className="" size={50} color={"#AAFF00"} />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <>
+
               {Array.isArray(users) && users.length === 0 ? (
-                <div className="flex items-center justify-center min-h-full">
-                  <img src={img} alt="" />
+                <div className="flex items-center justify-center w-full h-[700px]">
+                  <img src={img} alt="No users found" className="max-w-xs" />
                 </div>
+
               ) : (
-                users.map(user => (
-                  <div key={user.id} className="flex items-center gap-4 p-4 bg-gray-100 rounded-lg shadow-md">
-                    {/* User Icon */}
-                    <div className="flex-shrink-0">
-                      <UserCircle size={40} className="text-gray-600" />
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {users.map(user => (
+                    <div key={user.id} className="flex items-center gap-4 p-4 bg-gray-100 rounded-lg shadow-md">
+                      {/* User Icon */}
+                      <div className="flex-shrink-0">
+                        <UserCircle size={40} className="text-gray-600" />
+                      </div>
 
-                    {/* User Info */}
-                    <div className="flex-1">
-                      <h3 className="text-md font-semibold text-gray-800">{user.name}</h3>
-                      <p className="text-sm text-gray-600">{user.email}</p>
-                    </div>
+                      {/* User Info */}
+                      <div className="flex-1">
+                        <h3 className="text-md font-semibold text-gray-800">{user.name}</h3>
+                        <p className="text-sm text-gray-600">{user.email}</p>
+                      </div>
 
-                    {/* Action Icons */}
-                    <div className="flex items-center gap-3">
-                      <Key
-                        size={24}
-                        className="text-blue-600 cursor-pointer hover:text-blue-800"
-                        onClick={() => openPasswordModal(user)}
-                      />
-                      <Trash2
-                        size={24}
-                        className="text-red-600 cursor-pointer hover:text-red-800"
-                        onClick={() => openDeleteModal(user)}
-                      />
+                      {/* Action Icons */}
+                      <div className="flex items-center gap-3">
+                        <Key
+                          size={24}
+                          className="text-blue-600 cursor-pointer hover:text-blue-800"
+                          onClick={() => openPasswordModal(user)}
+                        />
+                        <Trash2
+                          size={24}
+                          className="text-red-600 cursor-pointer hover:text-red-800"
+                          onClick={() => openDeleteModal(user)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}</div>
 
               )}
-            </div>
+
+            </>
           )}
 
         </div>

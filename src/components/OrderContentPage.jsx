@@ -460,6 +460,27 @@ function OrderPageContent() {
   return (
     <div className="py-6 pt-0">
       <Header handleSearch={handleSearch} searchTerm={searchTerm}></Header>
+      <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 ml-6 rounded-lg shadow-md flex items-center justify-between">
+        <div className="flex items-center">
+          {/* Info Icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+          </svg>
+
+          {/* Info Text */}
+          <p className="text-sm font-medium">
+            Fresh orders are updated at every 10 minutes
+          </p>
+        </div>
+
+        {/* Optional Close Button */}
+        {/* <button className="text-blue-800 hover:text-blue-600">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button> */}
+      </div>
+
       {/* <div className="bg-white rounded-xl p-6 card-shadow mb-6">
         <div className="space-y-3">
           <div className="flex justify-between items-center">
@@ -522,6 +543,7 @@ function OrderPageContent() {
           </div>
         </div>
       </div> */}
+
 
       <div className="grid grid-cols-1 lg:grid-cols-4 space-y-3">
         <div className="bg-transparent rounded-xl p-6 lg:col-span-3 h-fit row-span-2">
@@ -836,33 +858,33 @@ function OrderPageContent() {
 
               ) : (<>{!loading && filteredOrders.length === 0 ? <div className="flex justify-center items-center h-96 min-w-96"><img src={img1}></img></div> :
                 <div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredOrders.map((order) => (
-                    <OrderCard key={order.brickosys_order_id} order={order}
-                      setSelectAllOrders={setSelectAllOrders}
-                      selectedOrders={selectedOrders} setSelectedOrders={setSelectedOrders}
-                      filteredOrders={filteredOrders}
-                    />
-                  ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredOrders.map((order) => (
+                      <OrderCard key={order.brickosys_order_id} order={order}
+                        setSelectAllOrders={setSelectAllOrders}
+                        selectedOrders={selectedOrders} setSelectedOrders={setSelectedOrders}
+                        filteredOrders={filteredOrders}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-center mt-4">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
+                    >
+                      &lt; {/* "<" icon */}
+                    </button>
+                    <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
+                    >
+                      &gt; {/* ">" icon */}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex justify-center mt-4">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
-                >
-                  &lt; {/* "<" icon */}
-                </button>
-                <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
-                >
-                  &gt; {/* ">" icon */}
-                </button>
-              </div>
-              </div>
               }
               </>
               )}

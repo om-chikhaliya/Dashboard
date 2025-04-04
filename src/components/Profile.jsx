@@ -67,14 +67,14 @@ const ProfilePage = () => {
                     <div className="container mx-auto p-6 max-w-[60%]">
 
                         <div className="bg-white p-6 rounded-xl shadow-lg">
-                            <div className="flex justify-center mb-6">
-                                {/* Dummy Profile Image */}
+                            {/* <div className="flex justify-center mb-6">
+                                
                                 <img
                                     src={User}
                                     alt="Profile"
                                     className="rounded-full w-32 h-32 object-cover"
                                 />
-                            </div>
+                            </div> */}
 
                             <div className="mb-4">
                                 <label className="block text-gray-600 font-semibold">Email</label>

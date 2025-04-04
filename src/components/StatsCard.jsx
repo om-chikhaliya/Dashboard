@@ -74,6 +74,7 @@ function StatsCard({ data }) {
 
   const [detailedStoreData, setDetailedStoreData] = useState(null);
   const [showModalBreakdown, setShowModalBreakdown] = useState(false);
+  const [backgroundSync, setBackgroundSync] = useState(data.sync_in_progress);
 
   useEffect(() => {
     if (isPrimaryStoreChanging) {
@@ -90,7 +91,7 @@ function StatsCard({ data }) {
           {
             name: "BrickLink",
             isPrimary: data.primaryStore === "BrickOwl" ? false : true,
-            lastSynced: data.lastSyncedAt,
+            lastSynced: data.lastSyncedAt ? data.lastSyncedAt : Date.now(),
             stats: {
               orders: data.bricklinkTotalOrders,
               lots: data.bricklinkTotalLots,
@@ -103,7 +104,7 @@ function StatsCard({ data }) {
           {
             name: "BrickOwl",
             isPrimary: data.primaryStore === "BrickLink" ? false : true,
-            lastSynced: data.lastSyncedAt,
+            lastSynced: data.lastSyncedAt ? data.lastSyncedAt : Date.now(),
             stats: {
               orders: data.brickowlTotalOrders,
               lots: data.brickowlTotalLots,
@@ -157,6 +158,18 @@ function StatsCard({ data }) {
       let response;
       try {
         response = await api.get("/inventory/summary");
+
+        sessionStorage.removeItem('dashboardData');
+
+        const dataToStore = {
+          data: response.data,
+          timestamp: Date.now(), // Save current time
+        };
+  
+        sessionStorage.setItem("dashboardData", JSON.stringify(dataToStore));
+
+        setBackgroundSync(false);
+
       } catch (error) {
         toast.error(error.response.data.error);
         console.error("Error during summary fetch:", error);
@@ -231,6 +244,7 @@ function StatsCard({ data }) {
       <div className="flex justify-between items-center mb-6 w-full">
         <span className="text-md font-semibold">Store Synchronisation</span>
         <div className="flex gap-6">
+
           {localStorage.getItem("role") === 'admin' && <button
             className="flex items-center gap-1 text-gray-400 hover:text-black"
             onClick={changePrimaryStore}
@@ -295,6 +309,16 @@ function StatsCard({ data }) {
       <div className="flex justify-between items-center mb-6 w-full">
         <span className="text-md font-semibold">Store Synchronisation</span>
         <div className="flex gap-6">
+          
+          {(syncInProgress || backgroundSync ) && <div className="flex items-center space-x-2 bg-yellow-100 text-yellow-800 text-sm font-medium py-1 px-3 rounded-full shadow-md">
+            {/* Sync Icon (you can use a spinner or any sync icon) */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 12a8 8 0 1116 0A8 8 0 014 12zm8-3v6m3-3h-6" />
+            </svg>
+
+            {/* Text */}
+            <span>Sync in Progress...</span>
+          </div>}
           {localStorage.getItem("role") === 'admin' &&
 
             <button

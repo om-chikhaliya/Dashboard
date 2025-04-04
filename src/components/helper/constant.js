@@ -308,12 +308,37 @@ export function getTotalLotsAndItems(orders) {
     }else if(type.toLowerCase() == 'part'){
       return `https://img.bricklink.com/ItemImage/PN/${colorid}/${sku}.png`;
     }else if(type.toLowerCase() == "sticker"){
-        return null;
+        return `https://img.bricklink.com/ItemImage/SN/0/${sku}.png`;
     }else if(type.toLowerCase().substr(0, 4) == "mini"){
       return `https://img.bricklink.com/ItemImage/MN/0/${sku}.png`;
     }else if(type.toLowerCase().substr(0, 4) == "inst"){
       return `https://img.bricklink.com/ItemImage/IN/0/${sku}.png`;
+    }else if(type.toLowerCase() == 'book'){
+      return `https://img.bricklink.com/ItemImage/BN/0/${sku}.png`;
+    }else if(type.toLowerCase() == 'gear'){
+      return `https://img.bricklink.com/ItemImage/GN/${colorid}/${sku}.png`;
     }
+    
+  }
+
+  export const fomartItemSrcString = (type, colorid, sku) => {
+
+    if(type.toLowerCase() == 'set'){
+      return `https://www.bricklink.com/v2/catalog/catalogitem.page?S=${sku}#T=S&O={"iconly":0}`;
+    }else if(type.toLowerCase() == 'part'){
+      return `https://www.bricklink.com/v2/catalog/catalogitem.page?P=${sku}#T=C&C=${colorid}`;
+    }else if(type.toLowerCase() == "sticker"){
+        return `https://www.bricklink.com/v2/catalog/catalogitem.page?S=${sku}#T=S&O={"iconly":0}`;
+    }else if(type.toLowerCase().substr(0, 4) == "mini"){
+      return `https://www.bricklink.com/v2/catalog/catalogitem.page?M=${sku}#T=S&O={"iconly":0}`;
+    }else if(type.toLowerCase().substr(0, 4) == "inst"){
+      return `https://www.bricklink.com/v2/catalog/catalogitem.page?S=${sku}#T=S&O={"iconly":0}`;
+    }else if(type.toLowerCase() == 'book'){
+      return `https://www.bricklink.com/v2/catalog/catalogitem.page?B=${sku}`;
+    }else if(type.toLowerCase() == 'gear'){
+      return `https://www.bricklink.com/v2/catalog/catalogitem.page?G=${sku}#T=S&C=${colorid}&O={"color":${colorid},"iconly":0}`;
+    }
+    
   }
 
   export const getContrastTextColor = (colorName) => {

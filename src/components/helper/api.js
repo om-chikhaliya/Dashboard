@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create an Axios instance
 const api = axios.create({
-  baseURL: "http://15.207.144.111:4000/api", // Replace with your actual API URL
+  baseURL: "https://backend.brickosys.com/api", // Replace with your actual API URL
 });
 
 // Function to get the stored token

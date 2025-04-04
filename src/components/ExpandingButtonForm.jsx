@@ -9,6 +9,10 @@ import { ToastContainer, toast } from "react-toastify";
 
 const ExpandingButtonForm = () => {
   const [expanded, setExpanded] = useState(null);
+  const [form1Submitted, setForm1Submitted] = useState(false);
+  const [form2Submitted, setForm2Submitted] = useState(false);
+  const [redirectAfterForm1, setRedirectAfterForm1] = useState(false);
+
   const navigate = useNavigate();
 
   const [form1Data, setForm1Data] = useState({
@@ -21,14 +25,36 @@ const ExpandingButtonForm = () => {
     brickowl_api_key: "",
   });
 
-  
+
   const handleForm1Change = (e) => {
     setForm1Data({ ...form1Data, [e.target.name]: e.target.value });
   };
 
-  
+
   const handleForm2Change = (e) => {
     setForm2Data({ ...form2Data, [e.target.name]: e.target.value });
+  };
+
+  const redirectToDashboard = () => {
+
+    api.get("/order/sync");
+
+    api.get("/inventory/synchronize")
+
+    navigate('/dashboard', {
+      state: {
+        toasts: [
+          {
+            type: "success",
+            message: "The Inventory Sync Started in Background and may take around half an hour to complete..."
+          },
+          {
+            type: "success",
+            message: "The Order Sync Started in Background and may take up to 20 minutes to complete. After that, you can view your orders."
+          }
+        ]
+      }
+    });
   };
 
   const handleSubmitForm1 = async (e) => {
@@ -44,19 +70,20 @@ const ExpandingButtonForm = () => {
       const response = await api.post("/keys/store/bricklink", payload);
       if (response.status === 200) {
         toast.success(`Bricklink keys updated successfully!`);
-      }
-      else {
+        setForm1Submitted(true);
+        setExpanded("form2");
+
+        // Redirect if user had already submitted Form 2 before
+        if (form2Submitted || redirectAfterForm1) {
+          redirectToDashboard();
+        }
+      } else {
         toast.error(`Failed to update Bricklink keys.`);
       }
-      setExpanded("form2");
-      // navigate('/dashboard')
-
     } catch (error) {
-      toast.error(error.response.data.error);
+      toast.error(error?.response?.data?.error || "Something went wrong");
     }
   };
-
-
 
   const handleSubmitForm2 = async (e) => {
     e.preventDefault();
@@ -68,18 +95,23 @@ const ExpandingButtonForm = () => {
       const response = await api.post("/keys/store/brickowl", payload);
       if (response.status === 200) {
         toast.success(`Brickowl keys updated successfully!`);
-        navigate('/dashboard')
-      }
-      else {
+        setForm2Submitted(true);
+
+        if (form1Submitted) {
+          redirectToDashboard();
+        } else {
+          // Form 1 not submitted yet, so we wait
+          toast.info("Please complete the Bricklink keys setup to proceed.");
+          setRedirectAfterForm1(true);
+          setExpanded("form1");
+        }
+      } else {
         toast.error(`Failed to update Brickowl keys.`);
       }
-      
     } catch (error) {
-      toast.error(error.response.data.error);
-      
+      toast.error(error?.response?.data?.error || "Something went wrong");
     }
   };
-
 
   return (
     <div className="flex justify-center items-center h-screen">
