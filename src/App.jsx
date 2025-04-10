@@ -18,6 +18,7 @@ import {Price} from './components/Price';
 
 import AdminLogs from "./components/AdminLogs";
 import ProfilePage from "./components/Profile";
+import HelpPanel from "./components/HelpPanel";
 
 const ProtectedRoute = ({ element, requiredRole }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -65,6 +66,7 @@ function App() {
           <Route path="/price" element={<ProtectedRoute element={<Price />} requiredRole="admin" />} />
           <Route path="/logs" element={<ProtectedRoute element={<AdminLogs />} requiredRole="admin" />} />
           <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
+          <Route path="/help" element={<ProtectedRoute element={<HelpPanel />} />} />
         </Routes>
       </div>
     </Router>

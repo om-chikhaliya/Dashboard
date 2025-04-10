@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search, ChevronDown, User, LogOut } from "react-feather";
 import { AnimatePresence, motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Input from "./ui/Input";
 import user from '../assets/user.jpg'
 
@@ -10,10 +10,11 @@ function Header({ handleSearch, searchTerm }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showComponent, setShowComponent] = useState(false);
   const location = useLocation();
-  
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken"); // Remove token
+    sessionStorage.clear();
     navigate("/"); // Redirect to login
   };
 
@@ -48,11 +49,11 @@ function Header({ handleSearch, searchTerm }) {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           
-          <img
+          {/* <img
             src={user}
             alt=""
             className="w-8 h-8 rounded-full object-cover"
-          />
+          /> */}
           <span className="text-sm font-medium">{localStorage.getItem("username")}</span>
           <ChevronDown size={16} />
         </div>

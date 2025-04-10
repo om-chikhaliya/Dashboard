@@ -39,19 +39,19 @@ const ExpandingButtonForm = () => {
 
     api.get("/order/sync");
 
-    api.get("/inventory/synchronize")
+    api.get("/inventory/first-sync")
 
     navigate('/dashboard', {
       state: {
         toasts: [
           {
             type: "success",
-            message: "The Inventory Sync Started in Background and may take around half an hour to complete..."
+            message: "The Inventory and order Sync Started in Background and may take around half an hour to complete. you will get a notified via mail when it complete"
           },
-          {
-            type: "success",
-            message: "The Order Sync Started in Background and may take up to 20 minutes to complete. After that, you can view your orders."
-          }
+          // {
+          //   type: "success",
+          //   message: "The Order Sync Started in Background and may take up to 20 minutes to complete. After that, you can view your orders."
+          // }
         ]
       }
     });

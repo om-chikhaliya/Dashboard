@@ -49,7 +49,7 @@ const AdminLogs = () => {
                                         <th className="px-4 py-3 text-left border-b">Action</th>
                                         <th className="px-4 py-3 text-left border-b">Order ID(s)</th>
                                         <th className="px-4 py-3 text-left border-b">Timestamp</th>
-                                        <th className="px-4 py-3 text-left border-b">Duration</th>
+                                        {/* <th className="px-4 py-3 text-left border-b">Duration</th> */}
                                     </tr>
                                 </thead>
 
@@ -79,9 +79,9 @@ const AdminLogs = () => {
                                             </td>
 
                                             <td className="px-4 py-3">{new Date(log.timestamp).toLocaleString()}</td>
-                                            <td className="px-4 py-3 text-center">
+                                            {/* <td className="px-4 py-3 text-center">
                                                 {log.duration ? `${log.duration} sec` : "-"}
-                                            </td>
+                                            </td> */}
                                         </tr>
                                     ))}
                                 </tbody>

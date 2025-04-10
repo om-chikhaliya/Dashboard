@@ -202,7 +202,8 @@ function Dashboard() {
             <div className="lg:col-span-2 flex flex-col">
               <div className="bg-white rounded-xl p-6 card-shadow flex-grow">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-medium">Sales in last {months} Months</h2>
+                  {/* <h2 className="font-medium">Sales in last {months} Months</h2> */}
+                  <h2 className="font-medium">Sales Analysis</h2>
                   <select
                     className="border rounded-md px-3 py-1 text-gray-700"
                     value={months}

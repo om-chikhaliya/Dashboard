@@ -74,7 +74,32 @@ function StatsCard({ data }) {
 
   const [detailedStoreData, setDetailedStoreData] = useState(null);
   const [showModalBreakdown, setShowModalBreakdown] = useState(false);
-  const [backgroundSync, setBackgroundSync] = useState(data.sync_in_progress);
+  const [backgroundSync, setBackgroundSync] = useState(false);
+
+  const fetchSyncStatus = async () => {
+    try {
+      const response = await api.get("/inventory/sync-status");
+      const data = await response.data;
+      setBackgroundSync(data.sync_in_progress);
+
+
+
+    } catch (error) {
+      console.error("Error fetching sync status:", error);
+    }
+  };
+
+  // Set up the interval to call the API every 2 minutes
+  useEffect(() => {
+    fetchSyncStatus(); // Initial fetch
+
+    const intervalId = setInterval(() => {
+      fetchSyncStatus(); // Fetch every 2 minutes
+    }, 2 * 60 * 1000); // 2 minutes in milliseconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     if (isPrimaryStoreChanging) {
@@ -91,7 +116,7 @@ function StatsCard({ data }) {
           {
             name: "BrickLink",
             isPrimary: data.primaryStore === "BrickOwl" ? false : true,
-            lastSynced: data.lastSyncedAt ? data.lastSyncedAt : Date.now(),
+            lastSynced: data.lastSyncedAt,
             stats: {
               orders: data.bricklinkTotalOrders,
               lots: data.bricklinkTotalLots,
@@ -104,7 +129,7 @@ function StatsCard({ data }) {
           {
             name: "BrickOwl",
             isPrimary: data.primaryStore === "BrickLink" ? false : true,
-            lastSynced: data.lastSyncedAt ? data.lastSyncedAt : Date.now(),
+            lastSynced: data.lastSyncedAt,
             stats: {
               orders: data.brickowlTotalOrders,
               lots: data.brickowlTotalLots,
@@ -145,7 +170,8 @@ function StatsCard({ data }) {
       try {
         res = await api.get("/inventory/synchronize");
 
-        toast.success(res.data.message)
+        // toast.success(res.data.message)
+        toast.success("Inventory sync is started in background and it will take around 20 minutes.")
 
       } catch (error) {
         toast.error(error.response.data.error);
@@ -165,10 +191,10 @@ function StatsCard({ data }) {
           data: response.data,
           timestamp: Date.now(), // Save current time
         };
-  
+
         sessionStorage.setItem("dashboardData", JSON.stringify(dataToStore));
 
-        setBackgroundSync(false);
+        setBackgroundSync(true);
 
       } catch (error) {
         toast.error(error.response.data.error);
@@ -195,7 +221,7 @@ function StatsCard({ data }) {
       // toast.success("Sync completed successfully!");
     } catch (error) {
 
-      toast.error("Sync failed. Please try again.");
+      // toast.error("Sync failed. Please try again.");
     } finally {
       setSyncInProgress(false);
     }
@@ -310,13 +336,12 @@ function StatsCard({ data }) {
         <span className="text-md font-semibold">Store Synchronisation</span>
         <div className="flex gap-6">
           
-          {(syncInProgress || backgroundSync ) && <div className="flex items-center space-x-2 bg-yellow-100 text-yellow-800 text-sm font-medium py-1 px-3 rounded-full shadow-md">
-            {/* Sync Icon (you can use a spinner or any sync icon) */}
+          {(syncInProgress || backgroundSync) && <div className="flex items-center space-x-2 bg-yellow-100 text-yellow-800 text-sm font-medium py-1 px-3 rounded-full shadow-md">
+
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 12a8 8 0 1116 0A8 8 0 014 12zm8-3v6m3-3h-6" />
             </svg>
 
-            {/* Text */}
             <span>Sync in Progress...</span>
           </div>}
           {localStorage.getItem("role") === 'admin' &&
@@ -358,10 +383,20 @@ function StatsCard({ data }) {
                   </span>
                 )}
               </div>
-              <p className="text-[12px] text-gray-500 mt-1">
-                Last Synced at {formatDistanceToNow(new Date(store.lastSynced), { addSuffix: true })}
+              
+              {store.lastSynced !== null ?
+                <p className="text-[12px] text-gray-500 mt-1">
 
-              </p>
+                  Last Synced at {formatDistanceToNow(new Date(store.lastSynced), { addSuffix: true })}
+
+                </p>
+
+                : <p className="text-[12px] text-gray-500 mt-1">
+
+                  Inventory not synced yet.
+
+                </p>
+              }
             </div>
 
             {/* Orders, Lots, and Items */}

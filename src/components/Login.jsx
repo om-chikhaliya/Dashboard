@@ -126,18 +126,18 @@ const LoginSignup = () => {
     // Determine which form is active (login or signup)
     if (activeTab === 'login' && validateLogin()) {
       try {
-  
+
         // Login API Request
         const loginResponse = await axios.post("https://backend.brickosys.com/api/auth/login", {
           email: loginData.email,
           password: loginData.password,
         });
-  
+
         // Store access token
         localStorage.setItem("accessToken", loginResponse.data.token);
         localStorage.setItem("role", loginResponse.data.role);
         localStorage.setItem("username", loginData.email);
-  
+
         // Save credentials if "Remember Me" is checked
         if (loginData.rememberMe) {
           localStorage.setItem("rememberedEmail", loginData.email);
@@ -146,24 +146,24 @@ const LoginSignup = () => {
           localStorage.removeItem("rememberedEmail");
           localStorage.removeItem("rememberedPassword");
         }
-  
-        
+
+
         const idResponse = await api.get('/keys/my-keys');
-        
-        
+
+
         // Check if all four IDs exist
         // const hasAllIds = await idResponse.data.bricklink && idResponse.data.brickowl;
-  
+
         // Navigate based on the response
         // navigate(hasAllIds ? "/dashboard" : "/addkeys");
 
         // setTimeout(() => {
-          navigate(idResponse.data ? "/dashboard" : "/addkeys");
+        navigate(idResponse.data ? "/dashboard" : "/addkeys");
         // }, 500);
 
       } catch (error) {
         toast.error(error.response.data.error)
-        
+
       }
 
     } else if (activeTab === 'signup' && validateSignup()) {
@@ -183,6 +183,16 @@ const LoginSignup = () => {
     }
   };
 
+  const handleForgotPassword = async (email) => {
+    try {
+      // Call your backend forgot password API here
+      const response = await axios.post("https://backend.brickosys.com/api/auth/forgot-password", { email });
+      toast.success(response.data.message);
+    } catch (err) {
+      toast.error(err.response.data.error);
+    }
+  };
+  
 
   return (
     <div className="flex justify-center items-center h-screen relative">
@@ -258,7 +268,19 @@ const LoginSignup = () => {
                 />
                 Remember Me
               </label>
-              <a href="#" className="text-sm text-gray-800 hover:underline">Forgot Password?</a>
+              {/* <a href="#" className="text-sm text-gray-800 hover:underline">Forgot Password?</a> */}
+              <span
+                className="text-sm text-gray-800 hover:underline cursor-pointer"
+                onClick={() => {
+                  if (!loginData.email.trim()) {
+                    toast.error("Please enter your email to reset your password.");
+                  } else {
+                    handleForgotPassword(loginData.email);
+                  }
+                }}
+              >
+                Forgot Password?
+              </span>
             </div>
             <button
               type="submit"

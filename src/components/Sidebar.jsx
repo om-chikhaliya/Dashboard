@@ -8,10 +8,11 @@ import {
   List,
   Menu,
   X,
-  DollarSign
+  DollarSign,
+  HelpCircle
 } from "react-feather";
 import { useState, useEffect } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate, Link } from "react-router-dom";
 import { User, ChevronLeft, ChevronRight, Info } from "lucide-react";
 
 function Sidebar({ isOpen, setIsOpen }) {
@@ -24,6 +25,7 @@ function Sidebar({ isOpen, setIsOpen }) {
     { icon: Info, label: "Logs", path: "/logs" },
     { icon: User, label: "Users", path: "/users" },
     { icon: Settings, label: "Settings", path: "/setting" },
+    { icon: HelpCircle, label: "Help and Guide", path: "/help" },
   ];
 
   const location = useLocation();
@@ -58,6 +60,7 @@ function Sidebar({ isOpen, setIsOpen }) {
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    sessionStorage.clear();
     navigate("/");
   };
 
@@ -75,7 +78,8 @@ function Sidebar({ isOpen, setIsOpen }) {
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4">
+        <Link to='/dashboard'>
+        <div className="flex items-center justify-between p-4 cursor-pointer">
           <span className="text-[20px] font-extrabold border-b-4 border-[#bbe90b]">BrickOsys</span>
           {/* {isMobile && (
             <button onClick={() => setIsOpen(false)}>
@@ -83,6 +87,7 @@ function Sidebar({ isOpen, setIsOpen }) {
             </button>
           )} */}
         </div>
+        </Link>
 
         {/* Sidebar Navigation */}
         <nav className="nav-menu p-4">
