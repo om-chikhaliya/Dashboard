@@ -128,7 +128,7 @@ const LoginSignup = () => {
       try {
 
         // Login API Request
-        const loginResponse = await axios.post("https://backend.brickosys.com/api/auth/login", {
+        const loginResponse = await axios.post("http://localhost:4000/api/auth/login", {
           email: loginData.email,
           password: loginData.password,
         });
@@ -169,7 +169,7 @@ const LoginSignup = () => {
     } else if (activeTab === 'signup' && validateSignup()) {
 
       // Send signup request using Axios
-      axios.post('https://backend.brickosys.com/api/auth/register-admin', {
+      axios.post('http://localhost:4000/api/auth/register-admin', {
         email: signupData.email,
         password: signupData.password
       })
@@ -186,7 +186,7 @@ const LoginSignup = () => {
   const handleForgotPassword = async (email) => {
     try {
       // Call your backend forgot password API here
-      const response = await axios.post("https://backend.brickosys.com/api/auth/forgot-password", { email });
+      const response = await axios.post("http://localhost:4000/api/auth/forgot-password", { email });
       toast.success(response.data.message);
     } catch (err) {
       toast.error(err.response.data.error);

@@ -382,6 +382,7 @@ export default function PickUpItemsPage() {
       const pickedItems = allOrders.flatMap(order =>
         order.items.map(item => ({
           brickosysId: order.brickosys_order_id,
+          id: item.id,
           itemId: item.item_id,
           isPicked: processedItems.some(
             processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
