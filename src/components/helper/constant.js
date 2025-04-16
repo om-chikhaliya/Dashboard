@@ -306,6 +306,7 @@ export function getTotalLotsAndItems(orders) {
     if(type.toLowerCase() == 'set'){
       return `https://img.bricklink.com/ItemImage/IN/0/${sku}.png`;
     }else if(type.toLowerCase() == 'part'){
+      if(colorid === null || colorid === "null") return null;
       return `https://img.bricklink.com/ItemImage/PN/${colorid}/${sku}.png`;
     }else if(type.toLowerCase() == "sticker"){
         return `https://img.bricklink.com/ItemImage/SN/0/${sku}.png`;
@@ -316,6 +317,7 @@ export function getTotalLotsAndItems(orders) {
     }else if(type.toLowerCase() == 'book'){
       return `https://img.bricklink.com/ItemImage/BN/0/${sku}.png`;
     }else if(type.toLowerCase() == 'gear'){
+      if(colorid === null || colorid === "null") return null;
       return `https://img.bricklink.com/ItemImage/GN/${colorid}/${sku}.png`;
     }
     

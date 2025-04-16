@@ -17,6 +17,7 @@ const Users = () => {
   const [newPassword, setNewPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   // Fetch Users API Call
   useEffect(() => {
@@ -48,6 +49,11 @@ const Users = () => {
       return;
     }
 
+    if (newPassword.length < 8) {
+      setErrorMessage("Password must be at least 8 characters long.");
+      return;
+  }
+
     try {
       await api.post("/admin/users/password", {
         email: selectedUser.email,
@@ -55,6 +61,7 @@ const Users = () => {
       });
 
       toast.success("Password updated successfully!");
+      setErrorMessage("");
       setShowPasswordModal(false);
     } catch (error) {
       console.error("Error updating password:", error);
@@ -159,29 +166,35 @@ const Users = () => {
 
       {/* Password Update Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Update Password</h2>
-              <X className="cursor-pointer" onClick={() => setShowPasswordModal(false)} />
-            </div>
-            <p className="text-gray-600 mb-4">Updating password for <strong>{selectedUser.email}</strong></p>
-            <input
-              type="password"
-              placeholder="Enter new password"
-              className="w-full border border-gray-300 p-2 rounded-md mb-4"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700"
-              onClick={handleUpdatePassword}
-            >
-              Update Password
-            </button>
-          </div>
-        </div>
-      )}
+                      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+                              <div className="flex justify-between items-center mb-4">
+                                  <h2 className="text-lg font-semibold">Update Password</h2>
+                                  <X className="cursor-pointer" onClick={() => setShowPasswordModal(false)} />
+                              </div>
+                              <p className="text-gray-600 mb-4">Updating password for <strong>{selectedUser.email}</strong></p>
+                              <input
+                                  type="password"
+                                  placeholder="Enter new password"
+                                  className="w-full border border-gray-300 p-2 rounded-md mb-4"
+                                  value={newPassword}
+                                  onChange={(e) => setNewPassword(e.target.value)}
+                              />
+      
+                              {/* Display error message if password length is less than 8 */}
+                              {errorMessage && (
+                                  <p className="text-red-600 text-sm mb-4">{errorMessage}</p>
+                              )}
+      
+                              <button
+                                  className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700"
+                                  onClick={handleUpdatePassword}
+                              >
+                                  Update Password
+                              </button>
+                          </div>
+                      </div>
+                  )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (

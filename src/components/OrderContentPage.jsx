@@ -417,6 +417,12 @@ function OrderPageContent() {
     if (selectedOrders.length > 0) {
 
       const orderIds = selectedOrders.join(',');
+      // const response = api.get("/auth/pickup-started-log", {
+      //   params: {
+      //     brickosys_order_ids: orderIds
+      //   }
+      // });
+
       window.location.href = `/pickorders?brickosys_orderId=${orderIds}`;  // Using window.location.href
     }
   };
@@ -941,58 +947,58 @@ function OrderPageContent() {
 
           {/* Calendar and Task sections */}
           <div className="space-y-6">
-  <div className="bg-white rounded-xl p-4 card-shadow">
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="font-medium">Task</h2>
-      {/* <button className="p-1 rounded hover:bg-gray-100">
+            <div className="bg-white rounded-xl p-4 card-shadow">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-medium">Task</h2>
+                {/* <button className="p-1 rounded hover:bg-gray-100">
         <Settings size={16} />
       </button> */}
-    </div>
+              </div>
 
-    {/* Loader when data is being fetched */}
-    {taskloading && (
-      <div className="flex justify-center items-center h-52 min-w-fit">
-        <ClipLoader size={50} color={"#AAFF00"} loading={taskloading} />
-      </div>
-    )}
-    {/* Show message when no tasks are available */}
-    {!taskloading && (tasks.length === 0 || tasks.length === undefined) && (
-      <div className="text-center text-gray-500 text-lg h-52 font-semibold flex justify-center items-center">
-        No tasks available
-      </div>
-    )}
+              {/* Loader when data is being fetched */}
+              {taskloading && (
+                <div className="flex justify-center items-center h-52 min-w-fit">
+                  <ClipLoader size={50} color={"#AAFF00"} loading={taskloading} />
+                </div>
+              )}
+              {/* Show message when no tasks are available */}
+              {!taskloading && (tasks.length === 0 || tasks.length === undefined) && (
+                <div className="text-center text-gray-500 text-lg h-52 font-semibold flex justify-center items-center">
+                  No tasks available
+                </div>
+              )}
 
-    <div className="space-y-3">
-      {/* Show tasks if available */}
-      {tasks.length > 0 && tasks.map((order) => (
-        <div key={order.order_id} className="mb-6 border-b pb-4">
-          {/* Order ID */}
-          <h2 className="text-xl font-bold mb-2">Order ID: {order.order_id}</h2>
+              <div className="space-y-3">
+                {/* Show tasks if available */}
+                {tasks.length > 0 && tasks.map((order) => (
+                  <div key={order.order_id} className="mb-6 border-b pb-4">
+                    {/* Order ID */}
+                    <h2 className="text-xl font-bold mb-2">Order ID: {order.order_id}</h2>
 
-          {/* Items under Order */}
-          <ul className="space-y-2 list-disc pl-6">
-            {order.notes.map((note) => (
-              <li key={note.item_id} className="relative group">
-                {/* Item Name & Note */}
-                <p className="text-md font-semibold">{note.item_name}</p>
-                <p className="text-gray-500 text-sm">{note.note}</p>
+                    {/* Items under Order */}
+                    <ul className="space-y-2 list-disc pl-6">
+                      {order.notes.map((note) => (
+                        <li key={note.item_id} className="relative group">
+                          {/* Item Name & Note */}
+                          <p className="text-md font-semibold">{note.item_name}</p>
+                          <p className="text-gray-500 text-sm">{note.note}</p>
 
-                {/* Tooltip for Item ID (Visible on Hover) */}
-                <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                  Item ID: {note.item_id}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
+                          {/* Tooltip for Item ID (Visible on Hover) */}
+                          <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                            Item ID: {note.item_id}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
 
-    {/* <button className="w-full mt-4 bg-black text-white rounded-lg py-2">
+              {/* <button className="w-full mt-4 bg-black text-white rounded-lg py-2">
       Schedule Task
     </button> */}
-  </div>
-</div>
+            </div>
+          </div>
 
         </div>
 

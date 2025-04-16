@@ -52,7 +52,9 @@ export default function PickUpItemsPage() {
       const response = await api.get(`/order/pick-orders?brickosys_order_ids=${idsParam}`);
       const orders = response.data;
 
+      
       setAllOrders(orders);
+
 
       setTotalLotsAndItems(getTotalLotsAndItems(orders))
 
@@ -62,13 +64,13 @@ export default function PickUpItemsPage() {
         order.items.forEach((item) => {
           // if (item.picked === true || item.picked === 'true') {
 
-          //   toggleItemProcessed(item.item_id, order.order_id, order.brickosys_order_id);
+          //   toggleItemProcessed(item.id, order.order_id, order.brickosys_order_id);
           // }
 
           // Check for missing items based on the note field
           if (item.note && item.note.trim() !== '') {
             missingItemsArray.push({
-              item_id: item.item_id,
+              id: item.id,
               order_id: order.order_id,
               brickosys_order_id: order.brickosys_order_id,
               note: item.note,
@@ -109,14 +111,14 @@ export default function PickUpItemsPage() {
             if ((item.picked === true || item.picked === 'true')) {
               // Avoid duplicate processing
               const exists = updatedProcessedItems.some(
-                (pItem) => pItem.item_id === item.item_id && pItem.order_id === order.order_id
+                (pItem) => pItem.id === item.id && pItem.order_id === order.order_id
               );
 
               if (!exists) {
 
                 updatedProcessedItems.push({
                   order_id: order.order_id,
-                  item_id: item.item_id,
+                  id: item.id,
                   brickosys_order_id: order.brickosys_order_id,
                   note: item.note || '',
                 });
@@ -156,12 +158,12 @@ export default function PickUpItemsPage() {
       (item) =>
         !processedItems.some(
           (processedItem) =>
-            processedItem.item_id === item.item_id &&
+            processedItem.id === item.id &&
             processedItem.order_id === item.order_id
         ) &&
         !missingItems.some(
           (missingItem) =>
-            missingItem.item_id === item.item_id &&
+            missingItem.id === item.id &&
             missingItem.order_id === item.order_id
         )
     );
@@ -172,35 +174,35 @@ export default function PickUpItemsPage() {
 
 
   useEffect(() => {
-    const item = missingItems.find((missingItem) => missingItem.item_id == currentActiveItem?.item_id);
+    const item = missingItems.find((missingItem) => missingItem.id == currentActiveItem?.id);
     setMissingNote((prev) => item?.note || '');
 
 
   }, [currentActiveItem])
 
-  const toggleItemProcessed = (item_id, order_id, note = '') => {
+  const toggleItemProcessed = (id, order_id, note = '') => {
     // clickAudio(); 
 
-    const brickosys_order_id = findBrickOsysId(item_id, order_id)
+    const brickosys_order_id = findBrickOsysId(id, order_id)
 
     setMissingItemInput(false);
 
     setProcessedItems((prev) => {
 
       const exists = prev.some(
-        (item) => item.item_id === item_id && item.order_id === order_id
+        (item) => item.id === id && item.order_id === order_id
       );
 
       if (exists) {
         // Remove the item if it already exists
 
         return prev.filter(
-          (item) => !(item.item_id === item_id && item.order_id === order_id)
+          (item) => !(item.id === id && item.order_id === order_id)
         );
       } else {
         // Add the item if it does not exist
 
-        return [...prev, { order_id, item_id, brickosys_order_id, note }];
+        return [...prev, { order_id, id, brickosys_order_id, note }];
       }
     });
 
@@ -234,7 +236,7 @@ export default function PickUpItemsPage() {
       order.items.forEach((item) => {
         // Check if the item is processed (picked)
         const isItemProcessed = processedItems.some(
-          (processedItem) => processedItem.item_id === item.item_id && processedItem.order_id === order.order_id
+          (processedItem) => processedItem.id === item.id && processedItem.order_id === order.order_id
         );
 
         // If the item is processed, increment the picked items counter by its quantity
@@ -246,13 +248,13 @@ export default function PickUpItemsPage() {
           const totalQtyForLot = item.quantity; // Since each item is a lot, its qty is the total quantity of that lot
 
           // If the total quantity of the item has been processed, mark this lot as packed
-          if (lotPackedTracker[item.item_id]) {
-            lotPackedTracker[item.item_id] += item.quantity;
+          if (lotPackedTracker[item.id]) {
+            lotPackedTracker[item.id] += item.quantity;
           } else {
-            lotPackedTracker[item.item_id] = item.quantity;
+            lotPackedTracker[item.id] = item.quantity;
           }
 
-          if (lotPackedTracker[item.item_id] >= totalQtyForLot) {
+          if (lotPackedTracker[item.id] >= totalQtyForLot) {
             packedLots += 1;
             pickedLotsInOrder += 1;
           }
@@ -277,7 +279,7 @@ export default function PickUpItemsPage() {
       const allItemsPackedInOrder = order.items.every((item) =>
         processedItems.some(
           (processedItem) =>
-            processedItem.item_id === item.item_id &&
+            processedItem.id === item.id &&
             processedItem.order_id === order.order_id
         )
       );
@@ -328,10 +330,13 @@ export default function PickUpItemsPage() {
 
       // Step 3: Construct the API request body
       const body = updates;
-      console.log("body: ", body);
+      
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const idsParam = searchParams.get('brickosys_orderId') || '';
 
       // Step 4: Call the API to update order status
-      const response = await api.post('/order/update-order-status', body);
+      const response = await api.post(`/order/update-order-status?brickosys_order_ids=${idsParam}`, body);
 
 
       if (response.data.statusCode != 200) {
@@ -379,10 +384,10 @@ export default function PickUpItemsPage() {
           brickosysId: order.brickosys_order_id,
           itemId: item.item_id,
           isPicked: processedItems.some(
-            processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.item_id === item.item_id
+            processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
           ) ? 'true' : 'false',
           note: missingItems.find(
-            missingItem => missingItem.order_id == order.order_id && missingItem.item_id == item.item_id
+            missingItem => missingItem.order_id == order.order_id && missingItem.id == item.id
           )?.note,
         }))
       );
@@ -390,14 +395,17 @@ export default function PickUpItemsPage() {
       // Step 3: Construct the API request body
       const body = pickedItems;
 
+      const searchParams = new URLSearchParams(window.location.search);
+      const idsParam = searchParams.get('brickosys_orderId') || '';
+
       // Step 4: Call the API to update order status
-      const response = await api.post('/order/update-item-progress', body);
+      const response = await api.post(`/order/update-item-progress?brickosys_order_ids=${idsParam}`, body);
 
       if (response.data.failures.length <= 0) {
         toast.success("Progress saved successfully.");
       }
       else {
-        toast.success("Progress saved successfully.");
+        // toast.success("Progress saved successfully.");
         for (let i = 0; i < response.data.failures.length; i++) {
           const failure = response.data.failures[i];
           toast.error(`Could not save details for few items!`);
@@ -422,21 +430,21 @@ export default function PickUpItemsPage() {
 
   }
 
-  const toggleMissingItems = async (brickosys_order_id, order_id, item_id, missingNote, operation) => {
+  const toggleMissingItems = async (brickosys_order_id, order_id, id, missingNote, operation) => {
     try {
       // Step 1: Prepare body object which has all the processed Items with one additional property 'isPicked'
 
       const updatedItems = allOrders.flatMap(order =>
         order.items.map(item => {
-          // Check if the current item matches the provided brickosys_order_id and item_id
-          if (order.brickosys_order_id === brickosys_order_id && item.item_id === item_id) {
+          // Check if the current item matches the provided brickosys_order_id and id
+          if (order.brickosys_order_id === brickosys_order_id && item.id === id) {
             if (operation === "add") {
               // If the operation is 'add', update the note
               return {
                 brickosysId: order.brickosys_order_id,
-                itemId: item.item_id,
+                itemId: item.id,
                 isPicked: processedItems.some(
-                  processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.item_id === item.item_id
+                  processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
                 ) ? 'true' : 'false',
                 note: missingNote// Update the note with the provided missingNote
               };
@@ -444,9 +452,9 @@ export default function PickUpItemsPage() {
               // If the operation is 'remove', clear the note
               return {
                 brickosysId: order.brickosys_order_id,
-                itemId: item.item_id,
+                itemId: item.id,
                 isPicked: processedItems.some(
-                  processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.item_id === item.item_id
+                  processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
                 ) ? 'true' : 'false',
                 note: ""// Update the note with the provided missingNote// Remove the note
               };
@@ -456,9 +464,9 @@ export default function PickUpItemsPage() {
           // For all other items, keep them unchanged
           return {
             brickosysId: order.brickosys_order_id,
-            itemId: item.item_id,
+            itemId: item.id,
             isPicked: processedItems.some(
-              processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.item_id === item.item_id
+              processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
             ) ? 'true' : 'false',
             note: item.note
           };
@@ -478,12 +486,12 @@ export default function PickUpItemsPage() {
   }
 
 
-  const findBrickOsysId = (item_id, order_id) => {
+  const findBrickOsysId = (id, order_id) => {
 
     const order = allOrders.find((order) => order.order_id === order_id);
 
     if (order) {
-      const itemExists = order.items.some((item) => item.item_id === item_id);
+      const itemExists = order.items.some((item) => item.id === id);
       if (itemExists) {
         return order.brickosys_order_id; // Return the brickosysId if both match
       }
@@ -500,17 +508,17 @@ export default function PickUpItemsPage() {
     setSortedItems([
       ...allItems.filter(item =>
         processedItems?.some(processedItem =>
-          processedItem.item_id === item.item_id && processedItem.order_id === item.order_id)
+          processedItem.id === item.id && processedItem.order_id === item.order_id)
       ),
       ...allItems.filter(item =>
         !processedItems?.some(processedItem =>
-          processedItem.item_id === item.item_id && processedItem.order_id === item.order_id) &&
+          processedItem.id === item.id && processedItem.order_id === item.order_id) &&
         !missingItems?.some(missingItem =>
-          missingItem.item_id === item.item_id && missingItem.order_id === item.order_id)
+          missingItem.id === item.id && missingItem.order_id === item.order_id)
       ),
       ...allItems.filter(item =>
         missingItems?.some(missingItem =>
-          missingItem.item_id === item.item_id && missingItem.order_id === item.order_id)
+          missingItem.id === item.id && missingItem.order_id === item.order_id)
       ),
     ]);
 
@@ -595,13 +603,14 @@ export default function PickUpItemsPage() {
                       </button> */}
                     </div>
                     <div className="space-y-3">
+                      
                       {sortedItems.map((item, index) => (
                         item.id === currentActiveItem?.id ? (
                           <div
                             className="space-y-4 click_element_smooth_hover"
-                            key={item.item_id}
+                            key={index}
                             onClick={(e) =>
-                              !missingNote ? toggleItemProcessed(item.item_id, item.order_id, item.note) : expandItem(item)
+                              !missingNote ? toggleItemProcessed(item.id, item.order_id, item.note) : expandItem(item)
                             }
                           >
                             <div
@@ -711,7 +720,7 @@ export default function PickUpItemsPage() {
                                             <button
                                               className="flex justify-center min-w-[80px] items-center bg-purple-100 text-purple-600 h-8 px-3 py-1 rounded-md text-xs cursor-pointer"
                                               onClick={() =>
-                                                toggleMissingItems(item.brickosys_order_id, item.order_id, item.item_id, missingNote, "add")
+                                                toggleMissingItems(item.brickosys_order_id, item.order_id, item.id, missingNote, "add")
                                               }
                                             >
                                               Add Note
@@ -743,27 +752,27 @@ export default function PickUpItemsPage() {
                         ) : !showProcessed &&
                           processedItems?.some(
                             (processedItem) =>
-                              processedItem.item_id === item.item_id &&
+                              processedItem.id === item.id &&
                               processedItem.order_id === item.order_id
                           ) ? null : (
                           <DisplayItems
                             pool={
                               processedItems?.some(
                                 (processedItem) =>
-                                  processedItem.item_id === item.item_id &&
+                                  processedItem.id === item.id &&
                                   processedItem.order_id === item.order_id
                               )
                                 ? "processed"
                                 : missingItems?.some(
                                   (missingItem) =>
-                                    missingItem.item_id === item.item_id &&
+                                    missingItem.id === item.id &&
                                     missingItem.order_id === item.order_id
                                 )
                                   ? "missing"
                                   : undefined
                             }
                             item={item}
-                            key={item.item_id}
+                            key={index}
                             missingNote={item.note}
                             allOrders={allOrders}
                             expandItem={expandItem}

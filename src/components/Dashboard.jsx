@@ -121,6 +121,7 @@ function Dashboard() {
   }, []);
 
 
+  const [showAlert, setShowAlert] = useState(true);
 
   return (
 
@@ -132,6 +133,27 @@ function Dashboard() {
           closeOnClick={false}
           closeButton={true} />
         <Header />
+
+        {showAlert && <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-lg shadow-md flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            {/* Info Icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+            </svg>
+
+            {/* Info Text */}
+            <p className="text-sm font-medium">
+              Order information is available starting from the month your account was created on our platform.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAlert(false)}
+            className="text-blue-800 hover:text-blue-900 text-lg font-bold ml-4 focus:outline-none"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>}
 
         <div className="py-6 pt-0">
           {loading ? (
@@ -204,6 +226,7 @@ function Dashboard() {
                 <div className="flex items-center justify-between">
                   {/* <h2 className="font-medium">Sales in last {months} Months</h2> */}
                   <h2 className="font-medium">Sales Analysis</h2>
+
                   <select
                     className="border rounded-md px-3 py-1 text-gray-700"
                     value={months}
@@ -213,6 +236,7 @@ function Dashboard() {
                     <option value="12">Last 12 Months</option>
                   </select>
                 </div>
+
                 {loading ? (
                   <div className="flex justify-center items-center h-72">
                     <ClipLoader size={50} color={"#AAFF00"} />

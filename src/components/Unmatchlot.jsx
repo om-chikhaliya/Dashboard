@@ -6,7 +6,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ClipLoader } from "react-spinners";
 import api from "./helper/api";
 import img from '../assets/noitems.png'
-
+import {fomartItemSrcString } from './helper/constant'
+import {Link} from 'react-feather'
 
 export function Unmatchlot() {
 
@@ -19,6 +20,8 @@ export function Unmatchlot() {
 
             // Call the API with the extracted order IDs
             const response = await api.get(`/inventory/failed-syncs`);
+
+            console.log('mismatch: ', response.data)
             
 
             setUnmatchlots(response.data);
@@ -58,7 +61,7 @@ export function Unmatchlot() {
                                             {unmatchlots.failedItems.length === 0 ? <div className="flex items-center justify-center min-h-full"><img src={img} alt="" /></div> : unmatchlots.failedItems.map((item, index) => (
                                                 <div
                                                     className="space-y-4 click_element_smooth_hover"
-                                                    key={item?.sku}
+                                                    key={item?.inventory_id}
                                                 >
                                                     <div
                                                         className={`rounded-lg bg-white border border-gray-200 shadow-sm`}
@@ -101,7 +104,10 @@ export function Unmatchlot() {
                                                                         </div>
                                                                         {/* <h2 className="text-lg md:text-xl text-gray-800 font-semibold">{item?.item_name}</h2> */}
                                                                         <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Design Id: </span>{item?.sku}</p>
-                                                                        <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Name: </span>{item?.name}</p>
+                                                                        <div className="flex gap-2">
+                                                                        <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Name: </span>{item?.name} </p>
+                                                                        <Link size={20} className="cursor-pointer" onClick={() => unmatchlots.primary_store === "BrickLink" ? window.open(fomartItemSrcString(item?.type, item?.color_id, item?.sku), "_blank") : window.open(`https://www.brickowl.com/search/catalog?query=${item.sku}`, "_blank")}/>
+                                                                        </div>
                                                                     </div>
 
                                                                     {/* Location and Pick Section */}

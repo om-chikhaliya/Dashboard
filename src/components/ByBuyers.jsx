@@ -98,7 +98,7 @@ export function ByBuyers() {
         ) : error ? (
           <p className="text-center text-red-500 p-4">{error}</p>
         ) : buyers.length === 0 ? (
-          <p className="text-center text-gray-500 p-4">Not enough orders to get buyers list.</p>
+          <p className="text-center text-gray-500 p-4">You either don't have any orders or wait for orders sync to finish.</p>
         ) : (
           <div className="p-2 space-y-2">
             {buyers.slice(0, 5).map((buyer, index) => (
