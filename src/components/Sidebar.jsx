@@ -58,6 +58,7 @@ function Sidebar({ isOpen, setIsOpen }) {
   }, [setIsOpen]);
 
   const navigate = useNavigate();
+  
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     sessionStorage.clear();

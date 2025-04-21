@@ -10,7 +10,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { storeOptions, statusOptions, getTotalItemsInOrder } from "./helper/constant";
+import { storeOptions, statusOptions, getTotalItemsInOrder, formatDateBasedOnUserLocation } from "./helper/constant";
 import { ClipLoader } from "react-spinners";
 import Header from "./Header";
 import img1 from "../assets/noorder.png"
@@ -280,6 +280,12 @@ function OrderPageContent() {
         : selectedStores.filter((s) => s !== store)
     )
     setDateRange([null, null])
+
+    if (store === 'BL') {
+      handleSelectAllStatusesBL(checked);
+    } else if (store === 'BO') {
+      handleSelectAllStatusesBO(checked);
+    }
   }
 
   // const handleSelectAllStatuses = (checked) => {
@@ -352,6 +358,19 @@ function OrderPageContent() {
         [store]: isAllSelected, // Set "Select All" only for the respective store
       }));
 
+      const hasAny = updatedStatuses.some(s => allStatusesForStore.includes(s));
+
+      setSelectedStores(prevStores => {
+        if (hasAny) {
+          // add if missing
+          return prevStores.includes(store === 'BrickLink' ? "BL" : "BO")
+            ? prevStores
+            : [...prevStores, store === 'BrickLink' ? "BL" : "BO"];
+        } else {
+          // remove
+          return prevStores.filter(s => s !== store === 'BrickLink' ? "BL" : "BO");
+        }
+      });
       return updatedStatuses;
     });
 
@@ -430,7 +449,7 @@ function OrderPageContent() {
 
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const [totalPages, setTotalPages] = useState(1); // Total number of pages
-  const [limit, setLimit] = useState(2); // Set the limit of items per page
+  const [limit, setLimit] = useState(10); // Set the limit of items per page
   const [totalOrders, setTotalOrders] = useState(0); // Track total number of orders for pagination
 
   const fetchData = async () => {
@@ -470,27 +489,27 @@ function OrderPageContent() {
     <div className="py-6 pt-0">
       <Header handleSearch={handleSearch} searchTerm={searchTerm}></Header>
 
-      
-      {showAlert && <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 ml-6 mt-2 rounded-lg shadow-md flex items-center justify-between">
-          <div className="flex items-center">
-            {/* Info Icon */}
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-            </svg>
 
-            {/* Info Text */}
-            <p className="text-sm font-medium">
-              Order information is available starting from the month your account was created on our platform and Fresh orders are updated at every 10 minutes.
-            </p>
-          </div>
-          <button
-            onClick={() => setShowAlert(false)}
-            className="text-blue-800 hover:text-blue-900 text-lg font-bold ml-4 focus:outline-none"
-            aria-label="Close"
-          >
-            ×
-          </button>
-        </div>}
+      {showAlert && <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 ml-6 mt-2 rounded-lg shadow-md flex items-center justify-between">
+        <div className="flex items-center">
+          {/* Info Icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+          </svg>
+
+          {/* Info Text */}
+          <p className="text-sm font-medium">
+            Order information is available starting from the month your account was created on our platform and Fresh orders are updated at every 10 minutes.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowAlert(false)}
+          className="text-blue-800 hover:text-blue-900 text-lg font-bold ml-4 focus:outline-none"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>}
 
       {/* <div className="bg-white rounded-xl p-6 card-shadow mb-6">
         <div className="space-y-3">
@@ -808,11 +827,7 @@ function OrderPageContent() {
                                     {order.order_id}
                                   </td>
                                   <td className="p-2 text-center">{order.platform}</td>
-                                  <td className="p-2">{new Date(order.order_on).toLocaleDateString("en-GB", {
-                                    day: "2-digit",
-                                    month: "long",
-                                    year: "numeric",
-                                  })}</td>
+                                  <td className="p-2">{formatDateBasedOnUserLocation(order.order_on)}</td>
                                   <td className="p-2">
                                     {order.items.length} / {getTotalItemsInOrder(order)}
                                   </td>

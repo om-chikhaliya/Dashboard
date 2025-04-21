@@ -1,5 +1,5 @@
 import Header from "./Header";
-import { getTotalLotsAndItems, getTotalItemsInOrder, findOrderIndexForItem, fomartImageSrcString, getContrastTextColor } from "./helper/constant";
+import { getTotalLotsAndItems, getTotalItemsInOrder, findOrderIndexForItem, fomartImageSrcString, getContrastTextColor, formatDateBasedOnUserLocation } from "./helper/constant";
 import { useState, useEffect } from "react";
 import {
   Calendar,
@@ -373,122 +373,240 @@ export default function PickUpItemsPage() {
     }
   };
 
+  // const handleContinueLater = async () => {
+  //   setSaveAndContinueLoading((prev) => !prev);
+  //   // Save current progress in our database so person can come later and continue.
+  //   try {
+  //     // Step 1: Prepare body object which has all the processed Items with one additional property 'isPicked'
+
+  //     const pickedItems = allOrders.flatMap(order =>
+  //       order.items.map(item => ({
+  //         brickosysId: order.brickosys_order_id,
+  //         id: item.id,
+  //         itemId: item.item_id,
+  //         isPicked: processedItems.some(
+  //           processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
+  //         ) ? 'true' : 'false',
+  //         note: missingItems.find(
+  //           missingItem => missingItem.order_id == order.order_id && missingItem.id == item.id
+  //         )?.note,
+  //       }))
+  //     );
+
+  //     // Step 3: Construct the API request body
+  //     const body = pickedItems;
+
+  //     const searchParams = new URLSearchParams(window.location.search);
+  //     const idsParam = searchParams.get('brickosys_orderId') || '';
+
+  //     // Step 4: Call the API to update order status
+  //     const response = await api.post(`/order/update-item-progress?brickosys_order_ids=${idsParam}`, body);
+
+  //     const log_res = await api.post(`/auth/pickup-started-log?brickosys_order_ids=${idsParam}`);
+
+  //     if (response.data.failures.length <= 0) {
+  //       toast.success("Progress saved successfully.");
+  //     }
+  //     else {
+  //       // toast.success("Progress saved successfully.");
+  //       for (let i = 0; i < response.data.failures.length; i++) {
+  //         const failure = response.data.failures[i];
+  //         toast.error(`Could not save details for few items!`);
+  //       }
+
+
+  //     }
+  //   } catch (error) {
+  //     // Step 6: Handle error response
+  //     console.log(error);
+
+  //     toast.error("Something went wrong!");
+  //   }
+  //   finally {
+  //     setSaveAndContinueLoading(false);
+  //     setTimeout(() => {
+  //       // Navigate to a different page (for example '/new-page')
+  //       navigate('/orders');
+  //       // history.push("/new-page"); // For React Router v5
+  //     }, 2000);
+  //   }
+
+  // }
+
+  // const toggleMissingItems = async (brickosys_order_id, item_id, id, missingNote, operation) => {
+  //   try {
+  //     // Step 1: Prepare body object which has all the processed Items with one additional property 'isPicked'
+  //     console.log('all orders: ', allOrders)
+  //     const updatedItems = allOrders.flatMap(order =>
+  //       order.items.map(item => {
+  //         // Check if the current item matches the provided brickosys_order_id and id
+  //         if (order.brickosys_order_id === brickosys_order_id && item.id === id) {
+  //           if (operation === "add") {
+  //             // If the operation is 'add', update the note
+  //             return {
+  //               brickosysId: order.brickosys_order_id,
+  //               id: item.id,
+  //               itemId: item_id,
+  //               isPicked: processedItems.some(
+  //                 processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
+  //               ) ? 'true' : 'false',
+  //               note: missingNote// Update the note with the provided missingNote
+  //             };
+  //           } else if (operation === "remove") {
+  //             // If the operation is 'remove', clear the note
+  //             return {
+  //               brickosysId: order.brickosys_order_id,
+  //               id: item.id,
+  //               itemId: item_id,
+  //               isPicked: processedItems.some(
+  //                 processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
+  //               ) ? 'true' : 'false',
+  //               note: ""// Update the note with the provided missingNote// Remove the note
+  //             };
+  //           }
+  //         }
+
+  //         // For all other items, keep them unchanged
+  //         return {
+  //           brickosysId: order.brickosys_order_id,
+  //           id: item.id,
+  //           itemId: item_id,
+  //           isPicked: processedItems.some(
+  //             processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
+  //           ) ? 'true' : 'false',
+  //           note: item.note
+  //         };
+  //       })
+  //     );
+
+  //     const response = await api.post('/order/update-item-progress', updatedItems);
+
+  //     fetchOrders();
+
+  //   } catch (error) {
+  //     // Step 6: Handle error response
+
+  //     toast.error("Something went wrong!");
+  //   }
+
+  // }
   const handleContinueLater = async () => {
-    setSaveAndContinueLoading((prev) => !prev);
-    // Save current progress in our database so person can come later and continue.
-    try {
-      // Step 1: Prepare body object which has all the processed Items with one additional property 'isPicked'
-
-      const pickedItems = allOrders.flatMap(order =>
-        order.items.map(item => ({
-          brickosysId: order.brickosys_order_id,
-          id: item.id,
-          itemId: item.item_id,
-          isPicked: processedItems.some(
-            processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
-          ) ? 'true' : 'false',
-          note: missingItems.find(
-            missingItem => missingItem.order_id == order.order_id && missingItem.id == item.id
-          )?.note,
-        }))
-      );
-
-      // Step 3: Construct the API request body
-      const body = pickedItems;
-
-      const searchParams = new URLSearchParams(window.location.search);
-      const idsParam = searchParams.get('brickosys_orderId') || '';
-
-      // Step 4: Call the API to update order status
-      const response = await api.post(`/order/update-item-progress?brickosys_order_ids=${idsParam}`, body);
-
-      if (response.data.failures.length <= 0) {
-        toast.success("Progress saved successfully.");
-      }
-      else {
-        // toast.success("Progress saved successfully.");
-        for (let i = 0; i < response.data.failures.length; i++) {
-          const failure = response.data.failures[i];
-          toast.error(`Could not save details for few items!`);
-        }
-
-
-      }
-    } catch (error) {
-      // Step 6: Handle error response
-      console.log(error);
-
-      toast.error("Something went wrong!");
-    }
-    finally {
-      setSaveAndContinueLoading(false);
-      setTimeout(() => {
-        // Navigate to a different page (for example '/new-page')
-        navigate('/orders');
-        // history.push("/new-page"); // For React Router v5
-      }, 2000);
-    }
-
-  }
-
-  const toggleMissingItems = async (brickosys_order_id, item_id, id, missingNote, operation) => {
-    try {
-      // Step 1: Prepare body object which has all the processed Items with one additional property 'isPicked'
-      console.log('all orders: ', allOrders)
-      const updatedItems = allOrders.flatMap(order =>
-        order.items.map(item => {
-          // Check if the current item matches the provided brickosys_order_id and id
-          if (order.brickosys_order_id === brickosys_order_id && item.id === id) {
-            if (operation === "add") {
-              // If the operation is 'add', update the note
-              return {
-                brickosysId: order.brickosys_order_id,
-                id: item.id,
-                itemId: item_id,
-                isPicked: processedItems.some(
-                  processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
-                ) ? 'true' : 'false',
-                note: missingNote// Update the note with the provided missingNote
-              };
-            } else if (operation === "remove") {
-              // If the operation is 'remove', clear the note
-              return {
-                brickosysId: order.brickosys_order_id,
-                id: item.id,
-                itemId: item_id,
-                isPicked: processedItems.some(
-                  processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
-                ) ? 'true' : 'false',
-                note: ""// Update the note with the provided missingNote// Remove the note
-              };
-            }
-          }
-
-          // For all other items, keep them unchanged
+    setSaveAndContinueLoading(true);
+  
+    // Step 1: Prepare body object with only the changed items
+    const updatedItems = allOrders.flatMap(order =>
+      order.items.map(item => {
+        // Check if the item has changed
+        const isItemPicked = processedItems.some(
+          processedItem =>
+            processedItem.brickosys_order_id === order.brickosys_order_id &&
+            processedItem.id === item.id
+        );
+  
+        const currentNote = missingItems.find(
+          missingItem => missingItem.order_id == order.order_id && missingItem.id == item.id
+        )?.note;
+  
+        // Only return the item if it has changed (either isPicked or note is updated)
+        const hasChanges = item.isPicked !== isItemPicked || item.note !== currentNote;
+  
+        if (hasChanges) {
           return {
             brickosysId: order.brickosys_order_id,
             id: item.id,
-            itemId: item_id,
-            isPicked: processedItems.some(
-              processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
-            ) ? 'true' : 'false',
-            note: item.note
+            itemId: item.item_id,
+            isPicked: isItemPicked ? 'true' : 'false',
+            note: currentNote || "", // Set note if exists, otherwise empty string
           };
-        })
-      );
-
-      const response = await api.post('/order/update-item-progress', updatedItems);
-
-      fetchOrders();
-
+        }
+  
+        // If no changes, return null to exclude the item from the request
+        return null;
+      })
+    ).filter(item => item !== null); // Filter out any null values (unchanged items)
+  
+    // If no items have been updated, skip the API request
+    if (updatedItems.length === 0) {
+      toast.info("No changes to save.");
+      setSaveAndContinueLoading(false);
+      return; // Skip the API request if no changes
+    }
+    console.log('updated items:', updatedItems);
+    try {
+      // Step 2: Construct the API request body
+      const searchParams = new URLSearchParams(window.location.search);
+      const idsParam = searchParams.get('brickosys_orderId') || '';
+  
+      // Step 3: Call the API to update order status with only the changed items
+      const response = await api.post(`/order/update-item-progress?brickosys_order_ids=${idsParam}`, updatedItems);
+  
+      // Log the pickup started event
+      const log_res = await api.post(`/auth/pickup-started-log?brickosys_order_ids=${idsParam}`);
+  
+      // Step 4: Handle the API response
+      if (response.data.failures.length <= 0) {
+        toast.success("Progress saved successfully.");
+      } else {
+        for (let i = 0; i < response.data.failures.length; i++) {
+          const failure = response.data.failures[i];
+          toast.error(`Could not save details for some items!`);
+        }
+      }
     } catch (error) {
-      // Step 6: Handle error response
-
+      // Step 5: Handle error response
+      console.log(error);
+      toast.error("Something went wrong!");
+    } finally {
+      // Step 6: Cleanup
+      setSaveAndContinueLoading(false);
+      setTimeout(() => {
+        // Navigate to the orders page after 2 seconds
+        navigate('/orders');
+      }, 2000);
+    }
+  };
+  
+  const toggleMissingItems = async (brickosys_order_id, item_id, id, missingNote, operation) => {
+    try {
+      console.log('all orders: ', allOrders);
+  
+      // Step 1: Prepare the updated items array, only including items that were changed
+      const updatedItems = allOrders.flatMap(order =>
+        order.items.map(item => {
+          if (order.brickosys_order_id === brickosys_order_id && item.id === id) {
+            let updatedItem = {
+              brickosysId: order.brickosys_order_id,
+              id: item.id,
+              itemId: item_id,
+              isPicked: processedItems.some(
+                processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
+              ) ? 'true' : 'false',
+              note: operation === "add" ? missingNote : "" // Add or remove the note
+            };
+  
+            // If the note was updated, return the item
+            if (updatedItem.note !== item.note) {
+              return updatedItem;
+            }
+          }
+  
+          // If no changes, return null to exclude unchanged items
+          return null;
+        })
+      ).filter(item => item !== null); // Remove any null (unchanged items)
+  
+      // Step 2: If there are any updated items, send them to the API
+      if (updatedItems.length > 0) {
+        const response = await api.post('/order/update-item-progress', updatedItems);
+        fetchOrders();
+      }
+  
+    } catch (error) {
+      // Step 3: Handle error response
       toast.error("Something went wrong!");
     }
-
-  }
-
+  };
+  
 
   const findBrickOsysId = (id, order_id) => {
 
@@ -862,11 +980,7 @@ export default function PickUpItemsPage() {
                                 </div>
                               </div>
                               <span className="text-xs sm:text-sm font-semibold block mt-2 ml-2"></span>
-                              <span className="text-xs font-semibold  block mt-2 ml-2">{new Date(order.order_on).toLocaleDateString("en-GB", {
-                                day: "2-digit",
-                                month: "long",
-                                year: "numeric",
-                              })}</span>
+                              <span className="text-xs font-semibold  block mt-2 ml-2">{formatDateBasedOnUserLocation(order.order_on)}</span>
                               <div className="flex flex-wrap gap-2 mt-2">
 
                                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-600">

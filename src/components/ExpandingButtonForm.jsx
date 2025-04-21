@@ -38,7 +38,7 @@ const ExpandingButtonForm = () => {
 
   const redirectToDashboard = () => {
 
-
+    localStorage.setItem("isKeys", true);
     api.get("/order/sync");
 
     api.get("/inventory/first-sync")

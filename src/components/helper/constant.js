@@ -353,3 +353,14 @@ export function getTotalLotsAndItems(orders) {
     return colorName.toLowerCase().split(' ').includes('gray') ? 'black' : 'white';
 }
 
+export const formatDateBasedOnUserLocation = (date) => {
+  // Get the user's time zone
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
+  
+  // Format the date and time using the user's time zone
+  return new Date(date).toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+};

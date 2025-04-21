@@ -265,6 +265,8 @@ function StatsCard({ data }) {
     setIsPrimaryStoreChanging(false);
   };
 
+
+
   if (loading) return (
     <div className="grid bg-white rounded-xl p-6 card-shadow pb-0">
       <div className="flex justify-between items-center mb-6 w-full">
@@ -344,6 +346,7 @@ function StatsCard({ data }) {
 
             <span>Sync in Progress...</span>
           </div>}
+
           {localStorage.getItem("role") === 'admin' &&
 
             <button
