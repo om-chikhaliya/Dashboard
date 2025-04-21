@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 // import dayjs from "dayjs";
 // import relativeTime from "dayjs/plugin/relativeTime";
 import api from "./helper/api";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, isValid } from "date-fns";
 import { LastSyncedat } from "./LastSyncedat";
 
 // dayjs.extend(relativeTime);
@@ -141,7 +141,7 @@ function StatsCard({ data }) {
           },
         ]);
       } catch (err) {
-        console.error("Error fetching data:", err.response.data.error);
+        console.error("Error fetching data:", err.response?.data?.error);
       } finally {
         setLoading(false);
       }
@@ -384,10 +384,10 @@ function StatsCard({ data }) {
                 )}
               </div>
               
-              {store.lastSynced !== null ?
+              {store.lastSynced !== null && isValid(new Date(store?.lastSynced)) ?
                 <p className="text-[12px] text-gray-500 mt-1">
 
-                  Last Synced at {formatDistanceToNow(new Date(store.lastSynced), { addSuffix: true })}
+                  Last Synced at {formatDistanceToNow(new Date(store?.lastSynced), { addSuffix: true })}
 
                 </p>
 

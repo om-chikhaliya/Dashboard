@@ -385,7 +385,8 @@ function OrderPageContent() {
       checked ? [...prev, id] : prev.filter((orderId) => orderId !== id)
     )
     setSelectAllOrders(
-      checked && selectedOrders.length + 1 === filteredOrders.length
+      // checked && selectedOrders.length + 1 === filteredOrders.length
+      checked && selectedOrders.length + 1 === totalOrders
     )
   }
 
@@ -429,7 +430,7 @@ function OrderPageContent() {
 
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const [totalPages, setTotalPages] = useState(1); // Total number of pages
-  const [limit, setLimit] = useState(9); // Set the limit of items per page
+  const [limit, setLimit] = useState(2); // Set the limit of items per page
   const [totalOrders, setTotalOrders] = useState(0); // Track total number of orders for pagination
 
   const fetchData = async () => {
@@ -459,7 +460,7 @@ function OrderPageContent() {
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page); // Update current page
-      handleSelectAllOrders(false)
+      // handleSelectAllOrders(false)
     }
   };
 
@@ -675,7 +676,7 @@ function OrderPageContent() {
                 <div className="flex gap-2">
                   {selectedOrders.length > 0 && <button
                     onClick={handleStartPicking}
-                    className="p-2 px-4 rounded flex items-center gap-1 bg-gray-100 hover:bg-gray-200 transition"
+                    className="p-2 px-4 rounded flex items-center gap-1 bg-blue-600 text-white hover:bg-gray-200 transition"
                   >
                     Pick <ArrowRight size={20} />
                   </button>
@@ -750,11 +751,11 @@ function OrderPageContent() {
                             <thead>
                               <tr className="border-b border-gray-400">
                                 <th className="text-left py-3 px-2 text-sm text-left font-medium">
-                                  <Checkbox
+                                  {/* <Checkbox
                                     checked={selectAllOrders}
                                     onChange={(checked) => handleSelectAllOrders(checked)}
                                     className="border-gray-500"
-                                  />
+                                  /> */}
                                 </th>
                                 <th className="text-left py-3 px-4 text-sm font-medium">
                                   Order#

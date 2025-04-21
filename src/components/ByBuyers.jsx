@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import api from "./helper/api"; // Make sure you have the correct API helper imported
 import { ClipLoader } from "react-spinners";
+import { toast } from "react-toastify";
 
 export function ByBuyers() {
   const [buyers, setBuyers] = useState([]);
@@ -101,7 +102,7 @@ export function ByBuyers() {
           <p className="text-center text-gray-500 p-4">You either don't have any orders or wait for orders sync to finish.</p>
         ) : (
           <div className="p-2 space-y-2">
-            {buyers.slice(0, 5).map((buyer, index) => (
+            {buyers?.slice(0, 5).map((buyer, index) => (
               <div
                 key={index}
                 className="flex flex-col p-3 rounded-lg hover:bg-gray-50 transition-colors"

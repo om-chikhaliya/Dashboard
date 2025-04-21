@@ -431,10 +431,10 @@ export default function PickUpItemsPage() {
 
   }
 
-  const toggleMissingItems = async (brickosys_order_id, order_id, id, missingNote, operation) => {
+  const toggleMissingItems = async (brickosys_order_id, item_id, id, missingNote, operation) => {
     try {
       // Step 1: Prepare body object which has all the processed Items with one additional property 'isPicked'
-
+      console.log('all orders: ', allOrders)
       const updatedItems = allOrders.flatMap(order =>
         order.items.map(item => {
           // Check if the current item matches the provided brickosys_order_id and id
@@ -443,7 +443,8 @@ export default function PickUpItemsPage() {
               // If the operation is 'add', update the note
               return {
                 brickosysId: order.brickosys_order_id,
-                itemId: item.id,
+                id: item.id,
+                itemId: item_id,
                 isPicked: processedItems.some(
                   processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
                 ) ? 'true' : 'false',
@@ -453,7 +454,8 @@ export default function PickUpItemsPage() {
               // If the operation is 'remove', clear the note
               return {
                 brickosysId: order.brickosys_order_id,
-                itemId: item.id,
+                id: item.id,
+                itemId: item_id,
                 isPicked: processedItems.some(
                   processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
                 ) ? 'true' : 'false',
@@ -465,7 +467,8 @@ export default function PickUpItemsPage() {
           // For all other items, keep them unchanged
           return {
             brickosysId: order.brickosys_order_id,
-            itemId: item.id,
+            id: item.id,
+            itemId: item_id,
             isPicked: processedItems.some(
               processedItem => processedItem.brickosys_order_id === order.brickosys_order_id && processedItem.id === item.id
             ) ? 'true' : 'false',
@@ -721,7 +724,7 @@ export default function PickUpItemsPage() {
                                             <button
                                               className="flex justify-center min-w-[80px] items-center bg-purple-100 text-purple-600 h-8 px-3 py-1 rounded-md text-xs cursor-pointer"
                                               onClick={() =>
-                                                toggleMissingItems(item.brickosys_order_id, item.order_id, item.id, missingNote, "add")
+                                                toggleMissingItems(item.brickosys_order_id, item.item_id, item.id, missingNote, "add")
                                               }
                                             >
                                               Add Note

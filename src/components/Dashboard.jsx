@@ -180,7 +180,7 @@ function Dashboard() {
               </div>
               <hr className="border-gray-400" />
               <div className="">
-                {summary.map((store) => (
+                {summary?.map((store) => (
                   <div
                     key={store.name}
                     className="flex justify-between items-center py-4 border-gray-800"
@@ -242,7 +242,7 @@ function Dashboard() {
                     <ClipLoader size={50} color={"#AAFF00"} />
                   </div>
                 ) : (
-                  <LineChart months={months} salesdata={dashboardData.monthlySales} />
+                  <LineChart months={months} salesdata={dashboardData?.monthlySales} />
                 )}
               </div>
               {/* <div className="bg-white rounded-xl p-6 card-shadow flex-grow mt-6">

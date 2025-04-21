@@ -17,7 +17,7 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                 className={`flex flex-col md:flex-row items-center gap-4 rounded-lg p-4 cursor-pointer ${pool === "processed" ? "bg-green-200" : pool === "missing" ? "bg-red-200/50" : "bg-white border border-gray-200 shadow-sm"}`}
                 onClick={(e) => {
                     if (pool === "missing") {
-                        toggleMissingItems(item.brickosys_order_id, item.order_id, item.id, missingNote, "remove");
+                        toggleMissingItems(item.brickosys_order_id, item.item_id, item.id, missingNote, "remove");
                     } else {
                         toggleItemProcessed(item.id, item.order_id);
                     }

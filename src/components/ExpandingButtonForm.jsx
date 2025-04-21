@@ -5,6 +5,7 @@ import img1 from "../assets/noorder.png";
 import api from "./helper/api";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { ClipLoader } from "react-spinners";
 
 
 const ExpandingButtonForm = () => {
@@ -37,6 +38,7 @@ const ExpandingButtonForm = () => {
 
   const redirectToDashboard = () => {
 
+
     api.get("/order/sync");
 
     api.get("/inventory/first-sync")
@@ -57,8 +59,13 @@ const ExpandingButtonForm = () => {
     });
   };
 
+  const [loadingBL, setLoadingBL] = useState(false);
+  const [loadingBO, setLoadingBO] = useState(false);
+
+
   const handleSubmitForm1 = async (e) => {
     e.preventDefault();
+    setLoadingBL(true);
     try {
       const payload = {
         bricklink_consumer_key: form1Data.bricklink_consumer_key,
@@ -83,10 +90,14 @@ const ExpandingButtonForm = () => {
     } catch (error) {
       toast.error(error?.response?.data?.error || "Something went wrong");
     }
+    finally{
+      setLoadingBL(false);
+    }
   };
 
   const handleSubmitForm2 = async (e) => {
     e.preventDefault();
+    setLoadingBO(true);
     try {
       const payload = {
         brickowl_api_key: form2Data.brickowl_api_key,
@@ -110,6 +121,9 @@ const ExpandingButtonForm = () => {
       }
     } catch (error) {
       toast.error(error?.response?.data?.error || "Something went wrong");
+    }
+    finally{
+      setLoadingBO(false);
     }
   };
 
@@ -180,8 +194,8 @@ const ExpandingButtonForm = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg"
                   required
                 />
-                <button type="submit" className="w-full py-3 bg-black text-white rounded-lg mt-2 hover:bg-gray-800">
-                  Submit
+                <button type="submit" className="w-full py-3 bg-black text-white rounded-lg mt-2 hover:bg-gray-800" disabled={loadingBL}>
+                  {loadingBL ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Submit'}
                 </button>
               </form>
 
@@ -223,8 +237,8 @@ const ExpandingButtonForm = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg"
                   required
                 />
-                <button type="submit" className="w-full py-3 bg-black text-white rounded-lg mt-2 hover:bg-gray-800">
-                  Submit
+                <button type="submit" className="w-full py-3 bg-black text-white rounded-lg mt-2 hover:bg-gray-800" disabled={loadingBO}>  
+                  {loadingBO ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Submit'}
                 </button>
               </form>
 

@@ -23,11 +23,17 @@ import HelpPanel from "./components/HelpPanel";
 const ProtectedRoute = ({ element, requiredRole }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const token = localStorage.getItem("accessToken");
+  const isKeys = localStorage.getItem("isKeys");
   const userRole = localStorage.getItem("role");
 
   if (!token) {
     return <Navigate to="/" />;
   }
+
+  if(isKeys === false || isKeys === "false"){
+    return <Navigate to='/addkeys' />;
+  }
+
 
   if (requiredRole && userRole !== requiredRole) {
     return (<div className="app">
@@ -47,6 +53,20 @@ const ProtectedRoute = ({ element, requiredRole }) => {
   return element;
 };
 
+const ProtectedRouteKeys = ({ element }) => {
+  const token = localStorage.getItem("accessToken");
+  // const isKeys = localStorage.getItem("iskeys");
+
+  if (!token) {
+    return <Navigate to="/" />;
+  }
+
+  // if(!isKeys){
+  //   return <Navigate to='/addkeys' />;
+  // }
+
+  return element;
+};
 
 function App() {
   return (
@@ -54,12 +74,13 @@ function App() {
       <div className="max-h-screen">
         <Routes>
           <Route path="/" element={<LoginSignup />} />
+          <Route path="/addkeys" element={<ProtectedRouteKeys element={<ExpandingButtonForm />}/>} />
           <Route path="/createuser" element={<ProtectedRoute element={<CreateUserForm />} requiredRole="admin" />} />
           <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
           <Route path="/orders" element={<ProtectedRoute element={<OrderPage />} />} />
           <Route path="/mismatchlot" element={<ProtectedRoute element={<Unmatchlot />} />} />
           <Route path="/pickorders" element={<ProtectedRoute element={<PickUpItemsPage />} />} />
-          <Route path="/addkeys" element={<ProtectedRoute element={<ExpandingButtonForm />} />} />
+          {/* <Route path="/addkeys" element={<ProtectedRoute element={<ExpandingButtonForm />} />} /> */}
           <Route path="/setting" element={<ProtectedRoute element={<Setting />} requiredRole="admin" />} />
           <Route path="/users" element={<ProtectedRoute element={<Users />} requiredRole="admin" />} />
           <Route path="/wishlist" element={<ProtectedRoute element={<WishList />}  />} />

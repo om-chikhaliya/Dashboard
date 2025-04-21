@@ -5,6 +5,7 @@ import api from './helper/api';
 import { useNavigate } from "react-router-dom";
 import img1 from '../assets/noorder.png'
 import { ToastContainer, toast } from "react-toastify";
+import { ClipLoader } from 'react-spinners';
 
 const LoginSignup = () => {
   const [activeTab, setActiveTab] = useState('login');
@@ -121,12 +122,13 @@ const LoginSignup = () => {
 
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
 
     // Determine which form is active (login or signup)
     if (activeTab === 'login' && validateLogin()) {
       try {
-
+        setLoadingLogin(true)
         // Login API Request
         const loginResponse = await axios.post("http://localhost:4000/api/auth/login", {
           email: loginData.email,
@@ -137,6 +139,7 @@ const LoginSignup = () => {
         localStorage.setItem("accessToken", loginResponse.data.token);
         localStorage.setItem("role", loginResponse.data.role);
         localStorage.setItem("username", loginData.email);
+        localStorage.setItem("isKeys", loginResponse.data.iskeys);
 
         // Save credentials if "Remember Me" is checked
         if (loginData.rememberMe) {
@@ -165,8 +168,13 @@ const LoginSignup = () => {
         toast.error(error.response.data.error)
 
       }
+      finally{
+        setLoadingLogin(false);
+      }
 
     } else if (activeTab === 'signup' && validateSignup()) {
+
+      setLoadingSignup(true);
 
       // Send signup request using Axios
       axios.post('http://localhost:4000/api/auth/register-admin', {
@@ -179,8 +187,12 @@ const LoginSignup = () => {
         })
         .catch(error => {
           toast.error(error.response.data.error)
+        })
+        .finally(() => {
+          setLoadingSignup(false);
         });
     }
+
   };
 
   const handleForgotPassword = async (email) => {
@@ -193,6 +205,8 @@ const LoginSignup = () => {
     }
   };
   
+  const [loadingSignup, setLoadingSignup] = useState(false);
+  const [loadingLogin, setLoadingLogin] = useState(false);
 
   return (
     <div className="flex justify-center items-center h-screen relative">
@@ -284,9 +298,10 @@ const LoginSignup = () => {
             </div>
             <button
               type="submit"
+              disabled={loadingLogin}
               className="w-full py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 focus:outline-none transition duration-300"
             >
-              Login
+              {loadingLogin ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Login'}
             </button>
           </form>
         ) : (
@@ -348,15 +363,16 @@ const LoginSignup = () => {
             </div>
             <div className="flex justify-between items-center">
               <label className="flex items-center text-sm text-gray-800">
-                <input type="checkbox" className="mr-2" />
+                <input type="checkbox" className="mr-2" required/>
                 I agree to the Terms & Conditions
               </label>
             </div>
             <button
               type="submit"
+              disabled={loadingSignup}
               className="w-full py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 focus:outline-none transition duration-300"
             >
-              Sign Up
+              {loadingSignup ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Sign up'}
             </button>
           </form>
         )}
