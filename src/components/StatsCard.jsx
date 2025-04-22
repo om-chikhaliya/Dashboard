@@ -11,6 +11,8 @@ import { LastSyncedat } from "./LastSyncedat";
 // dayjs.extend(relativeTime);
 
 function StatsCard({ data }) {
+  const [lastSynced, setLastSynced] = useState();
+
   const [summary, setSummary] = useState([
     {
       name: "BrickLink",
@@ -81,7 +83,7 @@ function StatsCard({ data }) {
       const response = await api.get("/inventory/sync-status");
       const data = await response.data;
       setBackgroundSync(data.sync_in_progress);
-
+      setLastSynced(data.last_synced_at);
 
 
     } catch (error) {
@@ -265,7 +267,17 @@ function StatsCard({ data }) {
     setIsPrimaryStoreChanging(false);
   };
 
+  const syncOrder =  async () => {
+    try{
 
+        const reponse = await api.get("/order/sync");
+    
+        console.log(response.data);
+    }
+    catch(e){
+      console.log('error', e);
+    }
+  };
 
   if (loading) return (
     <div className="grid bg-white rounded-xl p-6 card-shadow pb-0">
@@ -347,6 +359,14 @@ function StatsCard({ data }) {
             <span>Sync in Progress...</span>
           </div>}
 
+          {/* <button
+            className="flex items-center gap-2 text-gray-400 hover:text-black"
+            onClick={syncOrder}
+          >
+            <RefreshCw size={18} className={`h-4 w-4 ${syncInProgress && "animate-spin"}`} />
+            <span className="text-sm">Sync Order</span>
+          </button> */}
+
           {localStorage.getItem("role") === 'admin' &&
 
             <button
@@ -387,10 +407,10 @@ function StatsCard({ data }) {
                 )}
               </div>
               
-              {store.lastSynced !== null && isValid(new Date(store?.lastSynced)) ?
+              {lastSynced !== null && isValid(new Date(lastSynced)) ?
                 <p className="text-[12px] text-gray-500 mt-1">
 
-                  Last Synced at {formatDistanceToNow(new Date(store?.lastSynced), { addSuffix: true })}
+                  Last Synced at {formatDistanceToNow(new Date(lastSynced), { addSuffix: true })}
 
                 </p>
 

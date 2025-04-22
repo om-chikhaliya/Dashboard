@@ -695,7 +695,7 @@ function OrderPageContent() {
                 <div className="flex gap-2">
                   {selectedOrders.length > 0 && <button
                     onClick={handleStartPicking}
-                    className="p-2 px-4 rounded flex items-center gap-1 bg-blue-600 text-white hover:bg-gray-200 transition"
+                    className="p-2 px-4 rounded flex items-center gap-1 bg-blue-600 text-white hover:bg-blue-700 transition"
                   >
                     Pick <ArrowRight size={20} />
                   </button>
