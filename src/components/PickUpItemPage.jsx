@@ -661,7 +661,7 @@ export default function PickUpItemsPage() {
         <div className="flex-1">
           <Header />
           <ToastContainer position="bottom-center" />
-          {isLoading ? <div className="flex justify-center items-center h-fit-screen"><ClipLoader className="" size={50} color={"#AAFF00"} /></div> :
+          {isLoading ? <div className="flex justify-center items-center h-[700px]"><ClipLoader className="" size={50} color={"#AAFF00"} /></div> :
             <div className="flex flex-col-reverse lg:grid lg:grid-cols-3 gap-6">
 
               <div className={`transition-all duration-300 ${showOrders ? "lg:col-span-2" : "lg:col-span-3"}`}>
