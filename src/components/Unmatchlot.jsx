@@ -8,6 +8,7 @@ import api from "./helper/api";
 import img from '../assets/noitems.png'
 import { fomartItemSrcString } from './helper/constant'
 import { Link, RefreshCcw } from 'react-feather'
+import mappedColorData from '../data/mapped-color.json'
 
 export function Unmatchlot() {
 
@@ -18,6 +19,11 @@ export function Unmatchlot() {
 
     const [loadingItemId, setLoadingItemId] = useState(null);
 
+    const colorMap = mappedColorData.reduce((acc, color) => {
+        acc[color.BrickLink] = color.Name; // Map BrickLink ID to color name
+        return acc;
+    }, {});
+
     const fetchUnmatchlot = async () => {
         try {
 
@@ -26,8 +32,19 @@ export function Unmatchlot() {
 
             console.log('mismatch: ', response.data)
 
+            const updatedUnmatchlots = response.data.failedItems.map((lot) => {
+                const colorName = colorMap[lot.color_id] || "Not Applicable"; // Lookup color name by BrickLink ID
+                return {
+                    ...lot,
+                    color_name: colorName, // Add the color name
+                };
+            });
 
-            setUnmatchlots(response.data);
+            //   console.log('updated unmatch lot:', updatedUnmatchlots)
+
+            setUnmatchlots(updatedUnmatchlots);
+
+            // setUnmatchlots(response.data);
 
         } catch (error) {
             console.log("something went wrong!", error);
@@ -43,8 +60,10 @@ export function Unmatchlot() {
 
     }, [])
 
+
+
     const handleBoidChange = (e, id) => {
-        setBoidInputs(prev => ({ ...prev, [id]: e.target.value }));
+        setBoidInputs(prev => ({ ...prev, [id]: e.target.value.trim() }));
     };
 
     // when you click Submit
@@ -56,9 +75,27 @@ export function Unmatchlot() {
             setLoadingItemId(null);
             return;
         }
+
+        let finalBoid = boid;
+
+        if (boid.indexOf('-') === -1 && item.type === 'part') {
+            // If the BOID is like '1234', we need to map it to the corresponding BrickOwl color ID
+            const brickLinkColorId = item.color_id; // Assuming color_id is available on the item
+            const colorData = mappedColorData.find(color => color.BrickLink === brickLinkColorId.toString()); // Find the color data by BrickLink ID
+
+            if (colorData) {
+                const brickOwlColorId = colorData.BrickOwl; // Get the corresponding BrickOwl color ID
+                finalBoid = `${boid}-${brickOwlColorId}`; // Append the BrickOwl color ID to the BOID
+            } else {
+                toast.warn(`No corresponding BrickOwl color ID found for BrickLink color ID: ${brickLinkColorId}`);
+                setLoadingItemId(null);
+                return;
+            }
+        }
+
         try {
             const payload = {
-                boid,
+                boid: finalBoid,
                 inventory_id: item.inventory_id,
                 lot_id: item.lot_id,
                 sku: item.sku,
@@ -70,7 +107,8 @@ export function Unmatchlot() {
                 remarks: item.remarks || '',
                 description: item.description || '',
                 full_con: item.full_con,
-                new_or_used: item.new_or_used
+                new_or_used: item.new_or_used,
+                color_name: item.color_name
             };
             const response = await api.post('/mapping/sku-mapping', payload);
             toast.success(response.data.message);
@@ -89,6 +127,40 @@ export function Unmatchlot() {
         fetchUnmatchlot();
     };
 
+    const handleSendItemInfo = async (item) => {
+        try {
+            // Prepare the item data to send to the API
+            const itemData = {
+                sku: item.sku,
+                color_id: item.color_id,
+                quantity: item.quantity || 0,
+                price: item.price || 0.0,
+                remarks: item.remarks || '',
+                is_ignored: true,
+                description: item.description || '',
+                //   lot_id: item.lot_id,
+                // inventory_id: item.inventory_id,
+                // type: item.type,
+                // name: item.name,
+                // full_con: item.full_con,
+                // new_or_used: item.new_or_used,
+                // color_name: item.color_name,
+            };
+
+            // Send the item data to your API
+            console.log('Ignored Item: ', itemData);
+
+            const response = await api.post("/inventory//update-failed-sync", {
+                failed_items: [itemData]
+            });
+
+            console.log('response: ', response.data)
+            //   toast.success(response.data.message);
+        } catch (error) {
+            toast.error("Failed to send item info.");
+        }
+    };
+
     return (
         <>
             <div className="">
@@ -102,7 +174,7 @@ export function Unmatchlot() {
                                 {/* <div className="lg:col-span-2"> */}
                                 {/* Item Details section */}
                                 {/* <PickUpItems /> */}
-                                <div className="flex justify-end mr-6">
+                                <div className="flex justify-end mr-6 gap-3">
                                     <button
                                         onClick={Refreshpage}
                                         className="inline-flex items-center bg-green-500 text-white text-sm px-3 py-2 rounded hover:bg-green-600 transition space-x-1"
@@ -115,7 +187,7 @@ export function Unmatchlot() {
                                 <div className="flex-1">
                                     <div className="p-6">
                                         <div className="space-y-3">
-                                            {unmatchlots.failedItems.length === 0 ? <div className="flex items-center justify-center min-h-full"><img src={img} alt="" /></div> : unmatchlots.failedItems.map((item, index) => (
+                                            {unmatchlots.length === 0 ? <div className="flex items-center justify-center min-h-full"><img src={img} alt="" /></div> : unmatchlots.map((item, index) => (
                                                 <div
                                                     className="space-y-4 click_element_smooth_hover"
                                                     key={item?.inventory_id}
@@ -161,9 +233,17 @@ export function Unmatchlot() {
                                                                                 {item?.type}
                                                                             </div>
                                                                             <Link size={15} className="cursor-pointer mt-1" onClick={() => unmatchlots.primary_store === "BrickLink" ? window.open(fomartItemSrcString(item?.type, item?.color_id, item?.sku, item?.name), "_blank") : window.open(`https://www.brickowl.com/search/catalog?query=${item.sku}`, "_blank")} />
+                                                                            <button
+                                                                                onClick={() => handleSendItemInfo(item)} // Call the function on click
+                                                                                className={`ml-3 px-3 py-1 text-white rounded-md hover:bg-red-600 text-sm ${item.is_ignored ? 'bg-red-200' : 'bg-red-400'}`}
+                                                                            >
+                                                                                {item.is_ignored ? `Ignored Item` : `Ignore`}
+                                                                            </button>
+
                                                                         </div>
                                                                         {/* <h2 className="text-lg md:text-xl text-gray-800 font-semibold">{item?.item_name}</h2> */}
                                                                         <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Design Id: </span>{item?.sku}</p>
+                                                                        <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Color: </span>{item?.color_name}</p>
                                                                         <div className="flex gap-2">
                                                                             <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Name: </span>{item?.name} </p>
 

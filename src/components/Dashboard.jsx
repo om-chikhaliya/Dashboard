@@ -22,6 +22,7 @@ function Dashboard() {
   const [months, setMonths] = useState(6)
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+  const [primaryStore, setPrimaryStore] = useState('');
   const [summary, setSummary] = useState([
     {
       name: "BrickLink",
@@ -63,6 +64,7 @@ function Dashboard() {
 
   const fetchAndStoreDashboard = async () => {
     try {
+
       const res = await api.get("/inventory/summary");
 
       const dataToStore = {
@@ -92,6 +94,10 @@ function Dashboard() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
+        const response = await api.get("/inventory/primary-store");
+
+        setPrimaryStore(response.data.primary_store);
+
         const cached = sessionStorage.getItem("dashboardData");
 
         if (cached) {
@@ -216,7 +222,7 @@ function Dashboard() {
               </div>
             </div>
           ) : (
-            <StatsCard data={dashboardData} />
+            <StatsCard data={dashboardData}/>
           )}
 
 

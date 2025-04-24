@@ -122,7 +122,7 @@ const ProfilePage = () => {
                                 />
                             </div>
 
-                            <div className="mb-4">
+                            {/* <div className="mb-4">
                                 <label className="block text-gray-600 font-semibold">Username</label>
                                 <input
                                     type="text"
@@ -130,7 +130,7 @@ const ProfilePage = () => {
                                     onChange={(e) => setNewUsername(e.target.value)}
                                     className="w-full p-2 bg-gray-100 text-gray-700 rounded-lg"
                                 />
-                            </div>
+                            </div> */}
 
                             <div className="mb-4">
                                 <label className="block text-gray-600 font-semibold">Role</label>
@@ -150,12 +150,12 @@ const ProfilePage = () => {
                                 >
                                     Update Password
                                 </button>
-                                <button
+                                {/* <button
                                     onClick={handleSave}
                                     className="px-4 py-2 mx-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                 >
                                     Save
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </div>

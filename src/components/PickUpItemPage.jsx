@@ -35,7 +35,7 @@ export default function PickUpItemsPage() {
   const [missingNote, setMissingNote] = useState("");
   const [missingItems, setMissingItems] = useState([]);
   const [showProcessed, setShowProcessed] = useState(true);
-
+  const [missingNoteloader, setMissingNoteloader] = useState(false);
 
 
   const navigate = useNavigate()
@@ -345,7 +345,68 @@ export default function PickUpItemsPage() {
       }
       // Step 5: Handle success response
       else {
-        handleContinueLater();
+        // handleContinueLater();
+
+        const updatedItems = allOrders.flatMap(order =>
+          order.items.map(item => {
+            // Check if the item has changed
+            const isItemPicked = processedItems.some(
+              processedItem =>
+                processedItem.brickosys_order_id === order.brickosys_order_id &&
+                processedItem.id === item.id
+            );
+      
+            const currentNote = missingItems.find(
+              missingItem => missingItem.order_id == order.order_id && missingItem.id == item.id
+            )?.note;
+      
+            // Only return the item if it has changed (either isPicked or note is updated)
+            const hasChanges = item.isPicked !== isItemPicked || item.note !== currentNote;
+      
+            if (hasChanges) {
+              return {
+                brickosysId: order.brickosys_order_id,
+                id: item.id,
+                itemId: item.item_id,
+                isPicked: isItemPicked ? 'true' : 'false',
+                note: currentNote || "", // Set note if exists, otherwise empty string
+              };
+            }
+      
+            // If no changes, return null to exclude the item from the request
+            return null;
+          })
+        ).filter(item => item !== null); // Filter out any null values (unchanged items)
+      
+        // If no items have been updated, skip the API request
+        if (updatedItems.length === 0) {
+          toast.info("No changes to save.");
+          return; // Skip the API request if no changes
+        }
+        console.log('updated items:', updatedItems);
+        try {
+          // Step 2: Construct the API request body
+          const searchParams = new URLSearchParams(window.location.search);
+          const idsParam = searchParams.get('brickosys_orderId') || '';
+      
+          // Step 3: Call the API to update order status with only the changed items
+          const response = await api.post(`/order/update-item-progress?brickosys_order_ids=${idsParam}`, updatedItems);
+      
+          // Step 4: Handle the API response
+          if (response.data.failures.length <= 0) {
+            toast.success("Progress saved successfully.");
+          } else {
+            for (let i = 0; i < response.data.failures.length; i++) {
+              const failure = response.data.failures[i];
+              toast.error(`Could not save details for some items!`);
+            }
+          }
+        } catch (error) {
+          
+          console.log(error);
+          toast.error("Something went wrong!");
+        }
+
         if (response.data.failures.length <= 0) {
           toast.success("All Order status updated successfully!");
         }
@@ -568,7 +629,10 @@ export default function PickUpItemsPage() {
   
   const toggleMissingItems = async (brickosys_order_id, item_id, id, missingNote, operation) => {
     try {
-      console.log('all orders: ', allOrders);
+      
+      if(operation === 'add'){
+        setMissingNoteloader(true);
+      }
   
       // Step 1: Prepare the updated items array, only including items that were changed
       const updatedItems = allOrders.flatMap(order =>
@@ -604,6 +668,8 @@ export default function PickUpItemsPage() {
     } catch (error) {
       // Step 3: Handle error response
       toast.error("Something went wrong!");
+    } finally {
+      setMissingNoteloader(false);
     }
   };
   
@@ -845,7 +911,7 @@ export default function PickUpItemsPage() {
                                                 toggleMissingItems(item.brickosys_order_id, item.item_id, item.id, missingNote, "add")
                                               }
                                             >
-                                              Add Note
+                                              {missingNoteloader ? <ClipLoader size={14} color="#805ad5" /> : 'Submit' }
                                             </button>
                                           </div>
                                         </div>

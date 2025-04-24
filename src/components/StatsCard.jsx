@@ -78,6 +78,28 @@ function StatsCard({ data }) {
   const [showModalBreakdown, setShowModalBreakdown] = useState(false);
   const [backgroundSync, setBackgroundSync] = useState(false);
 
+  const [primaryStore, setPrimaryStore] = useState('');
+  useEffect(() => {
+
+    const fetchPrimaryStore = async () => {
+      try{
+
+        const response = await api.get("/inventory/primary-store");
+  
+        console.log('primary store:', response.data.primary_store)
+  
+        setPrimaryStore(response.data.primary_store);
+
+        
+  
+      }catch(e){
+        console.log('Error to fetch primary store: ', e)
+      }
+    }
+    fetchPrimaryStore();
+
+  }, [])
+
   const fetchSyncStatus = async () => {
     try {
       const response = await api.get("/inventory/sync-status");
@@ -110,14 +132,10 @@ function StatsCard({ data }) {
 
     const fetchData = async () => {
       try {
-        // const response = await api.get("/inventory/summary");
-
-
-        // const currentTime = dayjs();
         setSummary([
           {
             name: "BrickLink",
-            isPrimary: data.primaryStore === "BrickOwl" ? false : true,
+            isPrimary: primaryStore === "BrickOwl" ? false : true,
             lastSynced: data.lastSyncedAt,
             stats: {
               orders: data.bricklinkTotalOrders,
@@ -130,7 +148,7 @@ function StatsCard({ data }) {
           },
           {
             name: "BrickOwl",
-            isPrimary: data.primaryStore === "BrickLink" ? false : true,
+            isPrimary: primaryStore === "BrickLink" ? false : true,
             lastSynced: data.lastSyncedAt,
             stats: {
               orders: data.brickowlTotalOrders,
@@ -149,7 +167,7 @@ function StatsCard({ data }) {
       }
     };
     fetchData();
-  }, [isPrimaryStoreChanging]);
+  }, [primaryStore]);
 
   const openDetailedModal = (storeName) => {
     const storeData = summary.find(store => store.name === storeName);
@@ -245,8 +263,10 @@ function StatsCard({ data }) {
 
       setSummary(prevSummary => prevSummary.map(store => ({
         ...store,
-        isPrimary: store.name === newPrimary
+        isPrimary: store.name === primaryStore
       })));
+
+      setPrimaryStore(newPrimary);
 
       setIsPrimaryStoreChanging(true);
 
@@ -315,7 +335,7 @@ function StatsCard({ data }) {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">{store.name}</span>
-                {store.isPrimary && (
+                {primaryStore === store.name && (
                   <span className="px-2 py-0.5 text-xs primary-element rounded">
                     Primary
                   </span>
@@ -400,7 +420,7 @@ function StatsCard({ data }) {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">{store.name}</span>
-                {store.isPrimary && (
+                {primaryStore === store.name && (
                   <span className="px-2 py-0.5 text-xs primary-element rounded">
                     Primary
                   </span>
