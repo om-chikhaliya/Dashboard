@@ -205,7 +205,7 @@ export function Price() {
                                         value={guideType}
                                         onChange={(e) => setGuideType(e.target.value)}
                                     >
-                                        <option value="sold">Last 6 months Sales data</option>
+                                        <option value="sold">Historical Data Sales data</option>
                                         <option value="stock">Current Market Price</option>
                                     </select>
 
