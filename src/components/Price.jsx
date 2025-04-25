@@ -34,7 +34,7 @@ export function Price() {
     useEffect(() => {
         const fetchStoreData = async () => {
             try {
-                const response = await api.get("/inventory/summary"); // Replace with the correct API endpoint
+                const response = await api.get("/inventory/bricklink-pricing-summary"); // Replace with the correct API endpoint
                 setStoreData({
                     BrickLink: {
                         detailedItem: response.data.bricklinkDetailedItem,

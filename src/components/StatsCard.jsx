@@ -50,6 +50,7 @@ function StatsCard({ data }) {
   const openPriceChangeModal = () => {
     setShowPriceModal(true);
   };
+  
   const closePriceChangeModal = () => {
     setShowPriceModal(false);
     setPricePercentage("");
