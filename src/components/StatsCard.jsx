@@ -251,12 +251,13 @@ function StatsCard({ data }) {
   const changePrimaryStore = () => {
     const currentPrimary = summary.find(store => store.isPrimary)?.name;
     const newPrimary = currentPrimary === "BrickLink" ? "BrickOwl" : "BrickLink";
-    setNewPrimaryStore(newPrimary); // Set the new primary store name
+    setNewPrimaryStore(newPrimary); 
+    // setPrimaryStore(newPrimary)
     setShowConfirmationModal(true);
   };
 
   const confirmChangePrimaryStore = async () => {
-    const currentPrimary = summary.find(store => store.isPrimary)?.name;
+    const currentPrimary = primaryStore;
     const newPrimary = currentPrimary === "BrickLink" ? "BrickOwl" : "BrickLink";
 
     try {
