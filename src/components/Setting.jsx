@@ -4,10 +4,12 @@ import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import api from "./helper/api";
+import { ClipLoader } from "react-spinners";
 
 function Setting() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedOption, setSelectedOption] = useState("bricklink");
+  const [submitloading, setSubmitloading] = useState(false);
 
   // Form states
   const [bricklinkForm, setBricklinkForm] = useState({
@@ -35,6 +37,7 @@ function Setting() {
   const handleSubmit = async (event, platform) => {
     event.preventDefault();
 
+    setSubmitloading(true);
     const url = platform === "bricklink" ? "/keys/store/bricklink" : "/keys/store/brickowl";
     const data = platform === "bricklink" ? bricklinkForm : brickowlForm;
 
@@ -49,6 +52,8 @@ function Setting() {
       }
     } catch (error) {
       toast.error(`${error.response.data.error}`);
+    } finally {
+      setSubmitloading(false);
     }
   };
 
@@ -138,8 +143,8 @@ function Setting() {
                   placeholder="Enter Token Secret"
                 />
 
-                <button type="submit" className="mt-2 bg-[#DFF51D] text-black px-4 py-2 rounded-md font-medium hover:bg-[#C4E200]">
-                  Save
+                <button type="submit" className="mt-2 bg-[#DFF51D] text-black px-4 py-2 rounded-md font-medium hover:bg-[#C4E200]" disabled={submitloading}>
+                {submitloading ? <ClipLoader size={20} color={'#000000'}></ClipLoader> : 'Save'}
                 </button>
               </form>
             </div>
@@ -160,8 +165,8 @@ function Setting() {
                   placeholder="Enter API Key"
                 />
 
-                <button type="submit" className="mt-2 bg-[#DFF51D] text-black px-4 py-2 rounded-md font-medium hover:bg-[#C4E200]">
-                  Save
+                <button type="submit" className="mt-2 bg-[#DFF51D] text-black px-4 py-2 rounded-md font-medium hover:bg-[#C4E200]" disabled={submitloading}>
+                {submitloading ? <ClipLoader size={20} color={'#000000'}></ClipLoader> : 'Save'}
                 </button>
               </form>
             </div>

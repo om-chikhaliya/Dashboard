@@ -132,14 +132,16 @@ function OrderPageContent() {
           className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
           // onClick={() => navigate("/pickupitems")}
           onClick={onClick}
+          disabled = {pickuploading}
         >
-          Start Pick Up
+          {pickuploading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Start Pick Up'}
           <ArrowRight size={18} />
         </button>
       </div>
     );
   }
 
+  const [pickuploading, setPickuploading] = useState(false);
   const [orders, setOrders] = useState([])
   const [selectedStores, setSelectedStores] = useState(storeOptions)
   // const [selectAllStatuses, setSelectAllStatuses] = useState(true)
@@ -436,13 +438,15 @@ function OrderPageContent() {
   const handleStartPicking = () => {
     if (selectedOrders.length > 0) {
 
+      setPickuploading(true);
+
       const orderIds = selectedOrders.join(',');
       // const response = api.get("/auth/pickup-started-log", {
       //   params: {
       //     brickosys_order_ids: orderIds
       //   }
       // });
-
+      setPickuploading(false);
       window.location.href = `/pickorders?brickosys_orderId=${orderIds}`;  // Using window.location.href
     }
   };

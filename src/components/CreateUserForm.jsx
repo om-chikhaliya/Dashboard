@@ -18,6 +18,12 @@ const CreateUserForm = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validateEmail = (email) => {
+    const regex = /\S+@\S+\.\S+/;
+    return regex.test(email);
+  };
+
+
   // Handle form submission
   const handleSubmit = async (e) => {
     setLoading(true);
@@ -25,7 +31,11 @@ const CreateUserForm = () => {
 
 
     try {
-      
+      if(!validateEmail(email)){
+        setError("Please enter valid email.");
+        return;
+      }
+
       if (password.length < 8) {
         setError("Password must be at least 8 characters long.");
         return;
@@ -72,6 +82,14 @@ const CreateUserForm = () => {
     }
   };
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    // Clear error if passwords match
+    if (validateEmail(email)) {
+      setError("");
+    }
+  };
+
   return (
     <div className="app">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
@@ -92,7 +110,7 @@ const CreateUserForm = () => {
                 type="email"
                 placeholder="Email Address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 required
                 className="w-full p-3 border border-gray-300 rounded-lg"
               />
@@ -140,7 +158,7 @@ const CreateUserForm = () => {
               <button
                 type="submit"
                 className="w-full py-3 bg-black text-white rounded-lg mt-4 hover:bg-gray-700"
-                disabled={!email || !password || !confirmPassword || error}
+                disabled={loading || !email || !password || !confirmPassword || error}
               >
                 {loading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Create User'}
               </button>

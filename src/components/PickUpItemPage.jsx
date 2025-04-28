@@ -741,7 +741,7 @@ export default function PickUpItemsPage() {
 
                       <div className="flex items-center gap-6">
                         <div className="flex items-center gap-6">
-                          <button className="bg-blue-600 text-sm font-semibold text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={handleContinueLater}>
+                          <button className="bg-blue-600 text-sm font-semibold text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors" onClick={handleContinueLater} disabled={saveAndContinueLoading}>
                             {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
                           </button>
                         </div>
@@ -989,6 +989,7 @@ export default function PickUpItemsPage() {
                         <button
                           onClick={handleProcessOrders}
                           className="bg-blue-600 text-sm text-white font-semibold px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                          disabled={processOrdersLoader}
                         >
                           {processOrdersLoader
                             ? 'Processing...'
@@ -999,7 +1000,7 @@ export default function PickUpItemsPage() {
 
                       )}
 
-                      <button className="bg-blue-600 text-sm text-white font-semibold px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2" onClick={handleContinueLater}>
+                      <button className="bg-blue-600 text-sm text-white font-semibold px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2" onClick={handleContinueLater} disabled={saveAndContinueLoading}>
                         {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
                       </button>
 

@@ -114,9 +114,9 @@ const HelpPanel = () => {
                                 </div>
                                 <h2 className="text-xl font-semibold text-gray-800">What is Brickosys?</h2>
                             </div>
-                            <motion.div animate={{ rotate: expandedSection === "about" ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                            {activeTab !== "about" && <motion.div animate={{ rotate: expandedSection === "about" ? 180 : 0 }} transition={{ duration: 0.3 }}>
                                 <ChevronDown className="h-5 w-5 text-gray-500" />
-                            </motion.div>
+                            </motion.div>}
                         </div>
 
                         <AnimatePresence>
@@ -188,9 +188,9 @@ const HelpPanel = () => {
                                 </div>
                                 <h2 className="text-xl font-semibold text-gray-800">Key Features</h2>
                             </div>
-                            <motion.div animate={{ rotate: expandedSection === "features" ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                            {activeTab !== "features" && <motion.div animate={{ rotate: expandedSection === "features" ? 180 : 0 }} transition={{ duration: 0.3 }}>
                                 <ChevronDown className="h-5 w-5 text-gray-500" />
-                            </motion.div>
+                            </motion.div>}
                         </div>
 
                         <AnimatePresence>
@@ -285,9 +285,9 @@ const HelpPanel = () => {
                                 </div>
                                 <h2 className="text-xl font-semibold text-gray-800">Current Limitations</h2>
                             </div>
-                            <motion.div animate={{ rotate: expandedSection === "limitations" ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                            {activeTab !== "limitations" && <motion.div animate={{ rotate: expandedSection === "limitations" ? 180 : 0 }} transition={{ duration: 0.3 }}>
                                 <ChevronDown className="h-5 w-5 text-gray-500" />
-                            </motion.div>
+                            </motion.div>}
                         </div>
 
                         <AnimatePresence>

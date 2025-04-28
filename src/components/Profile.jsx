@@ -18,6 +18,7 @@ const ProfilePage = () => {
     const [newUsername, setNewUsername] = useState("");
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [updatepwdloading, setUpdatepwdloading] = useState(false);
 
     // Fetch user data when the component mounts
     useEffect(() => {
@@ -58,13 +59,16 @@ const ProfilePage = () => {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const handleUpdatePassword = async () => {
+        setUpdatepwdloading(true);
         if (!newPassword) {
             toast.error("Please enter a new password!");
+            setUpdatepwdloading(false);
             return;
         }
 
         if (newPassword.length < 8) {
             setErrorMessage("Password must be at least 8 characters long.");
+            setUpdatepwdloading(false);
             return;
         }
 
@@ -80,6 +84,8 @@ const ProfilePage = () => {
         } catch (error) {
             console.error("Error updating password:", error);
             toast.error("Failed to update password.");
+        }finally{
+            setUpdatepwdloading(false);
         }
     };
 
@@ -187,8 +193,9 @@ const ProfilePage = () => {
                         <button
                             className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700"
                             onClick={handleUpdatePassword}
+                            disabled={updatepwdloading}
                         >
-                            Update Password
+                            {updatepwdloading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Update Password'}
                         </button>
                     </div>
                 </div>

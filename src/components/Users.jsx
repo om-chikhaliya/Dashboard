@@ -18,6 +18,9 @@ const Users = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [updatepwdloading, setUpdatepwdloading] = useState(false);
+  const [deleteuserloading, setDeleteuserloading] = useState(false);
+
   const navigate = useNavigate();
   // Fetch Users API Call
   useEffect(() => {
@@ -44,15 +47,18 @@ const Users = () => {
 
   // Update Password API Call
   const handleUpdatePassword = async () => {
+    setUpdatepwdloading(true);
     if (!newPassword) {
       toast.error("Please enter a new password!");
+      setUpdatepwdloading(false);
       return;
     }
 
     if (newPassword.length < 8) {
       setErrorMessage("Password must be at least 8 characters long.");
+      setUpdatepwdloading(false);
       return;
-  }
+    }
 
     try {
       await api.post("/admin/users/password", {
@@ -66,6 +72,8 @@ const Users = () => {
     } catch (error) {
       console.error("Error updating password:", error);
       toast.error("Failed to update password.");
+    } finally {
+      setUpdatepwdloading(false);
     }
   };
 
@@ -77,6 +85,7 @@ const Users = () => {
 
   // Delete User API Call
   const handleDeleteUser = async () => {
+    setDeleteuserloading(true);
     try {
       await api.post("/admin/remove-user", { email: selectedUser.email });
 
@@ -86,6 +95,8 @@ const Users = () => {
     } catch (error) {
       console.error("Error deleting user:", error);
       toast.error("Failed to delete user.");
+    } finally {
+      setDeleteuserloading(false);
     }
   };
 
@@ -120,15 +131,15 @@ const Users = () => {
           ) : (
             <>
 
-              {Array.isArray(users) && users.length === 0 ? (
+              {Array.isArray(users) && users?.length === 0 ? (
                 <div className="flex items-center justify-center w-full h-[700px]">
                   <img src={img} alt="No users found" className="max-w-xs" />
                 </div>
 
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {users.map(user => (
-                    <div key={user.id} className="flex items-center gap-4 p-4 bg-gray-100 rounded-lg shadow-md">
+                  {users?.map(user => (
+                    <div key={user.email} className="flex items-center gap-4 p-4 bg-gray-100 rounded-lg shadow-md">
                       {/* User Icon */}
                       <div className="flex-shrink-0">
                         <UserCircle size={40} className="text-gray-600" />
@@ -166,35 +177,36 @@ const Users = () => {
 
       {/* Password Update Modal */}
       {showPasswordModal && (
-                      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-                              <div className="flex justify-between items-center mb-4">
-                                  <h2 className="text-lg font-semibold">Update Password</h2>
-                                  <X className="cursor-pointer" onClick={() => setShowPasswordModal(false)} />
-                              </div>
-                              <p className="text-gray-600 mb-4">Updating password for <strong>{selectedUser.email}</strong></p>
-                              <input
-                                  type="password"
-                                  placeholder="Enter new password"
-                                  className="w-full border border-gray-300 p-2 rounded-md mb-4"
-                                  value={newPassword}
-                                  onChange={(e) => setNewPassword(e.target.value)}
-                              />
-      
-                              {/* Display error message if password length is less than 8 */}
-                              {errorMessage && (
-                                  <p className="text-red-600 text-sm mb-4">{errorMessage}</p>
-                              )}
-      
-                              <button
-                                  className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700"
-                                  onClick={handleUpdatePassword}
-                              >
-                                  Update Password
-                              </button>
-                          </div>
-                      </div>
-                  )}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Update Password</h2>
+              <X className="cursor-pointer" onClick={() => setShowPasswordModal(false)} />
+            </div>
+            <p className="text-gray-600 mb-4">Updating password for <strong>{selectedUser.email}</strong></p>
+            <input
+              type="password"
+              placeholder="Enter new password"
+              className="w-full border border-gray-300 p-2 rounded-md mb-4"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+
+            {/* Display error message if password length is less than 8 */}
+            {errorMessage && (
+              <p className="text-red-600 text-sm mb-4">{errorMessage}</p>
+            )}
+
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700"
+              onClick={handleUpdatePassword}
+              disabled={updatepwdloading}
+            >
+              {updatepwdloading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Update Password'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
@@ -215,8 +227,9 @@ const Users = () => {
               <button
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
                 onClick={handleDeleteUser}
+                disabled={deleteuserloading}
               >
-                Delete
+                {deleteuserloading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Delete'}
               </button>
             </div>
           </div>

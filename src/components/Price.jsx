@@ -10,7 +10,7 @@ import { ClipLoader } from "react-spinners";
 export function Price() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [guideType, setGuideType] = useState("sold");
-
+    const [submitloading, setSubmitloading] = useState(false);
     const [selectedStore, setSelectedStore] = useState("BrickLink");
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectedMonths, setSelectedMonths] = useState(1);
@@ -75,9 +75,11 @@ export function Price() {
 
     // Submit the price change for the selected rows
     const submitPriceChange = async () => {
+        setSubmitloading(true);
         console.log("Price change submitted");
         if (selectedRows.length === 0) {
             toast.error("Please select at least one item.");
+            setSubmitloading(false)
             return;
         }
 
@@ -99,6 +101,8 @@ export function Price() {
         } catch (error) {
             console.error("Error during price change:", error);
             toast.error(error.response?.data?.error || "Failed to change prices.");
+        }finally{
+            setSubmitloading(false);
         }
 
         // Logic to update prices for selected rows
@@ -205,7 +209,7 @@ export function Price() {
                                         value={guideType}
                                         onChange={(e) => setGuideType(e.target.value)}
                                     >
-                                        <option value="sold">Historical Data Sales data</option>
+                                        <option value="sold">Historical Sales data</option>
                                         <option value="stock">Current Market Price</option>
                                     </select>
 
@@ -252,8 +256,9 @@ export function Price() {
                                         <button
                                             className="bg-blue-500 text-white px-4 py-2 rounded w-1/3"
                                             onClick={submitPriceChange}
+                                            disabled={submitloading}
                                         >
-                                            Submit
+                                            {submitloading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Submit'}
                                         </button>
                                     </div>
                                 </div>

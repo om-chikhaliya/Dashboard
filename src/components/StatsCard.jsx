@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import api from "./helper/api";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { LastSyncedat } from "./LastSyncedat";
+import { ClipLoader } from "react-spinners";
 
 // dayjs.extend(relativeTime);
 
@@ -78,8 +79,9 @@ function StatsCard({ data }) {
   const [detailedStoreData, setDetailedStoreData] = useState(null);
   const [showModalBreakdown, setShowModalBreakdown] = useState(false);
   const [backgroundSync, setBackgroundSync] = useState(false);
-
+  const [primarystorechangeLoading, setPrimarystorechangeLoading] = useState(false);
   const [primaryStore, setPrimaryStore] = useState('');
+
   useEffect(() => {
 
     const fetchPrimaryStore = async () => {
@@ -258,6 +260,7 @@ function StatsCard({ data }) {
   };
 
   const confirmChangePrimaryStore = async () => {
+    setPrimarystorechangeLoading(true);
     const currentPrimary = primaryStore;
     const newPrimary = currentPrimary === "BrickLink" ? "BrickOwl" : "BrickLink";
 
@@ -280,6 +283,7 @@ function StatsCard({ data }) {
 
       toast.error(error.response.data.error);
     } finally {
+      setPrimarystorechangeLoading(false);
       setShowConfirmationModal(false);
     }
   };
@@ -402,7 +406,7 @@ function StatsCard({ data }) {
             className="flex items-center gap-2 text-gray-400 hover:text-black"
             onClick={syncInventory}
           >
-            <RefreshCw size={18} className={`h-4 w-4 ${syncInProgress && "animate-spin"}`} />
+            <RefreshCw size={18} className={`h-4 w-4 ${(syncInProgress || backgroundSync) && "animate-spin"}`} />
             <span className="text-sm">Sync Inventory</span>
           </button>
           {/* <button className="flex items-center gap-2 text-gray-400 hover:text-black" onClick={openPriceChangeModal}>
@@ -620,8 +624,9 @@ function StatsCard({ data }) {
               <button
                 onClick={confirmChangePrimaryStore}
                 className="text-white bg-blue-600 px-4 py-2 rounded"
+                disabled={primarystorechangeLoading}
               >
-                Confirm
+                {primarystorechangeLoading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Confirm'}
               </button>
             </div>
           </div>
