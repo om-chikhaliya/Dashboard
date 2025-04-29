@@ -2,8 +2,8 @@ import axios from "axios";
 
 // Create an Axios instance
 const api = axios.create({
-  // baseURL: "https://backend.brickosys.com/api", // Replace with your actual API URL
-  baseURL: "http://localhost:4000/api",
+  baseURL: "https://backend.brickosys.com/api", // Replace with your actual API URL
+  // baseURL: "http://localhost:4000/api",
 });
 
 // Function to get the stored token

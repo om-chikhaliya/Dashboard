@@ -111,6 +111,7 @@ function Setting() {
                   onChange={(e) => handleInputChange(e, "bricklink")}
                   className="w-full p-2 border rounded-md mb-3"
                   placeholder="Enter Consumer Key"
+                  required
                 />
 
                 <label className="block mb-2 text-sm font-medium">Consumer Secret:</label>
@@ -121,6 +122,7 @@ function Setting() {
                   onChange={(e) => handleInputChange(e, "bricklink")}
                   className="w-full p-2 border rounded-md mb-3"
                   placeholder="Enter Consumer Secret"
+                  required
                 />
 
                 <label className="block mb-2 text-sm font-medium">Token:</label>
@@ -131,6 +133,7 @@ function Setting() {
                   onChange={(e) => handleInputChange(e, "bricklink")}
                   className="w-full p-2 border rounded-md mb-3"
                   placeholder="Enter Token"
+                  required
                 />
 
                 <label className="block mb-2 text-sm font-medium">Token Secret:</label>
@@ -141,6 +144,7 @@ function Setting() {
                   onChange={(e) => handleInputChange(e, "bricklink")}
                   className="w-full p-2 border rounded-md mb-3"
                   placeholder="Enter Token Secret"
+                  required
                 />
 
                 <button type="submit" className="mt-2 bg-[#DFF51D] text-black px-4 py-2 rounded-md font-medium hover:bg-[#C4E200]" disabled={submitloading}>
@@ -163,6 +167,7 @@ function Setting() {
                   onChange={(e) => handleInputChange(e, "brickowl")}
                   className="w-full p-2 border rounded-md mb-3"
                   placeholder="Enter API Key"
+                  required
                 />
 
                 <button type="submit" className="mt-2 bg-[#DFF51D] text-black px-4 py-2 rounded-md font-medium hover:bg-[#C4E200]" disabled={submitloading}>
