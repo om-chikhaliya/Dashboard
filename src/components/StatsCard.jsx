@@ -312,15 +312,17 @@ function StatsCard({ data }) {
         <div className="flex gap-6">
 
           {localStorage.getItem("role") === 'admin' && <button
-            className="flex items-center gap-1 text-gray-400 hover:text-black"
+            className="flex items-center gap-1 text-gray-400"
             onClick={changePrimaryStore}
+            disabled={true}
           >
             <Repeat size={18} />
             <span className="text-sm">Change Primary Store</span>
           </button>}
           <button
-            className="flex items-center gap-2 text-gray-400 hover:text-black"
+            className="flex items-center gap-2 text-gray-400"
             onClick={syncInventory}
+            disabled={true}
           >
             <RefreshCw size={18} className={`h-4 w-4 ${syncInProgress && "animate-spin"}`} />
             <span className="text-sm">Sync Inventory</span>
@@ -396,15 +398,17 @@ function StatsCard({ data }) {
           {localStorage.getItem("role") === 'admin' &&
 
             <button
-              className="flex items-center gap-1 text-gray-400 hover:text-black"
+              className={`flex items-center gap-2  ${(syncInProgress || backgroundSync) ? 'text-gray-400' : 'text-black'}`}
               onClick={changePrimaryStore}
+              disabled={syncInProgress || backgroundSync}
             >
               <Repeat size={18} />
               <span className="text-sm">Change Primary Store</span>
             </button>}
           <button
-            className="flex items-center gap-2 text-gray-400 hover:text-black"
+            className={`flex items-center gap-2  ${(syncInProgress || backgroundSync) ? 'text-gray-400' : 'text-black'}`}
             onClick={syncInventory}
+            disabled={syncInProgress || backgroundSync}
           >
             <RefreshCw size={18} className={`h-4 w-4 ${(syncInProgress || backgroundSync) && "animate-spin"}`} />
             <span className="text-sm">Sync Inventory</span>
