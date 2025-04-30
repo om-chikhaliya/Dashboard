@@ -76,7 +76,7 @@ export function Price() {
     // Submit the price change for the selected rows
     const submitPriceChange = async () => {
         setSubmitloading(true);
-        console.log("Price change submitted");
+        
         if (selectedRows.length === 0) {
             toast.error("Please select at least one item.");
             setSubmitloading(false)

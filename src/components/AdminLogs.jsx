@@ -47,7 +47,7 @@ const AdminLogs = () => {
                                     <tr>
                                         <th className="px-4 py-3 text-left border-b">User</th>
                                         <th className="px-4 py-3 text-left border-b">Action</th>
-                                        <th className="px-4 py-3 text-left border-b">Order ID(s)</th>
+                                        <th className="px-4 py-3 text-left border-b">Description</th>
                                         <th className="px-4 py-3 text-left border-b">Timestamp</th>
                                         {/* <th className="px-4 py-3 text-left border-b">Duration</th> */}
                                     </tr>

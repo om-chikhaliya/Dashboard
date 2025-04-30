@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import Input from "./ui/Input";
 import user from '../assets/user.jpg'
+import api from "./helper/api";
 
 
 function Header({ handleSearch, searchTerm }) {
@@ -12,10 +13,16 @@ function Header({ handleSearch, searchTerm }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken"); // Remove token
-    sessionStorage.clear();
-    navigate("/"); // Redirect to login
+  const handleLogout = async () => {
+    try{
+      await api.get('/auth/logout-log');
+      localStorage.removeItem("accessToken");
+      sessionStorage.clear();
+      navigate("/");
+    }
+    catch(e){
+      console.log('Error in logout: ', e);
+    }
   };
 
   // const handleSetting = () => {

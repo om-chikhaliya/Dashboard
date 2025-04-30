@@ -14,6 +14,7 @@ import {
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate, Link } from "react-router-dom";
 import { User, ChevronLeft, ChevronRight, Info } from "lucide-react";
+import api from "./helper/api";
 
 function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
@@ -59,10 +60,17 @@ function Sidebar({ isOpen, setIsOpen }) {
 
   const navigate = useNavigate();
   
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    sessionStorage.clear();
-    navigate("/");
+  const handleLogout = async () => {
+    try{
+
+      await api.get('/auth/logout-log');
+      localStorage.removeItem("accessToken");
+      sessionStorage.clear();
+      navigate("/");
+    }
+    catch(e){
+      console.log('Error in logout: ', e);
+    }
   };
 
   return (
