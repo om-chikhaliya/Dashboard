@@ -6,7 +6,37 @@ import api from "./helper/api";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
+import React from 'react';
 
+const PrimaryStoreModal = ({ isOpen, onClose, onSelectStore }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-60">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-96 max-w-lg">
+        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Choose Your Primary Store</h2>
+        <p className="text-sm text-gray-600 mb-8 text-center">
+          Select your preferred primary store.
+        </p>
+        <div className="flex justify-center gap-4 mb-4">
+          <button
+            onClick={() => onSelectStore('BrickLink')}
+            className="px-6 py-3 bg-yellow-600 text-white rounded-full shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 transform hover:scale-105"
+          >
+            Bricklink
+          </button>
+          <button
+            onClick={() => onSelectStore('BrickOwl')}
+            className="px-6 py-3 bg-blue-600 text-white rounded-full shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 transform hover:scale-105"
+          >
+            Brickowl
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  );
+};
 
 const ExpandingButtonForm = () => {
   const [expanded, setExpanded] = useState(null);
@@ -35,6 +65,29 @@ const ExpandingButtonForm = () => {
   const handleForm2Change = (e) => {
     setForm2Data({ ...form2Data, [e.target.name]: e.target.value });
   };
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStore, setSelectedStore] = useState(null);
+
+  const handleStoreSelection = async (store) => {
+    setSelectedStore(store);
+    try{
+      const response = await api.post('/keys/set-primary-store', {
+        primary_store: store
+      });
+
+      redirectToDashboard();
+
+    }catch(e){
+      toast.error("error to set primary store.")
+    }finally{
+      setIsModalOpen(false);
+    }
+  };
+
+  const selectPrimaryStore = () => {
+    setIsModalOpen(true);
+  }
 
   const redirectToDashboard = () => {
 
@@ -82,7 +135,7 @@ const ExpandingButtonForm = () => {
 
         // Redirect if user had already submitted Form 2 before
         if (form2Submitted || redirectAfterForm1) {
-          redirectToDashboard();
+          selectPrimaryStore();
         }
       } else {
         toast.error(`Failed to update Bricklink keys.`);
@@ -109,7 +162,7 @@ const ExpandingButtonForm = () => {
         setForm2Submitted(true);
 
         if (form1Submitted) {
-          redirectToDashboard();
+          selectPrimaryStore();
         } else {
           // Form 1 not submitted yet, so we wait
           toast.info("Please complete the Bricklink keys setup to proceed.");
@@ -120,6 +173,7 @@ const ExpandingButtonForm = () => {
         toast.error(`Failed to update Brickowl keys.`);
       }
     } catch (error) {
+      console.log(error)
       toast.error(error?.response?.data?.error || "Something went wrong");
     }
     finally{
@@ -132,6 +186,13 @@ const ExpandingButtonForm = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="absolute inset-0 bg-cover bg-center blur-lg" style={{ backgroundImage: `url(${img1})` }} />
       <div className="z-10 flex flex-col justify-center items-center h-full w-full p-6">
+
+      <PrimaryStoreModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSelectStore={handleStoreSelection}
+      />
+
 
         {/* Form 1: Bricklink */}
         <motion.div

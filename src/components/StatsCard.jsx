@@ -271,17 +271,17 @@ function StatsCard({ data }) {
         isPrimary: store.name === primaryStore
       })));
 
-      setPrimaryStore(newPrimary);
-
       setIsPrimaryStoreChanging(true);
 
 
       const response = await api.post("/keys/update-primary-store", { primary_store: newPrimary });
 
+      setPrimaryStore(newPrimary);
+
       toast.success(response.data.message);
     } catch (error) {
 
-      toast.error(error.response.data.error);
+      toast.error("Error to change primary store");
     } finally {
       setPrimarystorechangeLoading(false);
       setShowConfirmationModal(false);
