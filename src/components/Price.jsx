@@ -78,7 +78,7 @@ export function Price() {
         setSubmitloading(true);
         
         if (selectedRows.length === 0) {
-            toast.error("Please select at least one item.");
+            toast.error("Select an item type to proceed.");
             setSubmitloading(false)
             return;
         }
@@ -92,15 +92,13 @@ export function Price() {
             guideType: guideType
         };
 
-        console.log("submitted data: ", requestData)
 
         // Call the price change API
         try {
             const response = api.post("/price/pricechange", requestData);
-            toast.success(`Price change started`);
+            toast.success(`We are updating the prices in background.`);
         } catch (error) {
-            console.error("Error during price change:", error);
-            toast.error(error.response?.data?.error || "Failed to change prices.");
+            toast.error(error.response?.data?.error || "There is some issue while changing the prices.");
         }finally{
             setSubmitloading(false);
         }

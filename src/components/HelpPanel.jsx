@@ -64,14 +64,26 @@ const HelpPanel = () => {
                         >
                             Help & Platform Guide
                         </motion.h1>
-                        <motion.p
-                            className="text-gray-500 mt-2"
+                        <motion.div
+                            className="flex justify-between items-center"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
                         >
-                            Everything you need to know about using Brickosys effectively
-                        </motion.p>
+                            <motion.p className="text-gray-500 mt-2">
+                                Everything you need to know about using Brickosys effectively
+                            </motion.p>
+                            <motion.a
+                                href="mailto:support@brickosys.com"
+                                className="text-blue-500 mt-2"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                            >
+                                support@brickosys.com
+                            </motion.a>
+                        </motion.div>
+
                     </div>
 
                     {/* Tab Navigation for larger screens */}
@@ -302,19 +314,19 @@ const HelpPanel = () => {
                                     <div className="p-6">
                                         <div className="flex flex-col md:flex-row gap-6 items-center mb-6">
                                             <div className="w-full md:w-1/3 flex justify-center">
-                                                
+
                                                 <motion.div
-                                                initial={{ scale: 0.8, opacity: 0 }}
-                                                animate={{ scale: 1, opacity: 1 }}
-                                                transition={{ duration: 0.5, delay: 0.2 }}
-                                            >
-                                                <svg width="200" height="150" viewBox="0 0 200 150">
+                                                    initial={{ scale: 0.8, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    transition={{ duration: 0.5, delay: 0.2 }}
+                                                >
+                                                    <svg width="200" height="150" viewBox="0 0 200 150">
                                                         <path d="M40,110 L100,30 L160,110 Z" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
                                                         <text x="100" y="85" textAnchor="middle" fill="#ef4444" fontWeight="bold" fontSize="40">
                                                             !
                                                         </text>
                                                     </svg>
-                                            </motion.div>
+                                                </motion.div>
                                             </div>
                                             <div className="w-full md:w-2/3">
                                                 <p className="text-gray-700">

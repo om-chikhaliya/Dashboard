@@ -28,7 +28,6 @@ const ProfilePage = () => {
                 setUserData(response.data);
                 setNewUsername(response.data.username); // Set the username to be editable
             } catch (error) {
-                console.error("Error fetching user data:", error);
                 toast.error("Failed to fetch user data.");
             } finally {
                 setLoading(false);
@@ -78,6 +77,7 @@ const ProfilePage = () => {
                 newPassword: newPassword
             });
 
+            localStorage.removeItem('passwordReset');
             toast.success("Password updated successfully!");
             setErrorMessage("");
             setShowPasswordModal(false);

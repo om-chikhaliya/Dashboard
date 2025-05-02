@@ -341,7 +341,7 @@ export default function PickUpItemsPage() {
 
       if (response.data.statusCode != 200) {
 
-        toast.error("Could not update status!");
+        toast.error("Could not process the order. Please try after some time.");
       }
       // Step 5: Handle success response
       else {
@@ -380,10 +380,10 @@ export default function PickUpItemsPage() {
       
         // If no items have been updated, skip the API request
         if (updatedItems.length === 0) {
-          toast.info("No changes to save.");
+          toast.info("You have not made any changes.");
           return; // Skip the API request if no changes
         }
-        console.log('updated items:', updatedItems);
+
         try {
           // Step 2: Construct the API request body
           const searchParams = new URLSearchParams(window.location.search);
@@ -393,12 +393,10 @@ export default function PickUpItemsPage() {
           const response = await api.post(`/order/update-item-progress?brickosys_order_ids=${idsParam}`, updatedItems);
       
           // Step 4: Handle the API response
-          if (response.data.failures.length <= 0) {
-            toast.success("Progress saved successfully.");
-          } else {
+          if(response.data.failures.length > 0) {
             for (let i = 0; i < response.data.failures.length; i++) {
               const failure = response.data.failures[i];
-              toast.error(`Could not save details for some items!`);
+              toast.error(`Could not pick some items. Please check your pickup stats properly.`);
             }
           }
         } catch (error) {
@@ -408,10 +406,9 @@ export default function PickUpItemsPage() {
         }
 
         if (response.data.failures.length <= 0) {
-          toast.success("All Order status updated successfully!");
+          toast.success("You have picked up all the orders.");
         }
         else {
-          toast.success("Order status updated successfully!");
           for (let i = 0; i < response.data.failures.length; i++) {
             const failure = response.data.failures[i];
             toast.error(`Could not update status of order ${failure.brickosys_order_id}: ${failure.error}`);
@@ -588,11 +585,11 @@ export default function PickUpItemsPage() {
   
     // If no items have been updated, skip the API request
     if (updatedItems.length === 0) {
-      toast.info("No changes to save.");
+      toast.info("You have not made any changes.");
       setSaveAndContinueLoading(false);
       return; // Skip the API request if no changes
     }
-    console.log('updated items:', updatedItems);
+
     try {
       // Step 2: Construct the API request body
       const searchParams = new URLSearchParams(window.location.search);
@@ -606,11 +603,11 @@ export default function PickUpItemsPage() {
   
       // Step 4: Handle the API response
       if (response.data.failures.length <= 0) {
-        toast.success("Progress saved successfully.");
+        toast.success("Pickup stats are saved. You can come back later to start where you left.");
       } else {
         for (let i = 0; i < response.data.failures.length; i++) {
           const failure = response.data.failures[i];
-          toast.error(`Could not save details for some items!`);
+          toast.error(`Looks like there’s an issue with picking some items, or they're marked as missing.`);
         }
       }
     } catch (error) {

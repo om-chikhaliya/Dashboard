@@ -83,7 +83,7 @@ function Dashboard() {
         toast.error("Session expired. Please log in again.");
         // Optionally redirect to login
       } else {
-        toast.error("Failed to load dashboard data.");
+        toast.error("Facing issue while loading the dashboard. Please Login again.");
       }
 
       throw err;
@@ -130,6 +130,27 @@ function Dashboard() {
 
 
   const [showAlert, setShowAlert] = useState(true);
+
+  // forgot password popup
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    const isPasswordReset = localStorage.getItem('passwordReset');
+    if (isPasswordReset === 'true') {
+      setShowPopup(true);
+    }
+  }, []);
+
+  const handleUpdatePassword = () => {
+    // Navigate to update password page or open the modal
+    setShowPopup(false); // Close the popup
+    navigate('/profile');
+  };
+
+  const cancelUpdatePassword = () => {
+    // Navigate to update password page or open the modal
+    setShowPopup(false); // Close the popup
+  };
 
 
   return (
@@ -272,6 +293,30 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
+          <div className="bg-white rounded-xl p-6 shadow-lg w-11/12 sm:w-96">
+            <h3 className="text-xl font-semibold mb-4">Update Password</h3>
+            <p className="text-sm mb-6">You need to update your password.</p>
+            <div className="flex justify-between">
+              <button
+                onClick={cancelUpdatePassword}
+                className="text-gray-500 bg-gray-200 px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdatePassword}
+                className="text-white bg-blue-600 px-4 py-2 rounded"
+              >
+                {/* {primarystorechangeLoading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Confirm'} */}
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
 
 

@@ -176,21 +176,58 @@ const LoginSignup = () => {
 
       setLoadingSignup(true);
 
-      // Send signup request using Axios
-      axios.post('http://localhost:4000/api/auth/register-admin', {
-        email: signupData.email,
-        password: signupData.password
-      })
-        .then(response => {
-          toast.success(response.data.message)
-          setActiveTab('login')
-        })
-        .catch(error => {
-          toast.error(error.response.data.error)
-        })
-        .finally(() => {
+        try {
+          const response = await axios.post('http://localhost:4000/api/auth/register-admin', {
+            email: signupData.email,
+            password: signupData.password
+          });
+          toast.success(response.data.message);
+          // setActiveTab('login');
+
+          const loginResponse = await axios.post("http://localhost:4000/api/auth/login", {
+            email: signupData.email,
+            password: signupData.password,
+          });
+  
+          // Store access token
+          localStorage.setItem("accessToken", loginResponse.data.token);
+          localStorage.setItem("role", loginResponse.data.role);
+          localStorage.setItem("username", signupData.email);
+          localStorage.setItem("isKeys", loginResponse.data.iskeys);
+  
+          // Save credentials if "Remember Me" is checked
+          if (loginData.rememberMe) {
+            localStorage.setItem("rememberedEmail", signupData.email);
+            localStorage.setItem("rememberedPassword", signupData.password);
+          } else {
+            localStorage.removeItem("rememberedEmail");
+            localStorage.removeItem("rememberedPassword");
+          }
+  
+  
+          const idResponse = await api.get('/keys/my-keys');
+  
+  
+          // Check if all four IDs exist
+          // const hasAllIds = await idResponse.data.bricklink && idResponse.data.brickowl;
+  
+          // Navigate based on the response
+          // navigate(hasAllIds ? "/dashboard" : "/addkeys");
+  
+          // setTimeout(() => {
+          navigate(idResponse.data ? "/dashboard" : "/addkeys");
+
+        } catch (error) {
+          if (error.response) {
+            // If the error has a response from the server
+            toast.error(error.response.data.error);
+          } else {
+            // If the error does not have a response (network error, etc.)
+            toast.error('An error occurred. Please try again later.');
+          }
+        } finally {
           setLoadingSignup(false);
-        });
+        }
     }
 
   };
@@ -201,6 +238,7 @@ const LoginSignup = () => {
     try {
       // Call your backend forgot password API here
       const response = await axios.post("http://localhost:4000/api/auth/forgot-password", { email });
+      localStorage.setItem('passwordReset', 'true');
       toast.success(response.data.message);
     } catch (err) {
       toast.error(err.response.data.error);

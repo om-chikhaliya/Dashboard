@@ -83,7 +83,7 @@ function App() {
           {/* <Route path="/addkeys" element={<ProtectedRoute element={<ExpandingButtonForm />} />} /> */}
           <Route path="/setting" element={<ProtectedRoute element={<Setting />} requiredRole="admin" />} />
           <Route path="/users" element={<ProtectedRoute element={<Users />} requiredRole="admin" />} />
-          <Route path="/wishlist" element={<ProtectedRoute element={<WishList />}  />} />
+          {/* <Route path="/wishlist" element={<ProtectedRoute element={<WishList />}  />} /> */}
           <Route path="/price" element={<ProtectedRoute element={<Price />} requiredRole="admin" />} />
           <Route path="/logs" element={<ProtectedRoute element={<AdminLogs />} requiredRole="admin" />} />
           <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />

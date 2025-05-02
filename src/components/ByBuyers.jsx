@@ -29,7 +29,7 @@ export function ByBuyers() {
         toast.error("Session expired. Please log in again.");
         // Optionally redirect to login
       } else {
-        toast.error("Failed to load dashboard data.");
+        toast.error("Failed to load buyers data.");
       }
   
       throw err;

@@ -71,7 +71,7 @@ export function Unmatchlot() {
         setLoadingItemId(item.inventory_id);
         const boid = boidInputs[item.inventory_id];
         if (!boid) {
-            toast.warn("Please enter a BOID value first");
+            toast.warn("Boid is required.");
             setLoadingItemId(null);
             return;
         }
@@ -117,7 +117,7 @@ export function Unmatchlot() {
             setBoidInputs(prev => ({ ...prev, [item.inventory_id]: "" }));
         } catch (err) {
             console.error("BOID submit failed:", err);
-            toast.error("Failed to store BOID");
+            toast.error("Internal server error.");
         } finally {
             setLoadingItemId(null);
         }
@@ -164,7 +164,7 @@ export function Unmatchlot() {
             );
             //   toast.success(response.data.message);
         } catch (error) {
-            toast.error("Failed to send item info.");
+            toast.error("Failed to adding the items.");
         } finally {
             setIgnoreLoadingItemId(null);  // Stop loading
         }

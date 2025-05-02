@@ -194,7 +194,7 @@ function StatsCard({ data }) {
         res = await api.get("/inventory/synchronize");
 
         // toast.success(res.data.message)
-        toast.success("Inventory sync is started in background and it will take around 20 minutes.")
+        toast.success("The inventory sync has started in the background and should take about 20 minutes.")
 
       } catch (error) {
         toast.error(error.response.data.error);
@@ -281,7 +281,7 @@ function StatsCard({ data }) {
       toast.success(response.data.message);
     } catch (error) {
 
-      toast.error("Error to change primary store");
+      toast.error("Internal server error while changing primary store.");
     } finally {
       setPrimarystorechangeLoading(false);
       setShowConfirmationModal(false);

@@ -21,13 +21,13 @@ const PrimaryStoreModal = ({ isOpen, onClose, onSelectStore }) => {
         <div className="flex justify-center gap-4 mb-4">
           <button
             onClick={() => onSelectStore('BrickLink')}
-            className="px-6 py-3 bg-yellow-600 text-white rounded-full shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 transform hover:scale-105"
+            className="px-6 py-3 bg-yellow-300 text-white rounded-full shadow-md hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 transform hover:scale-105"
           >
             Bricklink
           </button>
           <button
             onClick={() => onSelectStore('BrickOwl')}
-            className="px-6 py-3 bg-blue-600 text-white rounded-full shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 transform hover:scale-105"
+            className="px-6 py-3 bg-blue-500 text-white rounded-full shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 transform hover:scale-105"
           >
             Brickowl
           </button>
@@ -79,7 +79,7 @@ const ExpandingButtonForm = () => {
       redirectToDashboard();
 
     }catch(e){
-      toast.error("error to set primary store.")
+      toast.error("There is some issue with selecting the primary store. Selecting 'Bricklink' as default primary store.")
     }finally{
       setIsModalOpen(false);
     }
@@ -101,7 +101,7 @@ const ExpandingButtonForm = () => {
         toasts: [
           {
             type: "success",
-            message: "The Inventory and order Sync Started in Background and may take around half an hour to complete. you will get a notified via mail when it complete"
+            message: "The inventory and order sync has started in the background and may take up to 30 minutes to complete. You’ll receive a notification via email once it's done."
           },
           // {
           //   type: "success",
@@ -129,7 +129,7 @@ const ExpandingButtonForm = () => {
 
       const response = await api.post("/keys/store/bricklink", payload);
       if (response.status === 200) {
-        toast.success(`Bricklink keys updated successfully!`);
+        toast.success(`Congratulations! Bricklink keys verified.`);
         setForm1Submitted(true);
         setExpanded("form2");
 
@@ -138,7 +138,7 @@ const ExpandingButtonForm = () => {
           selectPrimaryStore();
         }
       } else {
-        toast.error(`Failed to update Bricklink keys.`);
+        toast.error(`Bricklink keys verification failed.`);
       }
     } catch (error) {
       toast.error(error?.response?.data?.error || "Something went wrong");
@@ -158,7 +158,7 @@ const ExpandingButtonForm = () => {
 
       const response = await api.post("/keys/store/brickowl", payload);
       if (response.status === 200) {
-        toast.success(`Brickowl keys updated successfully!`);
+        toast.success(`Congratulations! Brickowl keys verified.`);
         setForm2Submitted(true);
 
         if (form1Submitted) {
@@ -170,7 +170,7 @@ const ExpandingButtonForm = () => {
           setExpanded("form1");
         }
       } else {
-        toast.error(`Failed to update Brickowl keys.`);
+        toast.error(`Brickowl keys verification failed.`);
       }
     } catch (error) {
       console.log(error)

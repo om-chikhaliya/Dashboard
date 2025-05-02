@@ -21,7 +21,7 @@ function Sidebar({ isOpen, setIsOpen }) {
     { icon: Monitor, label: "Dashboard", path: "/dashboard" },
     { icon: ShoppingCart, label: "Orders", path: "/orders" },
     { icon: Archive, label: "Mismatch Lots", path: "/mismatchlot" },
-    { icon: List, label: "Wanted List", path: "/wishlist" },
+    // { icon: List, label: "Wanted List", path: "/wishlist" },
     { icon: DollarSign, label: "Avg Price", path: "/price" },
     { icon: Info, label: "Logs", path: "/logs" },
     { icon: User, label: "Users", path: "/users" },
@@ -40,8 +40,8 @@ function Sidebar({ isOpen, setIsOpen }) {
     : menuItems.filter(item => 
         item.label === "Dashboard" || 
         item.label === "Orders" || 
-        item.label === "Mismatch Lots" || 
-        item.label === "Wanted List"
+        item.label === "Mismatch Lots" 
+        // item.label === "Wanted List"
     );
 
   useEffect(() => {
