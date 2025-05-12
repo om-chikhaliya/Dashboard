@@ -853,6 +853,9 @@ export default function PickUpItemsPage() {
                                       <div className="bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-200 w-fit rounded-lg">
                                         {item.item_type}
                                       </div>
+                                      <div className="bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-200 w-fit rounded-lg">
+                                        {item.new_or_used === "N" ? "New" : item.new_or_used === "U" ? "Used" : "N/A"}
+                                      </div>
                                       <h2 className="text-lg md:text-xl text-gray-800 font-semibold">{item.item_name}</h2>
                                       <p className="text-sm text-gray-600">{item.sku}</p>
                                     </div>

@@ -45,6 +45,10 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                         <div className={`${pool === "processed" ? "bg-blue-100 text-blue-600" : "bg-orange-100 text-orange-600"} rounded-lg w-fit px-2`}>
                             {item.item_type}
                         </div>
+                        <div className={`${pool === "processed" ? "bg-blue-100 text-blue-600" : "bg-orange-100 text-orange-600"} rounded-lg w-fit px-2`}>
+                        {item.new_or_used === "N" ? "New" : item.new_or_used === "U" ? "Used" : "N/A"}
+                        </div>
+                        
                         <span className="text-zinc-600">{item.color}</span>
                         <span className="text-zinc-600">{item.item_id}</span>
                     </div>
