@@ -19,6 +19,7 @@ import {Price} from './components/Price';
 import AdminLogs from "./components/AdminLogs";
 import ProfilePage from "./components/Profile";
 import HelpPanel from "./components/HelpPanel";
+import LandingPage from "./components/LandingPage";
 
 const ProtectedRoute = ({ element, requiredRole }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -73,7 +74,8 @@ function App() {
     <Router>
       <div className="max-h-screen">
         <Routes>
-          <Route path="/" element={<LoginSignup />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginSignup />} />
           <Route path="/addkeys" element={<ProtectedRouteKeys element={<ExpandingButtonForm />}/>} />
           <Route path="/createuser" element={<ProtectedRoute element={<CreateUserForm />} requiredRole="admin" />} />
           <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
