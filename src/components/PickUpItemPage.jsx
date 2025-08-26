@@ -19,6 +19,7 @@ import api from "./helper/api";
 import Sidebar from "./Sidebar";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import colors from '../data/color-pick-item'
 
 
 export default function PickUpItemsPage() {
@@ -36,6 +37,8 @@ export default function PickUpItemsPage() {
   const [missingItems, setMissingItems] = useState([]);
   const [showProcessed, setShowProcessed] = useState(true);
   const [missingNoteloader, setMissingNoteloader] = useState(false);
+  const [completedOrders, setCompletedOrders] = useState([]);
+  const [sortedItems, setSortedItems] = useState([]);
 
 
   const navigate = useNavigate()
@@ -52,7 +55,7 @@ export default function PickUpItemsPage() {
       const response = await api.get(`/order/pick-orders?brickosys_order_ids=${idsParam}`);
       const orders = response.data;
 
-      
+
       setAllOrders(orders);
 
 
@@ -94,9 +97,7 @@ export default function PickUpItemsPage() {
   }
 
   useEffect(() => {
-
     fetchOrders();
-
   }, [])
 
 
@@ -133,8 +134,26 @@ export default function PickUpItemsPage() {
   }, [allOrders]);
 
   useEffect(() => {
+    if (allOrders.length === 0) return;
 
-  }, [processedItems]);
+    const { packedOrdersIds } = calculateProgress();
+
+    // Find newly completed orders that weren’t in the previous state
+    const newCompletions = packedOrdersIds.filter(
+      (id) => !completedOrders.includes(id)
+    );
+
+    // Fire a toast for each newly completed order
+    newCompletions.forEach((id) => {
+      const order = allOrders.find((o) => o.brickosys_order_id === id);
+      toast.success(`Order ${order?.order_id} has been fully picked!`);
+    });
+
+    // Update state
+    if (newCompletions.length > 0) {
+      setCompletedOrders((prev) => [...prev, ...newCompletions]);
+    }
+  }, [processedItems, allOrders]);
 
 
   useEffect(() => {
@@ -176,9 +195,29 @@ export default function PickUpItemsPage() {
   useEffect(() => {
     const item = missingItems.find((missingItem) => missingItem.id == currentActiveItem?.id);
     setMissingNote((prev) => item?.note || '');
-
-
   }, [currentActiveItem])
+
+  useEffect(() => {
+    setSortedItems([
+      ...allItems.filter(item =>
+        processedItems?.some(processedItem =>
+          processedItem.id === item.id && processedItem.order_id === item.order_id)
+      ),
+      ...allItems.filter(item =>
+        !processedItems?.some(processedItem =>
+          processedItem.id === item.id && processedItem.order_id === item.order_id) &&
+        !missingItems?.some(missingItem =>
+          missingItem.id === item.id && missingItem.order_id === item.order_id)
+      ),
+      ...allItems.filter(item =>
+        missingItems?.some(missingItem =>
+          missingItem.id === item.id && missingItem.order_id === item.order_id)
+      ),
+    ]);
+
+  }, [allItems, missingItems])
+
+
 
   const toggleItemProcessed = (id, order_id, note = '') => {
     // clickAudio(); 
@@ -256,10 +295,12 @@ export default function PickUpItemsPage() {
 
           if (lotPackedTracker[item.id] >= totalQtyForLot) {
             packedLots += 1;
+
             pickedLotsInOrder += 1;
           }
         }
       });
+
 
       // Update the order's progress
       orderProgress[order.order_id].pickedItems = pickedItemsInOrder;
@@ -289,6 +330,7 @@ export default function PickUpItemsPage() {
         packedOrdersIds.push(order.brickosys_order_id)
       }
     });
+
 
     // Overall completion based on both items and lots
     const totalItems = allOrders.reduce((acc, order) => acc + order.items.reduce((acc, item) => acc + item.quantity, 0), 0);
@@ -330,7 +372,7 @@ export default function PickUpItemsPage() {
 
       // Step 3: Construct the API request body
       const body = updates;
-      
+
 
       const searchParams = new URLSearchParams(window.location.search);
       const idsParam = searchParams.get('brickosys_orderId') || '';
@@ -355,14 +397,14 @@ export default function PickUpItemsPage() {
                 processedItem.brickosys_order_id === order.brickosys_order_id &&
                 processedItem.id === item.id
             );
-      
+
             const currentNote = missingItems.find(
               missingItem => missingItem.order_id == order.order_id && missingItem.id == item.id
             )?.note;
-      
+
             // Only return the item if it has changed (either isPicked or note is updated)
             const hasChanges = item.isPicked !== isItemPicked || item.note !== currentNote;
-      
+
             if (hasChanges) {
               return {
                 brickosysId: order.brickosys_order_id,
@@ -372,12 +414,12 @@ export default function PickUpItemsPage() {
                 note: currentNote || "", // Set note if exists, otherwise empty string
               };
             }
-      
+
             // If no changes, return null to exclude the item from the request
             return null;
           })
         ).filter(item => item !== null); // Filter out any null values (unchanged items)
-      
+
         // If no items have been updated, skip the API request
         if (updatedItems.length === 0) {
           toast.info("You have not made any changes.");
@@ -388,19 +430,19 @@ export default function PickUpItemsPage() {
           // Step 2: Construct the API request body
           const searchParams = new URLSearchParams(window.location.search);
           const idsParam = searchParams.get('brickosys_orderId') || '';
-      
+
           // Step 3: Call the API to update order status with only the changed items
           const response = await api.post(`/order/update-item-progress?brickosys_order_ids=${idsParam}`, updatedItems);
-      
+
           // Step 4: Handle the API response
-          if(response.data.failures.length > 0) {
+          if (response.data.failures.length > 0) {
             for (let i = 0; i < response.data.failures.length; i++) {
               const failure = response.data.failures[i];
               toast.error(`Could not pick some items. Please check your pickup stats properly.`);
             }
           }
         } catch (error) {
-          
+
           console.log(error);
           toast.error("Something went wrong!");
         }
@@ -550,7 +592,7 @@ export default function PickUpItemsPage() {
   // }
   const handleContinueLater = async () => {
     setSaveAndContinueLoading(true);
-  
+
     // Step 1: Prepare body object with only the changed items
     const updatedItems = allOrders.flatMap(order =>
       order.items.map(item => {
@@ -560,14 +602,14 @@ export default function PickUpItemsPage() {
             processedItem.brickosys_order_id === order.brickosys_order_id &&
             processedItem.id === item.id
         );
-  
+
         const currentNote = missingItems.find(
           missingItem => missingItem.order_id == order.order_id && missingItem.id == item.id
         )?.note;
-  
+
         // Only return the item if it has changed (either isPicked or note is updated)
         const hasChanges = item.isPicked !== isItemPicked || item.note !== currentNote;
-  
+
         if (hasChanges) {
           return {
             brickosysId: order.brickosys_order_id,
@@ -577,12 +619,12 @@ export default function PickUpItemsPage() {
             note: currentNote || "", // Set note if exists, otherwise empty string
           };
         }
-  
+
         // If no changes, return null to exclude the item from the request
         return null;
       })
     ).filter(item => item !== null); // Filter out any null values (unchanged items)
-  
+
     // If no items have been updated, skip the API request
     if (updatedItems.length === 0) {
       toast.info("You have not made any changes.");
@@ -594,13 +636,13 @@ export default function PickUpItemsPage() {
       // Step 2: Construct the API request body
       const searchParams = new URLSearchParams(window.location.search);
       const idsParam = searchParams.get('brickosys_orderId') || '';
-  
+
       // Step 3: Call the API to update order status with only the changed items
       const response = await api.post(`/order/update-item-progress?brickosys_order_ids=${idsParam}`, updatedItems);
-  
+
       // Log the pickup started event
       const log_res = await api.post(`/auth/pickup-started-log?brickosys_order_ids=${idsParam}`);
-  
+
       // Step 4: Handle the API response
       if (response.data.failures.length <= 0) {
         toast.success("Pickup stats are saved. You can come back later to start where you left.");
@@ -623,14 +665,15 @@ export default function PickUpItemsPage() {
       }, 2000);
     }
   };
-  
+
   const toggleMissingItems = async (brickosys_order_id, item_id, id, missingNote, operation) => {
     try {
-      
-      if(operation === 'add'){
+
+      if (operation === 'add') {
         setMissingNoteloader(true);
+        toast.success("Missing note added successfully.")
       }
-  
+
       // Step 1: Prepare the updated items array, only including items that were changed
       const updatedItems = allOrders.flatMap(order =>
         order.items.map(item => {
@@ -644,24 +687,24 @@ export default function PickUpItemsPage() {
               ) ? 'true' : 'false',
               note: operation === "add" ? missingNote : "" // Add or remove the note
             };
-  
+
             // If the note was updated, return the item
             if (updatedItem.note !== item.note) {
               return updatedItem;
             }
           }
-  
+
           // If no changes, return null to exclude unchanged items
           return null;
         })
       ).filter(item => item !== null); // Remove any null (unchanged items)
-  
+
       // Step 2: If there are any updated items, send them to the API
       if (updatedItems.length > 0) {
         const response = await api.post('/order/update-item-progress', updatedItems);
         fetchOrders();
       }
-  
+
     } catch (error) {
       // Step 3: Handle error response
       toast.error("Something went wrong!");
@@ -669,7 +712,7 @@ export default function PickUpItemsPage() {
       setMissingNoteloader(false);
     }
   };
-  
+
 
   const findBrickOsysId = (id, order_id) => {
 
@@ -688,26 +731,7 @@ export default function PickUpItemsPage() {
     setcurrentActiveItem(item)
   }
 
-  const [sortedItems, setSortedItems] = useState([]);
-  useEffect(() => {
-    setSortedItems([
-      ...allItems.filter(item =>
-        processedItems?.some(processedItem =>
-          processedItem.id === item.id && processedItem.order_id === item.order_id)
-      ),
-      ...allItems.filter(item =>
-        !processedItems?.some(processedItem =>
-          processedItem.id === item.id && processedItem.order_id === item.order_id) &&
-        !missingItems?.some(missingItem =>
-          missingItem.id === item.id && missingItem.order_id === item.order_id)
-      ),
-      ...allItems.filter(item =>
-        missingItems?.some(missingItem =>
-          missingItem.id === item.id && missingItem.order_id === item.order_id)
-      ),
-    ]);
 
-  }, [allItems, missingItems])
 
   const openModal = (item) => { setSelectedItem(item); setModalOpen(true); }
   const closeModal = () => { setModalOpen(false); setSelectedItem(null) };
@@ -788,7 +812,7 @@ export default function PickUpItemsPage() {
                       </button> */}
                     </div>
                     <div className="space-y-3">
-                      
+
                       {sortedItems.map((item, index) => (
                         item.id === currentActiveItem?.id ? (
                           <div
@@ -850,11 +874,13 @@ export default function PickUpItemsPage() {
                                   <div className="flex-1 space-y-4 md:space-y-6">
                                     {/* Title Section */}
                                     <div className="space-y-2">
-                                      <div className="bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-200 w-fit rounded-lg">
-                                        {item.item_type}
-                                      </div>
-                                      <div className="bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-200 w-fit rounded-lg">
-                                        {item.new_or_used === "N" ? "New" : item.new_or_used === "U" ? "Used" : "N/A"}
+                                      <div className="flex gap-2">
+                                        <div className="bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-200 w-fit rounded-lg">
+                                          {item.item_type}
+                                        </div>
+                                        <div className="bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-200 w-fit rounded-lg">
+                                          {item.new_or_used === "N" ? "New" : item.new_or_used === "U" ? "Used" : "N/A"}
+                                        </div>
                                       </div>
                                       <h2 className="text-lg md:text-xl text-gray-800 font-semibold">{item.item_name}</h2>
                                       <p className="text-sm text-gray-600">{item.sku}</p>
@@ -886,7 +912,7 @@ export default function PickUpItemsPage() {
                                               <span className="h-10 w-16 border border-gray-300 bg-gray-50 text-base relative pt-2 pl-2 text-gray-800 rounded-l-lg">
                                                 {item.quantity}
                                               </span>
-                                              <span className="text-lg font-medium text-purple-600 bg-purple-100 h-10 w-10 pt-2 text-center rounded-r-lg">
+                                              <span className={`text-lg font-medium ${colors[findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex % colors.length]} h-10 w-10 pt-2 text-center rounded-r-lg`}>
                                                 {findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex + 1}
                                               </span>
                                             </div>
@@ -911,7 +937,7 @@ export default function PickUpItemsPage() {
                                                 toggleMissingItems(item.brickosys_order_id, item.item_id, item.id, missingNote, "add")
                                               }
                                             >
-                                              {missingNoteloader ? <ClipLoader size={14} color="#805ad5" /> : 'Submit' }
+                                              {missingNoteloader ? <ClipLoader size={14} color="#805ad5" /> : 'Submit'}
                                             </button>
                                           </div>
                                         </div>
@@ -1029,7 +1055,7 @@ export default function PickUpItemsPage() {
                           {saveAndContinueLoading ? 'Saving...' : 'Continue Later'}
                         </button>
                       </div> */}
-                      
+
                     </div>
 
                     <div className="space-y-4">
@@ -1043,7 +1069,7 @@ export default function PickUpItemsPage() {
                             <div className="w-full">
                               <div className="flex items-center gap-2">
                                 <div className="bg-black text-white px-3 py-1 rounded-md text-xs sm:text-sm font-semibold">
-                                  {order.platform} - Order no.#{order.order_id}
+                                  {order.platform} - Order {order.order_id}
                                 </div>
                               </div>
                               <span className="text-xs sm:text-sm font-semibold block mt-2 ml-2"></span>

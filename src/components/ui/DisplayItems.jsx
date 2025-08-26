@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { findOrderIndexForItem, fomartImageSrcString } from '../helper/constant';
 import { FaSearchPlus } from 'react-icons/fa';
+import colors from '../../data/color-pick-item'
+
 
 function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote = "", expandItem, toggleMissingItems }) {
     const [modalOpen, setModalOpen] = useState(false);
@@ -29,12 +31,12 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                         className=""
                         onClick={(e) => { e.stopPropagation(); openModal(); }}
                     >
-                    <img
-                        src={imageSrc}
-                        alt={item.item_name}
-                        className="h-16 w-16 rounded-lg object-cover cursor-pointer"
-                        width={16}
-                    />
+                        <img
+                            src={imageSrc}
+                            alt={item.item_name}
+                            className="h-16 w-16 rounded-lg object-cover cursor-pointer"
+                            width={16}
+                        />
                         {/* <FaSearchPlus className="text-xl" /> */}
                     </button>
                 </div>
@@ -46,11 +48,11 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                             {item.item_type}
                         </div>
                         <div className={`${pool === "processed" ? "bg-blue-100 text-blue-600" : "bg-orange-100 text-orange-600"} rounded-lg w-fit px-2`}>
-                        {item.new_or_used === "N" ? "New" : item.new_or_used === "U" ? "Used" : "N/A"}
+                            {item.new_or_used === "N" ? "New" : item.new_or_used === "U" ? "Used" : "N/A"}
                         </div>
-                        
+
                         <span className="text-zinc-600">{item.color}</span>
-                        <span className="text-zinc-600">{item.item_id}</span>
+                        <span className="text-zinc-600">{item.sku}</span>
                     </div>
                     <h3 className="text-lg text-black-300">{item.item_name}</h3>
                     <div className="text-sm text-zinc-500">{item.location}</div>
@@ -60,7 +62,7 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                 {/* Quantity and Order Index */}
                 <div className="flex items-center gap-2">
                     <span className="text-xl text-gray-800">{item.quantity}</span>
-                    <div className={`rounded px-2 py-1 text-lg ${pool === "processed" ? "bg-purple-400/20 text-purple-600" : "bg-orange-400/20 text-orange-600"}`}>
+                    <div className={`rounded px-2 py-1 text-lg ${colors[findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex % colors.length]}`}>
                         {findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex + 1}
                     </div>
                 </div>
