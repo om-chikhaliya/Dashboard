@@ -10,7 +10,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { storeOptions, statusOptions, getTotalItemsInOrder, formatDateBasedOnUserLocation } from "./helper/constant";
+import { storeOptions, statusOptions, getTotalItemsInOrder, formatDateBasedOnUserLocation, decodeHtmlEntities } from "./helper/constant";
 import { ClipLoader } from "react-spinners";
 import Header from "./Header";
 import img1 from "../assets/noorder.png"
@@ -56,11 +56,15 @@ function OrderCard({ order, setSelectAllOrders, selectedOrders, setSelectedOrder
             className="border-gray-500"
           />
           <div className="bg-gray-100 text-gray-800 text-xs px-2 py-1 heading-radius">
-            O no.#{order.order_id}
+            Order {order.order_id}
           </div>
         </div>
         <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-lg font-medium">{order.brickosys_order_id}</h3>
+        {order.brickosys_order_id.includes("BL")
+          ? "Bricklink"
+          : order.brickosys_order_id.includes("BO")
+          ? "Brickowl"
+          : order.brickosys_order_id}
         </div>
         <p className="text-gray-600 text-sm">{new Date(order.order_on).toLocaleDateString("en-GB", {
           day: "2-digit",
@@ -80,7 +84,7 @@ function OrderCard({ order, setSelectAllOrders, selectedOrders, setSelectedOrder
           {order.platform}
         </span>
         <span className="bg-[#BCD3FF] text-[#0A0095] px-3 py-1 custom-radius text-xs">
-          {order.total_price}
+          ${order.total_price}
         </span>
         <span
           className={`px-3 py-1 rounded-full text-xs ${order.status === "PACKED"
@@ -781,7 +785,7 @@ function OrderPageContent() {
                                   /> */}
                                 </th>
                                 <th className="text-left py-3 px-4 text-sm font-medium">
-                                  Order#
+                                  Order
                                 </th>
                                 <th className="text-center py-3 px-4 text-sm font-medium">
                                   Platform
@@ -1004,7 +1008,7 @@ function OrderPageContent() {
                       {order.notes.map((note) => (
                         <li key={note.item_id} className="relative group">
                           {/* Item Name & Note */}
-                          <p className="text-md font-semibold">{note.item_name}</p>
+                          <p className="text-md font-semibold">{decodeHtmlEntities(note.item_name)}</p>
                           <p className="text-gray-500 text-sm">{note.note}</p>
 
                           {/* Tooltip for Item ID (Visible on Hover) */}

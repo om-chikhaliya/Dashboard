@@ -349,9 +349,26 @@ export function getTotalLotsAndItems(orders) {
     
   }
 
+  // export const getContrastTextColor = (colorName) => {
+  //   return colorName.toLowerCase().split(' ').includes('gray') ? 'black' : 'white';
+  // }
+
   export const getContrastTextColor = (colorName) => {
-    return colorName.toLowerCase().split(' ').includes('gray') ? 'black' : 'white';
-}
+    const lower = colorName.toLowerCase();
+  
+    if (
+      lower.includes("gray") ||
+      lower.includes("white") ||
+      lower.includes("trans-clear") ||
+      lower.includes("neon yellow") ||
+      lower.includes("unknown")
+    ) {
+      return "black";
+    }
+  
+    return "white";
+  };
+  
 
 export const formatDateBasedOnUserLocation = (date) => {
   // Get the user's time zone
@@ -363,4 +380,12 @@ export const formatDateBasedOnUserLocation = (date) => {
     month: 'long',
     year: 'numeric',
   });
+};
+
+
+export const decodeHtmlEntities = (str) => {
+  if (!str) return "";
+  const txt = document.createElement("textarea");
+  txt.innerHTML = str;
+  return txt.value;
 };
