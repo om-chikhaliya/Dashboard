@@ -36,6 +36,8 @@ export const statusOptions = [
     { label: "Pending (BL)", values: ["PENDING"] },
     { label: "Ready (BL)", values: ["READY"] },
     { label: "Paid (BL)", values: ["PAID"] },
+    { label: "Received (BL)", values: ["RECEIVED"] },
+    { label: "Completed (BL)", values: ["COMPLETED"] },
     { label: "Shipped (BL)", values: ["SHIPPED"] },
     { label: "Packed (BL)", values: ["PACKED"] },
     { label: "Cancelled (BL)", values: ["CANCELLED"] },
@@ -45,6 +47,8 @@ export const statusOptions = [
     { label: "Payment Received (BO)", values: ["Payment Received"] },
     { label: "Shipped (BO)", values: ["Shipped"] },
     { label: "Received (BO)", values: ["Received"] },
+
+    
 ];
   
   export const ordersData = [
