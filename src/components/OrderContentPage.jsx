@@ -6,12 +6,9 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  storeOptions,
-  statusOptions,
-  getTotalItemsInOrder,
-  formatDateBasedOnUserLocation,
-} from "./helper/constant";
+
+import { storeOptions, statusOptions, getTotalItemsInOrder, formatDateBasedOnUserLocation, decodeHtmlEntities } from "./helper/constant";
+
 import { ClipLoader } from "react-spinners";
 import Header from "./Header";
 import img1 from "../assets/noorder.png";
@@ -57,11 +54,15 @@ function OrderCard({
             className="border-gray-500"
           />
           <div className="bg-gray-100 text-gray-800 text-xs px-2 py-1 heading-radius">
-            O no.#{order.order_id}
+            Order {order.order_id}
           </div>
         </div>
         <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-lg font-medium">{order.brickosys_order_id}</h3>
+        {order.brickosys_order_id.includes("BL")
+          ? "Bricklink"
+          : order.brickosys_order_id.includes("BO")
+          ? "Brickowl"
+          : order.brickosys_order_id}
         </div>
         <p className="text-gray-600 text-sm">
           {new Date(order.order_on).toLocaleDateString("en-GB", {
@@ -84,7 +85,7 @@ function OrderCard({
           {order.platform}
         </span>
         <span className="bg-[#BCD3FF] text-[#0A0095] px-3 py-1 custom-radius text-xs">
-          {order.total_price}
+          ${order.total_price}
         </span>
         <span
           className={`px-3 py-1 rounded-full text-xs ${
@@ -882,7 +883,7 @@ useEffect(() => {
                                   /> */}
                                 </th>
                                 <th className="text-left py-3 px-4 text-sm font-medium">
-                                  Order#
+                                  Order
                                 </th>
                                 <th className="text-center py-3 px-4 text-sm font-medium">
                                   Platform
@@ -1148,33 +1149,30 @@ useEffect(() => {
 
               <div className="space-y-3">
                 {/* Show tasks if available */}
-                {tasks.length > 0 &&
-                  tasks.map((order) => (
-                    <div key={order.order_id} className="mb-6 border-b pb-4">
-                      {/* Order ID */}
-                      <h2 className="text-xl font-bold mb-2">
-                        Order ID: {order.order_id}
-                      </h2>
 
-                      {/* Items under Order */}
-                      <ul className="space-y-2 list-disc pl-6">
-                        {order.notes.map((note) => (
-                          <li key={note.item_id} className="relative group">
-                            {/* Item Name & Note */}
-                            <p className="text-md font-semibold">
-                              {note.item_name}
-                            </p>
-                            <p className="text-gray-500 text-sm">{note.note}</p>
+                {tasks.length > 0 && tasks.map((order) => (
+                  <div key={order.order_id} className="mb-6 border-b pb-4">
+                    {/* Order ID */}
+                    <h2 className="text-xl font-bold mb-2">Order ID: {order.order_id}</h2>
 
-                            {/* Tooltip for Item ID (Visible on Hover) */}
-                            <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                              Item ID: {note.item_id}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
+                    {/* Items under Order */}
+                    <ul className="space-y-2 list-disc pl-6">
+                      {order.notes.map((note) => (
+                        <li key={note.item_id} className="relative group">
+                          {/* Item Name & Note */}
+                          <p className="text-md font-semibold">{decodeHtmlEntities(note.item_name)}</p>
+                          <p className="text-gray-500 text-sm">{note.note}</p>
+
+                          {/* Tooltip for Item ID (Visible on Hover) */}
+                          <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                            Item ID: {note.item_id}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+
               </div>
 
               {/* <button className="w-full mt-4 bg-black text-white rounded-lg py-2">

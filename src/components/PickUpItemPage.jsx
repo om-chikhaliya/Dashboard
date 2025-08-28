@@ -1,5 +1,5 @@
 import Header from "./Header";
-import { getTotalLotsAndItems, getTotalItemsInOrder, findOrderIndexForItem, fomartImageSrcString, getContrastTextColor, formatDateBasedOnUserLocation } from "./helper/constant";
+import { getTotalLotsAndItems, getTotalItemsInOrder, findOrderIndexForItem, fomartImageSrcString, getContrastTextColor, formatDateBasedOnUserLocation, decodeHtmlEntities } from "./helper/constant";
 import { useState, useEffect } from "react";
 import {
   Calendar,
@@ -814,6 +814,7 @@ export default function PickUpItemsPage() {
                     <div className="space-y-3">
 
                       {sortedItems.map((item, index) => (
+                        
                         item.id === currentActiveItem?.id ? (
                           <div
                             className="space-y-4 click_element_smooth_hover"
@@ -832,7 +833,7 @@ export default function PickUpItemsPage() {
                                     <div className="overflow-hidden rounded-lg border border-gray-300 h-fit w-full">
                                       {item.color_code !== "N/A" ? (
                                         <div
-                                          className="rounded-t-lg p-2 text-center font-medium text-white"
+                                          className="rounded-t-lg p-2 text-center font-medium"
                                           style={{
                                             backgroundColor: `#${item.color_code}`,
                                             color: getContrastTextColor(item.color.toLowerCase()),
@@ -859,7 +860,7 @@ export default function PickUpItemsPage() {
                                         >
                                           <img
                                             src={fomartImageSrcString(item.item_type, item.color_id, item.sku, item.brickosys_order_id) || item.image}
-                                            alt={item.item_name}
+                                            alt={decodeHtmlEntities(item.item_name)}
                                             className="h-[180px] md:h-[200px] w-full object-contain cursor-pointer"
                                             width={16}
                                           />
@@ -882,7 +883,7 @@ export default function PickUpItemsPage() {
                                           {item.new_or_used === "N" ? "New" : item.new_or_used === "U" ? "Used" : "N/A"}
                                         </div>
                                       </div>
-                                      <h2 className="text-lg md:text-xl text-gray-800 font-semibold">{item.item_name}</h2>
+                                      <h2 className="text-lg md:text-xl text-gray-800 font-semibold">{decodeHtmlEntities(item.item_name)}</h2>
                                       <p className="text-sm text-gray-600">{item.sku}</p>
                                     </div>
 
@@ -894,25 +895,25 @@ export default function PickUpItemsPage() {
                                       {!missingItemInput ? (
                                         <>
                                           {/* Location */}
-                                          <div className="flex-1">
+                                          <div className="flex-[3]">
                                             <label className="mb-1 block text-xs font-medium text-gray-700">
                                               LOCATION
                                             </label>
-                                            <div className="rounded-lg border border-gray-300 bg-gray-50 py-2 px-3 text-base text-gray-800 h-10">
+                                            <div className="rounded-lg border border-gray-300 bg-gray-50 py-3 px-3 text-lg text-gray-800 h-14">
                                               {item.location}
                                             </div>
                                           </div>
 
                                           {/* Pick */}
-                                          <div>
+                                          <div className="flex-[2]">
                                             <label className="mb-1 block text-xs font-medium text-gray-700">
                                               PICK
                                             </label>
-                                            <div className="flex items-center">
-                                              <span className="h-10 w-16 border border-gray-300 bg-gray-50 text-base relative pt-2 pl-2 text-gray-800 rounded-l-lg">
+                                            <div className="flex items-center"> 
+                                              <span className="flex-[3] rounded-l-lg border border-gray-300 bg-gray-50 py-3 px-3 text-lg text-gray-800 w-full h-14">
                                                 {item.quantity}
                                               </span>
-                                              <span className={`text-lg font-medium ${colors[findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex % colors.length]} h-10 w-10 pt-2 text-center rounded-r-lg`}>
+                                              <span className={`flex-[2] text-lg border border-gray-300 font-medium ${colors[findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex % colors.length]} h-14 w-full py-3 px-3 text-center rounded-r-lg`}>
                                                 {findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex + 1}
                                               </span>
                                             </div>
@@ -1003,8 +1004,8 @@ export default function PickUpItemsPage() {
                       <div className="fixed -inset-10 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={closeModal}>
                         <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
                           <button className="absolute -top-5 -right-5 text-white text-2xl bg-gray-800 rounded-full p-2" onClick={closeModal}>&times;</button>
-                          <img src={fomartImageSrcString(selectedItem.item_type, selectedItem.color_id, selectedItem.sku, selectedItem.brickosys_order_id) || selectedItem.image} alt={selectedItem.item_name} className="w-full h-auto rounded-lg" />
-                          <h3 className="text-lg font-semibold text-center mt-4">{selectedItem.item_name}</h3>
+                          <img src={fomartImageSrcString(selectedItem.item_type, selectedItem.color_id, selectedItem.sku, selectedItem.brickosys_order_id) || selectedItem.image} alt={decodeHtmlEntities(selectedItem.item_name)} className="w-full h-auto rounded-lg" />
+                          <h3 className="text-lg font-semibold text-center mt-4">{decodeHtmlEntities(selectedItem.item_name)}</h3>
                         </div>
                       </div>
                     )}

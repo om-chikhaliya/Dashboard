@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fomartImageSrcString, getContrastTextColor } from "./helper/constant";
+import { decodeHtmlEntities, fomartImageSrcString, getContrastTextColor } from "./helper/constant";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { ToastContainer, toast } from 'react-toastify';
@@ -299,7 +299,7 @@ export function Unmatchlot() {
                                                                                 <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Design Id: </span>{item?.sku}</p>
                                                                                 <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Color: </span>{item?.color_name}</p>
                                                                                 <div className="flex gap-2">
-                                                                                    <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Name: </span>{item?.name} </p>
+                                                                                    <p className="text-sm text-gray-600 ml-1"> <span className="font-bold">Name: </span>{decodeHtmlEntities(item?.name)} </p>
 
                                                                                     <div className="ml-auto flex items-center gap-2">
                                                                                         <input

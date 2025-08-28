@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { findOrderIndexForItem, fomartImageSrcString } from '../helper/constant';
+import { decodeHtmlEntities, findOrderIndexForItem, fomartImageSrcString } from '../helper/constant';
 import { FaSearchPlus } from 'react-icons/fa';
 import colors from '../../data/color-pick-item'
 
@@ -33,7 +33,7 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                     >
                         <img
                             src={imageSrc}
-                            alt={item.item_name}
+                            alt={decodeHtmlEntities(item.item_name)}
                             className="h-16 w-16 rounded-lg object-cover cursor-pointer"
                             width={16}
                         />
@@ -54,7 +54,7 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                         <span className="text-zinc-600">{item.color}</span>
                         <span className="text-zinc-600">{item.sku}</span>
                     </div>
-                    <h3 className="text-lg text-black-300">{item.item_name}</h3>
+                    <h3 className="text-lg text-black-300">{decodeHtmlEntities(item.item_name)}</h3>
                     <div className="text-sm text-zinc-500">{item.location}</div>
                     {pool === "missing" && <div className="text-sm text-black-500 font-semibold">Note: {missingNote}</div>}
                 </div>
@@ -73,8 +73,8 @@ function DisplayItems({ item, pool, toggleItemProcessed, allOrders, missingNote 
                 <div className="fixed -inset-10 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={closeModal}>
                     <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
                         <button className="absolute -top-5 -right-5 text-white text-2xl bg-gray-800 rounded-full p-2" onClick={closeModal}>&times;</button>
-                        <img src={imageSrc} alt={item.item_name} className="w-full h-auto rounded-lg" />
-                        <h3 className="text-lg font-semibold text-center mt-4">{item.item_name}</h3>
+                        <img src={imageSrc} alt={decodeHtmlEntities(item.item_name)} className="w-full h-auto max-h-[70vh] object-contain rounded-lg" />
+                        <h3 className="text-lg font-semibold text-center mt-4">{decodeHtmlEntities(item.item_name)}</h3>
                     </div>
                 </div>
             )}

@@ -3,6 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
 import api from "./helper/api";
+import { decodeHtmlEntities } from "./helper/constant";
 
 export function Task() {
   // Use React state to manage the tasks array
@@ -77,7 +78,7 @@ export function Task() {
                       {order.notes.map((note) => (
                         <li key={note.item_id} className="relative group">
                           {/* Item Name & Note */}
-                          <p className="text-md font-semibold">{note.item_name}</p>
+                          <p className="text-md font-semibold">{decodeHtmlEntities(note.item_name)}</p>
                           <p className="text-gray-500 text-sm">{note.note}</p>
 
                           {/* Tooltip for Item ID (Visible on Hover) */}
