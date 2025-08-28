@@ -512,7 +512,7 @@ useEffect(() => {
       );
       return [...prevOrders, ...newOrders];
     });
-    console.log(filteredOrders);
+
     
     setTotalOrders(response.data.total); // Update total orders
   } catch (error) {
@@ -994,18 +994,17 @@ useEffect(() => {
                             >
                               &gt;
                             </button> */}
-                            {totalOrders > 10 && (
                               <button
                                 onClick={handleLoadMore}
                                 disabled={loadingMore || orders.length >= totalOrders} // Disable if already loading or all data is loaded
-                                className="px-4 py-2 bg-blue-600 text-white rounded"
+                                className={`px-4 py-2 bg-blue-600 text-white rounded ${orders.length >= totalOrders ? "opacity-50 cursor-not-allowed" : ""}`}
                               >
   {loadingMore ? (
     <ClipLoader size={20} color={"#FFF"} loading={true} /> // Show button loader
   ) : (
     "Load More"
   )}
-</button>)}
+</button>
 
                           </div>
                         </div>
@@ -1049,18 +1048,17 @@ useEffect(() => {
                     >
                       &gt; 
                     </button> */}
-                    {totalOrders >= 10 && (
                               <button
                                 onClick={handleLoadMore}
                                 disabled={loadingMore || orders.length >= totalOrders} // Disable if already loading or all data is loaded
-                                className="px-4 py-2 bg-blue-600 text-white rounded"
+                                className={`px-4 py-2 bg-blue-600 text-white rounded ${orders.length >= totalOrders ? "opacity-50 cursor-not-allowed" : ""}`}
                               >
   {loadingMore ? (
     <ClipLoader size={20} color={"#FFF"} loading={true} /> // Show button loader
   ) : (
     "Load More"
   )}
-</button>)}
+</button>
 
 
                       </div>
