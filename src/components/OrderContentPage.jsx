@@ -1,24 +1,21 @@
 import { useEffect, useState } from "react";
 import Checkbox from "./ui/Checkbox";
-import {
-  Settings,
-  Grid,
-  List,
-} from "react-feather";
+import { Settings, Grid, List } from "react-feather";
 import { Box } from "react-feather";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
 import { storeOptions, statusOptions, getTotalItemsInOrder, formatDateBasedOnUserLocation, decodeHtmlEntities } from "./helper/constant";
+
 import { ClipLoader } from "react-spinners";
 import Header from "./Header";
-import img1 from "../assets/noorder.png"
+import img1 from "../assets/noorder.png";
 import api from "./helper/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { X } from "lucide-react";
-
 
 // const tasks = [
 //   { id: 1, title: "Schedule post Dusk&Dawn", completed: true },
@@ -27,21 +24,22 @@ import { X } from "lucide-react";
 //   { id: 4, title: "Re-Branding Discussion", completed: false },
 // ];
 
-
-
-function OrderCard({ order, setSelectAllOrders, selectedOrders, setSelectedOrders, filteredOrders }) {
-
-
+function OrderCard({
+  order,
+  setSelectAllOrders,
+  selectedOrders,
+  setSelectedOrders,
+  filteredOrders,
+}) {
   // Handle individual order selection
   const handleOrderSelection = (id, checked) => {
     setSelectedOrders((prev) =>
       checked ? [...prev, id] : prev.filter((orderId) => orderId !== id)
-    )
+    );
     setSelectAllOrders(
       checked && selectedOrders.length + 1 === filteredOrders.length
-    )
-  }
-
+    );
+  };
 
   return (
     <div className="rounded-lg p-4 border border-gray-200 shadow-sm shadow-lg  bg-white mb-6 flex flex-col h-full">
@@ -66,20 +64,23 @@ function OrderCard({ order, setSelectAllOrders, selectedOrders, setSelectedOrder
           ? "Brickowl"
           : order.brickosys_order_id}
         </div>
-        <p className="text-gray-600 text-sm">{new Date(order.order_on).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        })}</p>
+        <p className="text-gray-600 text-sm">
+          {new Date(order.order_on).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
       </div>
 
       {/* Tags and Status */}
       <div className="flex flex-wrap gap-2 mb-3">
         <span
-          className={`px-3 py-1 text-xs ${order.platform === "BL"
-            ? "bg-purple-100 text-purple-800"
-            : "bg-blue-100 text-blue-800"
-            } custom-radius`}
+          className={`px-3 py-1 text-xs ${
+            order.platform === "BL"
+              ? "bg-purple-100 text-purple-800"
+              : "bg-blue-100 text-blue-800"
+          } custom-radius`}
         >
           {order.platform}
         </span>
@@ -87,14 +88,15 @@ function OrderCard({ order, setSelectAllOrders, selectedOrders, setSelectedOrder
           ${order.total_price}
         </span>
         <span
-          className={`px-3 py-1 rounded-full text-xs ${order.status === "PACKED"
-            ? "bg-green-100 text-green-800"
-            : order.status === "CANCELLED"
+          className={`px-3 py-1 rounded-full text-xs ${
+            order.status === "PACKED"
+              ? "bg-green-100 text-green-800"
+              : order.status === "CANCELLED"
               ? "bg-red-100 text-red-800"
               : order.status === "Shipped"
-                ? "bg-cyan-100 text-cyan-800"
-                : "bg-orange-100 text-orange-800"
-            } custom-radius`}
+              ? "bg-cyan-100 text-cyan-800"
+              : "bg-orange-100 text-orange-800"
+          } custom-radius`}
         >
           {order.status}
         </span>
@@ -118,7 +120,6 @@ function OrderCard({ order, setSelectAllOrders, selectedOrders, setSelectedOrder
         </div>
       </div>
     </div>
-
   );
 }
 
@@ -136,9 +137,13 @@ function OrderPageContent() {
           className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
           // onClick={() => navigate("/pickupitems")}
           onClick={onClick}
-          disabled = {pickuploading}
+          disabled={pickuploading}
         >
-          {pickuploading ? <ClipLoader size={20} color={'#ffffff'}></ClipLoader> : 'Start Pick Up'}
+          {pickuploading ? (
+            <ClipLoader size={20} color={"#ffffff"}></ClipLoader>
+          ) : (
+            "Start Pick Up"
+          )}
           <ArrowRight size={18} />
         </button>
       </div>
@@ -146,28 +151,28 @@ function OrderPageContent() {
   }
 
   const [pickuploading, setPickuploading] = useState(false);
-  const [orders, setOrders] = useState([])
-  const [selectedStores, setSelectedStores] = useState(storeOptions)
+  const [orders, setOrders] = useState([]);
+  const [selectedStores, setSelectedStores] = useState(storeOptions);
   // const [selectAllStatuses, setSelectAllStatuses] = useState(true)
-  const [selectedStatuses, setSelectedStatuses] = useState(statusOptions.flatMap((status) => status.values)) // Initially select all
-  const [selectAllOrders, setSelectAllOrders] = useState(false)
-  const [selectedOrders, setSelectedOrders] = useState([])
-  const [filteredOrders, setFilteredOrders] = useState([])
+  const [selectedStatuses, setSelectedStatuses] = useState(
+    statusOptions.flatMap((status) => status.values)
+  ); // Initially select all
+  const [selectAllOrders, setSelectAllOrders] = useState(false);
+  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false); // Loading state for "Load More" button
   const [taskloading, setTaskloading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("")
-  const [tasks, setTasks] = useState([])
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tasks, setTasks] = useState([]);
   const [sortOption, setSortOption] = useState("date");
 
   const [selectAllStatuses, setSelectAllStatuses] = useState({
     BrickLink: true,
-    BrickOwl: true
+    BrickOwl: true,
   });
 
-
   const [dateRange, setDateRange] = useState([null, null]);
-
-
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -175,8 +180,6 @@ function OrderPageContent() {
   //       const res = api.get("/order/sync");
 
   //       const response = await api.get("/order");
-
-
 
   //       const sortedOrders = response.data.sort((a, b) => {
   //         return new Date(b.order_on) - new Date(a.order_on); // Sorting by descending order (newest first)
@@ -190,7 +193,6 @@ function OrderPageContent() {
   //       // setTasks(task_response.data)
   //       // setTaskloading(false)
 
-
   //     } catch (err) {
   //       // setError(err.message); // Save error message to state
   //       console.error("Error fetching data:", err);
@@ -201,29 +203,24 @@ function OrderPageContent() {
 
   //   fetchData();
 
-
   // }, [])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-
         const task_response = await api.get("/order/task");
 
-        setTasks(task_response.data)
-
+        setTasks(task_response.data);
       } catch (err) {
         // setError(err.message); // Save error message to state
         console.error("Error fetching data:", err);
       } finally {
-        setTaskloading(false) // Stop loading spinner
+        setTaskloading(false); // Stop loading spinner
       }
     };
 
     fetchData();
-
-
-  }, [])
+  }, []);
 
   const sortOrders = (orders, criteria) => {
     return [...orders].sort((a, b) => {
@@ -246,53 +243,51 @@ function OrderPageContent() {
   };
 
   useEffect(() => {
-
     const filtered = orders.filter((order) => {
-
       const matchesSearch =
         !searchTerm ||
         order.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.order_id.toString().includes(searchTerm) ||
-        new Date(order.order_on).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        }).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.status.toLowerCase().includes(searchTerm.toLowerCase())
+        new Date(order.order_on)
+          .toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          })
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        order.status.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStore = selectedStores.includes(
         order.platform === "BL" ? "BL" : "BO"
-      )
+      );
+      
+      const matchesStatus = selectedStatuses.includes(order.status);
 
-      const matchesStatus = selectedStatuses.includes(order.status)
+      return matchesSearch && matchesStore && matchesStatus;
+    });
 
-
-
-      return matchesSearch && matchesStore && matchesStatus
-    })
-
-    setFilteredOrders(filtered)
-
-  }, [orders, searchTerm, selectedStores, selectedStatuses])
+    setFilteredOrders(filtered);
+  }, [orders, searchTerm, selectedStores, selectedStatuses]);
 
   const handleSearch = (value) => {
-    setSearchTerm(value)
-  }
+    setSearchTerm(value);
+  };
 
   const handleStoreChange = (store, checked) => {
     setSelectedStores(
       checked
         ? [...selectedStores, store]
         : selectedStores.filter((s) => s !== store)
-    )
-    setDateRange([null, null])
+    );
+    // setDateRange([null, null]);
 
-    if (store === 'BL') {
+    if (store === "BL") {
       handleSelectAllStatusesBL(checked);
-    } else if (store === 'BO') {
+    } else if (store === "BO") {
       handleSelectAllStatusesBO(checked);
     }
-  }
+  };
 
   // const handleSelectAllStatuses = (checked) => {
 
@@ -306,42 +301,42 @@ function OrderPageContent() {
 
   const handleSelectAllStatusesBL = (checked) => {
     const BLStatuses = statusOptions
-      .filter(status => status.label.includes("(BL)"))
-      .flatMap(status => status.values);
+      .filter((status) => status.label.includes("(BL)"))
+      .flatMap((status) => status.values);
 
     const updatedStatuses = checked
       ? [...selectedStatuses, ...BLStatuses] // Select all BL statuses
-      : selectedStatuses.filter(status => !BLStatuses.includes(status)); // Deselect all BL statuses
+      : selectedStatuses.filter((status) => !BLStatuses.includes(status)); // Deselect all BL statuses
 
     setSelectedStatuses(updatedStatuses);
 
     // Directly update "Select All" state based on the checked input
     setSelectAllStatuses((prev) => ({
       ...prev,
-      BrickLink: checked
+      BrickLink: checked,
     }));
 
-    setDateRange([null, null]);
+    // setDateRange([null, null]);
   };
 
   const handleSelectAllStatusesBO = (checked) => {
     const BOStatuses = statusOptions
-      .filter(status => status.label.includes("(BO)"))
-      .flatMap(status => status.values);
+      .filter((status) => status.label.includes("(BO)"))
+      .flatMap((status) => status.values);
 
     const updatedStatuses = checked
       ? [...selectedStatuses, ...BOStatuses] // Select all BO statuses
-      : selectedStatuses.filter(status => !BOStatuses.includes(status)); // Deselect all BO statuses
+      : selectedStatuses.filter((status) => !BOStatuses.includes(status)); // Deselect all BO statuses
 
     setSelectedStatuses(updatedStatuses);
 
     // Directly update "Select All" state based on the checked input
     setSelectAllStatuses((prev) => ({
       ...prev,
-      BrickOwl: checked
+      BrickOwl: checked,
     }));
 
-    setDateRange([null, null]);
+    // setDateRange([null, null]);
   };
 
   const handleStatusChange = (status, isChecked) => {
@@ -354,35 +349,42 @@ function OrderPageContent() {
 
       // Check if all statuses for the respective store are selected
       const allStatusesForStore = statusOptions
-        .filter((s) => s.label.includes(store === "BrickLink" ? "(BL)" : "(BO)"))
+        .filter((s) =>
+          s.label.includes(store === "BrickLink" ? "(BL)" : "(BO)")
+        )
         .flatMap((s) => s.values);
 
-      const isAllSelected = allStatusesForStore.every((s) => updatedStatuses.includes(s));
+      const isAllSelected = allStatusesForStore.every((s) =>
+        updatedStatuses.includes(s)
+      );
 
       setSelectAllStatuses((prev) => ({
         ...prev,
         [store]: isAllSelected, // Set "Select All" only for the respective store
       }));
 
-      const hasAny = updatedStatuses.some(s => allStatusesForStore.includes(s));
+      const hasAny = updatedStatuses.some((s) =>
+        allStatusesForStore.includes(s)
+      );
 
-      setSelectedStores(prevStores => {
+      setSelectedStores((prevStores) => {
         if (hasAny) {
           // add if missing
-          return prevStores.includes(store === 'BrickLink' ? "BL" : "BO")
+          return prevStores.includes(store === "BrickLink" ? "BL" : "BO")
             ? prevStores
-            : [...prevStores, store === 'BrickLink' ? "BL" : "BO"];
+            : [...prevStores, store === "BrickLink" ? "BL" : "BO"];
         } else {
           // remove
-          return prevStores.filter(s => s !== store === 'BrickLink' ? "BL" : "BO");
+          return prevStores.filter((s) =>
+            (s !== store) === "BrickLink" ? "BL" : "BO"
+          );
         }
       });
       return updatedStatuses;
     });
 
-    setDateRange([null, null]);
+    // setDateRange([null, null]);
   };
-
 
   // Handle individual status selection
   // const handleStatusChange = (status, isChecked) => {
@@ -400,58 +402,57 @@ function OrderPageContent() {
   // }
 
   const handleSelectAllOrders = (checked) => {
-    setSelectAllOrders(checked)
-    setSelectedOrders(checked ? filteredOrders.map((order) => order.brickosys_order_id) : [])
-  }
+    setSelectAllOrders(checked);
+    setSelectedOrders(
+      checked ? filteredOrders.map((order) => order.brickosys_order_id) : []
+    );
+  };
 
   // Handle individual order selection
   const handleOrderSelection = (id, checked) => {
     setSelectedOrders((prev) =>
       checked ? [...prev, id] : prev.filter((orderId) => orderId !== id)
-    )
+    );
     setSelectAllOrders(
       // checked && selectedOrders.length + 1 === filteredOrders.length
       checked && selectedOrders.length + 1 === totalOrders
-    )
-  }
+    );
+  };
 
   const [startDate, endDate] = dateRange;
   const handleRangeChange = (value) => {
-    if (Array.isArray(value)) {
-      const [newStartDate, newEndDate] = value;
-      setDateRange([newStartDate, newEndDate]);
+  if (Array.isArray(value)) {
+    const [newStartDate, newEndDate] = value;
+    setDateRange([newStartDate, newEndDate]);
+  }
+};
 
-      if (newStartDate && newEndDate) {
-        const filtered = orders.filter((order) => {
-          const orderDate = new Date(order.order_on);
-          return orderDate >= newStartDate && orderDate <= newEndDate;
-        });
 
-        setFilteredOrders(filtered);
-      }
-    }
-  };
+useEffect(() => {
+  // Reset the orders whenever the date range changes
+  setOrders([]);
+  setFilteredOrders([]);
+  fetchData();
+}, [dateRange]);
+
 
   const clearDateFilter = () => {
     setDateRange([null, null]);
     setFilteredOrders(orders); // Reset filtered orders
   };
 
-
-
   const handleStartPicking = () => {
     if (selectedOrders.length > 0) {
-
       setPickuploading(true);
 
-      const orderIds = selectedOrders.join(',');
+      const orderIds = selectedOrders.join(",");
       // const response = api.get("/auth/pickup-started-log", {
       //   params: {
       //     brickosys_order_ids: orderIds
       //   }
       // });
       setPickuploading(false);
-      window.location.href = `/pickorders?brickosys_orderId=${orderIds}`;  // Using window.location.href
+      window.location.href = `/pickorders?brickosys_orderId=${orderIds}`; // Using window.location.href
     }
   };
 
@@ -461,28 +462,66 @@ function OrderPageContent() {
   const [totalOrders, setTotalOrders] = useState(0); // Track total number of orders for pagination
 
   const fetchData = async () => {
-    try {
-      const response = await api.get("/order", {
-        params: {
-          limit,
-          offset: (currentPage - 1) * limit, // Calculate offset
-        },
-      });
+  try {
+    setLoading(true); // Show the loader for page load
+    // Reset the orders if date range changes
+    setOrders([]);  // Reset the orders state to clear previous data
+    setFilteredOrders([]);  // Reset the filtered orders
 
-      setOrders(response.data.orders)
-      setFilteredOrders(response.data.orders); // Assuming response.data contains orders
-      setTotalOrders(response.data.total); // Assuming response.data contains the total number of orders
-      setTotalPages(Math.ceil(response.data.total / limit)); // Calculate total pages based on total orders and limit
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false); // Stop loading spinner
+    const response = await api.get("/order", {
+      params: {
+        limit: 30, // Number of items per load
+        offset: 0, // Reset offset to 0 for fresh data
+        startDate: startDate,
+        endDate: endDate,
+      },
+    });
+    
+    if(response.data.orders.length < 10){
+      setLoadingMore(false);
     }
-  };
+    setOrders(response.data.orders);
+    setFilteredOrders(response.data.orders);
+    setTotalOrders(response.data.total); // Update total orders
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  } finally {
+    setLoading(false); // Stop loader
+  }
+};
 
-  useEffect(() => {
-    fetchData(); // Fetch data when currentPage or limit changes
-  }, [currentPage, limit]);
+
+ const handleLoadMore = async () => {
+  try {
+    setLoadingMore(true); // Show loader for "Load More" button
+
+    const response = await api.get("/order", {
+      params: {
+        limit: 30, // Always load 30 more orders
+        offset: orders.length, // Offset is based on the current number of orders
+        startDate: startDate,
+        endDate: endDate,
+      },
+    });
+
+    // Append the new orders to the existing list
+    
+      setOrders((prevOrders) => {
+      const newOrders = response.data.orders.filter(
+        (order) => !prevOrders.some((prevOrder) => prevOrder.order_id === order.order_id)
+      );
+      return [...prevOrders, ...newOrders];
+    });
+    console.log(filteredOrders);
+    
+    setTotalOrders(response.data.total); // Update total orders
+  } catch (error) {
+    console.error("Error loading more data:", error);
+  } finally {
+    setLoadingMore(false); // Hide the "Load More" loader
+  }
+};
+
 
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
@@ -497,27 +536,41 @@ function OrderPageContent() {
     <div className="py-6 pt-0">
       <Header handleSearch={handleSearch} searchTerm={searchTerm}></Header>
 
+      {showAlert && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 ml-6 mt-2 rounded-lg shadow-md flex items-center justify-between">
+          <div className="flex items-center">
+            {/* Info Icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 mr-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+              />
+            </svg>
 
-      {showAlert && <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 ml-6 mt-2 rounded-lg shadow-md flex items-center justify-between">
-        <div className="flex items-center">
-          {/* Info Icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-          </svg>
-
-          {/* Info Text */}
-          <p className="text-sm font-medium">
-            Order information is available starting from the month your account was created on our platform and Fresh orders are updated at every 10 minutes.
-          </p>
+            {/* Info Text */}
+            <p className="text-sm font-medium">
+              Order information is available starting from the month your
+              account was created on our platform and Fresh orders are updated
+              at every 10 minutes.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAlert(false)}
+            className="text-blue-800 hover:text-blue-900 text-lg font-bold ml-4 focus:outline-none"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
-        <button
-          onClick={() => setShowAlert(false)}
-          className="text-blue-800 hover:text-blue-900 text-lg font-bold ml-4 focus:outline-none"
-          aria-label="Close"
-        >
-          ×
-        </button>
-      </div>}
+      )}
 
       {/* <div className="bg-white rounded-xl p-6 card-shadow mb-6">
         <div className="space-y-3">
@@ -582,10 +635,8 @@ function OrderPageContent() {
         </div>
       </div> */}
 
-
       <div className="grid grid-cols-1 lg:grid-cols-4 space-y-3">
         <div className="bg-transparent rounded-xl p-6 lg:col-span-3 h-fit row-span-2">
-
           <div className="bg-white p-6 rounded-xl space-y-1 mb-6">
             <div className="flex justify-between items-center">
               <span className="text-md font-semibold">Stores</span>
@@ -593,7 +644,6 @@ function OrderPageContent() {
 
             {/* Store Blocks with Respective Status Filters */}
             <div className="grid grid-cols-2 gap-6">
-
               {/* BrickLink Store */}
               <div className="bg-gray-100 p-4 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
@@ -603,7 +653,9 @@ function OrderPageContent() {
                     onChange={(checked) => handleStoreChange("BL", checked)}
                     className="border-blue-500"
                   />
-                  <label htmlFor="bricklink" className="text-md font-semibold">BrickLink</label>
+                  <label htmlFor="bricklink" className="text-md font-semibold">
+                    BrickLink
+                  </label>
                 </div>
 
                 {/* BrickLink Statuses */}
@@ -615,24 +667,40 @@ function OrderPageContent() {
                         type="checkbox"
                         id="select-all-bl"
                         checked={selectAllStatuses.BrickLink}
-                        onChange={(e) => handleSelectAllStatusesBL(e.target.checked)}
+                        onChange={(e) =>
+                          handleSelectAllStatusesBL(e.target.checked)
+                        }
                         className="border-blue-500 mt-2"
                       />
-                      <label htmlFor="select-all-bl" className="ml-2 mt-2 text-sm">Select All</label>
+                      <label
+                        htmlFor="select-all-bl"
+                        className="ml-2 mt-2 text-sm"
+                      >
+                        Select All
+                      </label>
                     </div>
 
                     {statusOptions
-                      .filter(status => status.label.includes("(BL)"))
+                      .filter((status) => status.label.includes("(BL)"))
                       .map((status) => (
                         <div key={status.label} className="flex items-center">
                           <input
                             type="checkbox"
                             id={status.label}
-                            checked={status.values.every(value => selectedStatuses.includes(value))}
-                            onChange={(e) => handleStatusChange(status, e.target.checked)}
+                            checked={status.values.every((value) =>
+                              selectedStatuses.includes(value)
+                            )}
+                            onChange={(e) =>
+                              handleStatusChange(status, e.target.checked)
+                            }
                             className="border-blue-500"
                           />
-                          <label htmlFor={status.label} className="ml-2 text-sm">{status.label}</label>
+                          <label
+                            htmlFor={status.label}
+                            className="ml-2 text-sm"
+                          >
+                            {status.label}
+                          </label>
                         </div>
                       ))}
                   </div>
@@ -648,7 +716,9 @@ function OrderPageContent() {
                     onChange={(checked) => handleStoreChange("BO", checked)}
                     className="border-blue-500"
                   />
-                  <label htmlFor="brickowl" className="text-md font-semibold">BrickOwl</label>
+                  <label htmlFor="brickowl" className="text-md font-semibold">
+                    BrickOwl
+                  </label>
                 </div>
 
                 {/* BrickOwl Statuses */}
@@ -660,40 +730,55 @@ function OrderPageContent() {
                         type="checkbox"
                         id="select-all-bo"
                         checked={selectAllStatuses.BrickOwl}
-                        onChange={(e) => handleSelectAllStatusesBO(e.target.checked)}
+                        onChange={(e) =>
+                          handleSelectAllStatusesBO(e.target.checked)
+                        }
                         className="border-blue-500 mt-2"
                       />
-                      <label htmlFor="select-all-bo" className="ml-2 mt-2 text-sm">Select All</label>
+                      <label
+                        htmlFor="select-all-bo"
+                        className="ml-2 mt-2 text-sm"
+                      >
+                        Select All
+                      </label>
                     </div>
 
                     {statusOptions
-                      .filter(status => status.label.includes("(BO)"))
+                      .filter((status) => status.label.includes("(BO)"))
                       .map((status) => (
                         <div key={status.label} className="flex items-center">
                           <input
                             type="checkbox"
                             id={status.label}
-                            checked={status.values.every(value => selectedStatuses.includes(value))}
-                            onChange={(e) => handleStatusChange(status, e.target.checked)}
+                            checked={status.values.every((value) =>
+                              selectedStatuses.includes(value)
+                            )}
+                            onChange={(e) =>
+                              handleStatusChange(status, e.target.checked)
+                            }
                             className="border-blue-500"
                           />
-                          <label htmlFor={status.label} className="ml-2 text-sm">{status.label}</label>
+                          <label
+                            htmlFor={status.label}
+                            className="ml-2 text-sm"
+                          >
+                            {status.label}
+                          </label>
                         </div>
                       ))}
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
-
 
           <div className="lg:col-span-3">
             <div
-              className={`${viewMode === "grid"
-                ? "bg-white rounded-xl p-6 card-shadow"
-                : "bg-white rounded-xl p-6 card-shadow"
-                }`}
+              className={`${
+                viewMode === "grid"
+                  ? "bg-white rounded-xl p-6 card-shadow"
+                  : "bg-white rounded-xl p-6 card-shadow"
+              }`}
             >
               <div className="flex justify-between items-center mb-4">
                 <span className="text-md font-semibold mb-4">
@@ -701,13 +786,14 @@ function OrderPageContent() {
                 </span>
 
                 <div className="flex gap-2">
-                  {selectedOrders.length > 0 && <button
-                    onClick={handleStartPicking}
-                    className="p-2 px-4 rounded flex items-center gap-1 bg-blue-600 text-white hover:bg-blue-700 transition"
-                  >
-                    Pick <ArrowRight size={20} />
-                  </button>
-                  }
+                  {selectedOrders.length > 0 && (
+                    <button
+                      onClick={handleStartPicking}
+                      className="p-2 px-4 rounded flex items-center gap-1 bg-blue-600 text-white hover:bg-blue-700 transition"
+                    >
+                      Pick <ArrowRight size={20} />
+                    </button>
+                  )}
 
                   <div className="relative">
                     <button
@@ -721,19 +807,25 @@ function OrderPageContent() {
                       <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-md rounded-lg z-50">
                         <ul className="py-2 text-sm text-gray-700">
                           <li
-                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "date" ? "font-semibold" : ""}`}
+                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                              sortOption === "date" ? "font-semibold" : ""
+                            }`}
                             onClick={() => handleSortChange("date")}
                           >
                             Date (Newest)
                           </li>
                           <li
-                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "total" ? "font-semibold" : ""}`}
+                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                              sortOption === "total" ? "font-semibold" : ""
+                            }`}
                             onClick={() => handleSortChange("total")}
                           >
                             Total (Highest)
                           </li>
                           <li
-                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "platform" ? "font-semibold" : ""}`}
+                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                              sortOption === "platform" ? "font-semibold" : ""
+                            }`}
                             onClick={() => handleSortChange("platform")}
                           >
                             Platform (A-Z)
@@ -745,37 +837,43 @@ function OrderPageContent() {
 
                   <button
                     onClick={() => setViewMode("table")}
-                    className={`p-2 rounded ${viewMode === "table" ? "bg-gray-100" : ""
-                      }`}
+                    className={`p-2 rounded ${
+                      viewMode === "table" ? "bg-gray-100" : ""
+                    }`}
                   >
                     <List size={20} />
                   </button>
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded ${viewMode === "grid" ? "bg-gray-100" : ""
-                      }`}
+                    className={`p-2 rounded ${
+                      viewMode === "grid" ? "bg-gray-100" : ""
+                    }`}
                   >
                     <Grid size={20} />
                   </button>
-
-
                 </div>
               </div>
 
-
-
               {viewMode === "table" ? (
-
-
                 <div className="overflow-x-auto">
-                  {loading ? <div className="flex justify-center items-center h-96 min-w-fit">
-                    <ClipLoader size={50} color={"#AAFF00"} loading={loading} />
-                  </div> :
+                  {loading ? (
+                    <div className="flex justify-center items-center h-96 min-w-fit">
+                      <ClipLoader
+                        size={50}
+                        color={"#AAFF00"}
+                        loading={loading}
+                      />
+                    </div>
+                  ) : (
                     <>
-                      {!loading && filteredOrders.length === 0 ? <div className="flex justify-center items-center h-96 min-w-fit"><img src={img1}></img></div> :
-                        <div>
+                      {!loading && filteredOrders.length === 0 ? (
+                        <div className="flex justify-center items-center h-96 min-w-fit">
+                          <img src={img1}></img>
+                        </div>
+                      ) : (
+                        <div className="overflow-y-auto max-h-[400px]">
                           <table className="min-w-full">
-                            <thead>
+                            <thead className="sticky top-0 bg-slate-100">
                               <tr className="border-b border-gray-400">
                                 <th className="text-left py-3 px-2 text-sm text-left font-medium">
                                   {/* <Checkbox
@@ -796,9 +894,7 @@ function OrderPageContent() {
                                 <th className="text-left py-3 px-1 text-sm font-medium">
                                   Lots/Items
                                 </th>
-                                <th className="text-left py-3 px-4 text-sm font-medium">
-
-                                </th>
+                                <th className="text-left py-3 px-4 text-sm font-medium"></th>
                                 {/* <th className="text-left py-3 px-4 text-sm text-right font-medium">
                           Buyer
                         </th> */}
@@ -811,14 +907,22 @@ function OrderPageContent() {
                               </tr>
                             </thead>
 
-                            <tbody >
+                            <tbody>
                               {filteredOrders.map((order) => (
-                                <tr key={order.brickosys_order_id} className="border-b border-gray-700">
+                                <tr
+                                  key={order.brickosys_order_id}
+                                  className="border-b border-gray-700"
+                                >
                                   <td className="p-2">
                                     <Checkbox
-                                      checked={selectedOrders.includes(order.brickosys_order_id)}
+                                      checked={selectedOrders.includes(
+                                        order.brickosys_order_id
+                                      )}
                                       onChange={(checked) =>
-                                        handleOrderSelection(order.brickosys_order_id, checked)
+                                        handleOrderSelection(
+                                          order.brickosys_order_id,
+                                          checked
+                                        )
                                       }
                                       className="border-gray-500"
                                     />
@@ -834,10 +938,17 @@ function OrderPageContent() {
                             </span> */}
                                     {order.order_id}
                                   </td>
-                                  <td className="p-2 text-center">{order.platform}</td>
-                                  <td className="p-2">{formatDateBasedOnUserLocation(order.order_on)}</td>
+                                  <td className="p-2 text-center">
+                                    {order.platform}
+                                  </td>
                                   <td className="p-2">
-                                    {order.items.length} / {getTotalItemsInOrder(order)}
+                                    {formatDateBasedOnUserLocation(
+                                      order.order_on
+                                    )}
+                                  </td>
+                                  <td className="p-2">
+                                    {order.items.length} /{" "}
+                                    {getTotalItemsInOrder(order)}
                                   </td>
                                   <td className="p-2"></td>
                                   {/* <td className="p-2">{order.orderObject.paymentMethod}</td> */}
@@ -852,10 +963,13 @@ function OrderPageContent() {
                                   </td>
                                   <td className="p-2 text-right">
                                     <span
-                                      className={`px-2 py-1 rounded text-sm ${["PACKED", "Processed"].includes(order.status)
-                                        ? "bg-green-100 text-green-800"
-                                        : "bg-purple-100 text-purple-800"
-                                        }`}
+                                      className={`px-2 py-1 rounded text-sm ${
+                                        ["PACKED", "Processed"].includes(
+                                          order.status
+                                        )
+                                          ? "bg-green-100 text-green-800"
+                                          : "bg-purple-100 text-purple-800"
+                                      }`}
                                     >
                                       {order.status}
                                     </span>
@@ -863,15 +977,14 @@ function OrderPageContent() {
                                 </tr>
                               ))}
                             </tbody>
-
                           </table>
                           <div className="flex justify-center mt-4">
-                            <button
+                            {/* <button
                               onClick={() => handlePageChange(currentPage - 1)}
                               disabled={currentPage === 1}
                               className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
                             >
-                              &lt; {/* "<" icon */}
+                              &lt; 
                             </button>
                             <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
                             <button
@@ -879,35 +992,54 @@ function OrderPageContent() {
                               disabled={currentPage === totalPages}
                               className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
                             >
-                              &gt; {/* ">" icon */}
-                            </button>
+                              &gt;
+                            </button> */}
+                            {totalOrders > 10 && (
+                              <button
+                                onClick={handleLoadMore}
+                                disabled={loadingMore || orders.length >= totalOrders} // Disable if already loading or all data is loaded
+                                className="px-4 py-2 bg-blue-600 text-white rounded"
+                              >
+  {loadingMore ? (
+    <ClipLoader size={20} color={"#FFF"} loading={true} /> // Show button loader
+  ) : (
+    "Load More"
+  )}
+</button>)}
+
                           </div>
-
-
                         </div>
-                      }</>
-
-                  }
+                      )}
+                    </>
+                  )}
                 </div>
-
-              ) : (<>{!loading && filteredOrders.length === 0 ? <div className="flex justify-center items-center h-96 min-w-96"><img src={img1}></img></div> :
-                <div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredOrders.map((order) => (
-                      <OrderCard key={order.brickosys_order_id} order={order}
-                        setSelectAllOrders={setSelectAllOrders}
-                        selectedOrders={selectedOrders} setSelectedOrders={setSelectedOrders}
-                        filteredOrders={filteredOrders}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex justify-center mt-4">
-                    <button
+              ) : (
+                <>
+                  {!loading && filteredOrders.length === 0 ? (
+                    <div className="flex justify-center items-center h-96 min-w-96">
+                      <img src={img1}></img>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filteredOrders.map((order) => (
+    <OrderCard
+      key={order.brickosys_order_id}
+      order={order}
+      setSelectAllOrders={setSelectAllOrders}
+      selectedOrders={selectedOrders}
+      setSelectedOrders={setSelectedOrders}
+      filteredOrders={filteredOrders}
+    />
+                        ))}
+                      </div>
+                      <div className="flex justify-center mt-4">
+                        {/* <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
                       className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
                     >
-                      &lt; {/* "<" icon */}
+                      &lt; 
                     </button>
                     <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
                     <button
@@ -915,21 +1047,35 @@ function OrderPageContent() {
                       disabled={currentPage === totalPages}
                       className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
                     >
-                      &gt; {/* ">" icon */}
-                    </button>
-                  </div>
-                </div>
-              }
-              </>
+                      &gt; 
+                    </button> */}
+                    {totalOrders >= 10 && (
+                              <button
+                                onClick={handleLoadMore}
+                                disabled={loadingMore || orders.length >= totalOrders} // Disable if already loading or all data is loaded
+                                className="px-4 py-2 bg-blue-600 text-white rounded"
+                              >
+  {loadingMore ? (
+    <ClipLoader size={20} color={"#FFF"} loading={true} /> // Show button loader
+  ) : (
+    "Load More"
+  )}
+</button>)}
+
+
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
               {
-                selectedOrders.length > 0 && <StartPickUpButton onClick={handleStartPicking} /> // setSelectAllOrders, selectedOrders, setSelectedOrders, filteredOrders
+                selectedOrders.length > 0 && (
+                  <StartPickUpButton onClick={handleStartPicking} />
+                ) // setSelectAllOrders, selectedOrders, setSelectedOrders, filteredOrders
               }
-
             </div>
           </div>
         </div>
-
 
         <div className="">
           <div className="space-y-1 mb-6 row-span-3 mt-3">
@@ -986,18 +1132,24 @@ function OrderPageContent() {
               {/* Loader when data is being fetched */}
               {taskloading && (
                 <div className="flex justify-center items-center h-52 min-w-fit">
-                  <ClipLoader size={50} color={"#AAFF00"} loading={taskloading} />
+                  <ClipLoader
+                    size={50}
+                    color={"#AAFF00"}
+                    loading={taskloading}
+                  />
                 </div>
               )}
               {/* Show message when no tasks are available */}
-              {!taskloading && (tasks.length === 0 || tasks.length === undefined) && (
-                <div className="text-center text-gray-500 text-lg h-52 font-semibold flex justify-center items-center">
-                  No tasks available
-                </div>
-              )}
+              {!taskloading &&
+                (tasks.length === 0 || tasks.length === undefined) && (
+                  <div className="text-center text-gray-500 text-lg h-52 font-semibold flex justify-center items-center">
+                    No tasks available
+                  </div>
+                )}
 
               <div className="space-y-3">
                 {/* Show tasks if available */}
+
                 {tasks.length > 0 && tasks.map((order) => (
                   <div key={order.order_id} className="mb-6 border-b pb-4">
                     {/* Order ID */}
@@ -1020,6 +1172,7 @@ function OrderPageContent() {
                     </ul>
                   </div>
                 ))}
+
               </div>
 
               {/* <button className="w-full mt-4 bg-black text-white rounded-lg py-2">
@@ -1027,12 +1180,9 @@ function OrderPageContent() {
     </button> */}
             </div>
           </div>
-
         </div>
-
       </div>
-
-    </div >
+    </div>
   );
 }
 
