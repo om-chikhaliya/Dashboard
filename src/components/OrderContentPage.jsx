@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Checkbox from "./ui/Checkbox";
-import { Settings, Grid, List } from "react-feather";
+import { Settings, Grid, List, Search } from "react-feather";
 import { Box } from "react-feather";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -16,6 +16,9 @@ import api from "./helper/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { X } from "lucide-react";
+import Input from "./ui/Input";
+// import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { set } from "date-fns";
 
 // const tasks = [
 //   { id: 1, title: "Schedule post Dusk&Dawn", completed: true },
@@ -58,11 +61,11 @@ function OrderCard({
           </div>
         </div>
         <div className="flex items-center gap-2 mb-2">
-        {order.brickosys_order_id.includes("BL")
-          ? "Bricklink"
-          : order.brickosys_order_id.includes("BO")
-          ? "Brickowl"
-          : order.brickosys_order_id}
+          {order.brickosys_order_id.includes("BL")
+            ? "Bricklink"
+            : order.brickosys_order_id.includes("BO")
+              ? "Brickowl"
+              : order.brickosys_order_id}
         </div>
         <p className="text-gray-600 text-sm">
           {new Date(order.order_on).toLocaleDateString("en-GB", {
@@ -76,11 +79,10 @@ function OrderCard({
       {/* Tags and Status */}
       <div className="flex flex-wrap gap-2 mb-3">
         <span
-          className={`px-3 py-1 text-xs ${
-            order.platform === "BL"
-              ? "bg-purple-100 text-purple-800"
-              : "bg-blue-100 text-blue-800"
-          } custom-radius`}
+          className={`px-3 py-1 text-xs ${order.platform === "BL"
+            ? "bg-purple-100 text-purple-800"
+            : "bg-blue-100 text-blue-800"
+            } custom-radius`}
         >
           {order.platform}
         </span>
@@ -88,15 +90,14 @@ function OrderCard({
           ${order.total_price}
         </span>
         <span
-          className={`px-3 py-1 rounded-full text-xs ${
-            order.status === "PACKED"
-              ? "bg-green-100 text-green-800"
-              : order.status === "CANCELLED"
+          className={`px-3 py-1 rounded-full text-xs ${order.status === "PACKED"
+            ? "bg-green-100 text-green-800"
+            : order.status === "CANCELLED"
               ? "bg-red-100 text-red-800"
               : order.status === "Shipped"
-              ? "bg-cyan-100 text-cyan-800"
-              : "bg-orange-100 text-orange-800"
-          } custom-radius`}
+                ? "bg-cyan-100 text-cyan-800"
+                : "bg-orange-100 text-orange-800"
+            } custom-radius`}
         >
           {order.status}
         </span>
@@ -242,37 +243,112 @@ function OrderPageContent() {
     setIsDropdownOpen(false); // Close dropdown after selecting an option
   };
 
+  const [serchList, setSerarchList] = useState([])
+
   useEffect(() => {
-    const filtered = orders.filter((order) => {
-      const matchesSearch =
-        !searchTerm ||
-        order.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.order_id.toString().includes(searchTerm) ||
-        new Date(order.order_on)
-          .toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          })
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        order.status.toLowerCase().includes(searchTerm.toLowerCase());
+
+    let orderListToFilter = searchTerm.trim() ? serchList : orders
+    const filtered = orderListToFilter.filter((order) => {
+      // const matchesSearch =
+      //   !searchTerm ||
+      //   order.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      //   order.order_id.toString().includes(searchTerm) ||
+      //   new Date(order.order_on)
+      //     .toLocaleDateString("en-GB", {
+      //       day: "2-digit",
+      //       month: "long",
+      //       year: "numeric",
+      //     })
+      //     .toLowerCase()
+      //     .includes(searchTerm.toLowerCase()) ||
+      //   order.status.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStore = selectedStores.includes(
         order.platform === "BL" ? "BL" : "BO"
       );
-      
+
       const matchesStatus = selectedStatuses.includes(order.status);
 
-      return matchesSearch && matchesStore && matchesStatus;
+      return matchesStore && matchesStatus;
     });
 
     setFilteredOrders(filtered);
-  }, [orders, searchTerm, selectedStores, selectedStatuses]);
+  }, [orders, selectedStores, selectedStatuses, serchList]);
 
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
+
+  // const handleSearch = async (value) => {
+
+  //   setSearchTerm(value);
+
+  //   if (!value) {
+  //     setFilteredOrders([]); // reset if empty
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await api.get("/order/search", {
+  //       params: { query: value },
+  //     });
+
+  //     console.log("Search results:", res.data);
+
+  //     setFilteredOrders(res.data);
+  //   } catch (err) {
+  //     console.error("Search error:", err);
+  //   }
+  // };
+
+  const [debouncedTerm, setDebouncedTerm] = useState("");
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedTerm(searchTerm);
+    }, 1000);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
+
+  // Fetch when debouncedTerm changes
+  useEffect(() => {
+
+    const controller = new AbortController();
+
+    const fetchOrders = async () => {
+
+      if (!debouncedTerm) {
+        // setFilteredOrders(orders);
+        setSerarchList([]);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const res = await api.get("/order/search", {
+          params: { query: debouncedTerm },
+          signal: controller.signal,
+        });
+
+        setSerarchList(res.data);
+      } catch (err) {
+        if (err.name === "CanceledError" || err.name === "AbortError") {
+          console.log("Search request aborted");
+        } else {
+          console.error("Search error:", err);
+        }
+      }
+      finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [debouncedTerm]);
+
+
 
   const handleStoreChange = (store, checked) => {
     setSelectedStores(
@@ -421,19 +497,19 @@ function OrderPageContent() {
 
   const [startDate, endDate] = dateRange;
   const handleRangeChange = (value) => {
-  if (Array.isArray(value)) {
-    const [newStartDate, newEndDate] = value;
-    setDateRange([newStartDate, newEndDate]);
-  }
-};
+    if (Array.isArray(value)) {
+      const [newStartDate, newEndDate] = value;
+      setDateRange([newStartDate, newEndDate]);
+    }
+  };
 
 
-useEffect(() => {
-  // Reset the orders whenever the date range changes
-  setOrders([]);
-  setFilteredOrders([]);
-  fetchData();
-}, [dateRange]);
+  useEffect(() => {
+    // Reset the orders whenever the date range changes
+    setOrders([]);
+    setFilteredOrders([]);
+    fetchData();
+  }, [dateRange]);
 
 
   const clearDateFilter = () => {
@@ -462,65 +538,65 @@ useEffect(() => {
   const [totalOrders, setTotalOrders] = useState(0); // Track total number of orders for pagination
 
   const fetchData = async () => {
-  try {
-    setLoading(true); // Show the loader for page load
-    // Reset the orders if date range changes
-    setOrders([]);  // Reset the orders state to clear previous data
-    setFilteredOrders([]);  // Reset the filtered orders
+    try {
+      setLoading(true); // Show the loader for page load
+      // Reset the orders if date range changes
+      setOrders([]);  // Reset the orders state to clear previous data
+      setFilteredOrders([]);  // Reset the filtered orders
 
-    const response = await api.get("/order", {
-      params: {
-        limit: 30, // Number of items per load
-        offset: 0, // Reset offset to 0 for fresh data
-        startDate: startDate,
-        endDate: endDate,
-      },
-    });
-    
-    if(response.data.orders.length < 10){
-      setLoadingMore(false);
+      const response = await api.get("/order", {
+        params: {
+          limit: 30, // Number of items per load
+          offset: 0, // Reset offset to 0 for fresh data
+          startDate: startDate,
+          endDate: endDate,
+        },
+      });
+
+      if (response.data.orders.length < 10) {
+        setLoadingMore(false);
+      }
+      setOrders(response.data.orders);
+      setFilteredOrders(response.data.orders);
+      setTotalOrders(response.data.total); // Update total orders
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false); // Stop loader
     }
-    setOrders(response.data.orders);
-    setFilteredOrders(response.data.orders);
-    setTotalOrders(response.data.total); // Update total orders
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  } finally {
-    setLoading(false); // Stop loader
-  }
-};
+  };
 
 
- const handleLoadMore = async () => {
-  try {
-    setLoadingMore(true); // Show loader for "Load More" button
+  const handleLoadMore = async () => {
+    try {
+      setLoadingMore(true); // Show loader for "Load More" button
 
-    const response = await api.get("/order", {
-      params: {
-        limit: 30, // Always load 30 more orders
-        offset: orders.length, // Offset is based on the current number of orders
-        startDate: startDate,
-        endDate: endDate,
-      },
-    });
+      const response = await api.get("/order", {
+        params: {
+          limit: 30, // Always load 30 more orders
+          offset: orders.length, // Offset is based on the current number of orders
+          startDate: startDate,
+          endDate: endDate,
+        },
+      });
 
-    // Append the new orders to the existing list
-    
+      // Append the new orders to the existing list
+
       setOrders((prevOrders) => {
-      const newOrders = response.data.orders.filter(
-        (order) => !prevOrders.some((prevOrder) => prevOrder.order_id === order.order_id)
-      );
-      return [...prevOrders, ...newOrders];
-    });
+        const newOrders = response.data.orders.filter(
+          (order) => !prevOrders.some((prevOrder) => prevOrder.order_id === order.order_id)
+        );
+        return [...prevOrders, ...newOrders];
+      });
 
-    
-    setTotalOrders(response.data.total); // Update total orders
-  } catch (error) {
-    console.error("Error loading more data:", error);
-  } finally {
-    setLoadingMore(false); // Hide the "Load More" loader
-  }
-};
+
+      setTotalOrders(response.data.total); // Update total orders
+    } catch (error) {
+      console.error("Error loading more data:", error);
+    } finally {
+      setLoadingMore(false); // Hide the "Load More" loader
+    }
+  };
 
 
   const handlePageChange = (page) => {
@@ -699,7 +775,7 @@ useEffect(() => {
                             htmlFor={status.label}
                             className="ml-2 text-sm"
                           >
-                            {status.label}
+                            {status.label.slice(0, -4)}
                           </label>
                         </div>
                       ))}
@@ -762,7 +838,7 @@ useEffect(() => {
                             htmlFor={status.label}
                             className="ml-2 text-sm"
                           >
-                            {status.label}
+                            {status.label.slice(0, -4)}
                           </label>
                         </div>
                       ))}
@@ -774,16 +850,27 @@ useEffect(() => {
 
           <div className="lg:col-span-3">
             <div
-              className={`${
-                viewMode === "grid"
-                  ? "bg-white rounded-xl p-6 card-shadow"
-                  : "bg-white rounded-xl p-6 card-shadow"
-              }`}
+              className={`${viewMode === "grid"
+                ? "bg-white rounded-xl p-6 card-shadow"
+                : "bg-white rounded-xl p-6 card-shadow"
+                }`}
             >
               <div className="flex justify-between items-center mb-4">
-                <span className="text-md font-semibold mb-4">
+                {/* <span className="text-md font-semibold mb-4">
                   In Progress Orders
-                </span>
+                </span> */}
+                <div className="relative">
+                  <Input
+                    placeholder="Search Orders"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    className="search-input"
+                  />
+                  <Search
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
+                </div>
 
                 <div className="flex gap-2">
                   {selectedOrders.length > 0 && (
@@ -807,25 +894,22 @@ useEffect(() => {
                       <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-md rounded-lg z-50">
                         <ul className="py-2 text-sm text-gray-700">
                           <li
-                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                              sortOption === "date" ? "font-semibold" : ""
-                            }`}
+                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "date" ? "font-semibold" : ""
+                              }`}
                             onClick={() => handleSortChange("date")}
                           >
                             Date (Newest)
                           </li>
                           <li
-                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                              sortOption === "total" ? "font-semibold" : ""
-                            }`}
+                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "total" ? "font-semibold" : ""
+                              }`}
                             onClick={() => handleSortChange("total")}
                           >
                             Total (Highest)
                           </li>
                           <li
-                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                              sortOption === "platform" ? "font-semibold" : ""
-                            }`}
+                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortOption === "platform" ? "font-semibold" : ""
+                              }`}
                             onClick={() => handleSortChange("platform")}
                           >
                             Platform (A-Z)
@@ -837,17 +921,15 @@ useEffect(() => {
 
                   <button
                     onClick={() => setViewMode("table")}
-                    className={`p-2 rounded ${
-                      viewMode === "table" ? "bg-gray-100" : ""
-                    }`}
+                    className={`p-2 rounded ${viewMode === "table" ? "bg-gray-100" : ""
+                      }`}
                   >
                     <List size={20} />
                   </button>
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded ${
-                      viewMode === "grid" ? "bg-gray-100" : ""
-                    }`}
+                    className={`p-2 rounded ${viewMode === "grid" ? "bg-gray-100" : ""
+                      }`}
                   >
                     <Grid size={20} />
                   </button>
@@ -863,6 +945,15 @@ useEffect(() => {
                         color={"#AAFF00"}
                         loading={loading}
                       />
+
+                      {/* <DotLottieReact
+                        style={{ width: 270, height: 270 }}
+                        src="https://lottie.host/7de87f8c-e7c8-4679-bedd-6b810cb1892a/fJE3PRnEVK.lottie"
+                        loop
+                        autoplay
+                        loading={loading}
+                        
+                      /> */}
                     </div>
                   ) : (
                     <>
@@ -963,13 +1054,12 @@ useEffect(() => {
                                   </td>
                                   <td className="p-2 text-right">
                                     <span
-                                      className={`px-2 py-1 rounded text-sm ${
-                                        ["PACKED", "Processed"].includes(
-                                          order.status
-                                        )
-                                          ? "bg-green-100 text-green-800"
-                                          : "bg-purple-100 text-purple-800"
-                                      }`}
+                                      className={`px-2 py-1 rounded text-sm ${["PACKED", "Processed"].includes(
+                                        order.status
+                                      )
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-purple-100 text-purple-800"
+                                        }`}
                                     >
                                       {order.status}
                                     </span>
@@ -994,17 +1084,17 @@ useEffect(() => {
                             >
                               &gt;
                             </button> */}
-                              <button
-                                onClick={handleLoadMore}
-                                disabled={loadingMore || orders.length >= totalOrders} // Disable if already loading or all data is loaded
-                                className={`px-4 py-2 bg-blue-600 text-white rounded ${orders.length >= totalOrders ? "opacity-50 cursor-not-allowed" : ""}`}
-                              >
-  {loadingMore ? (
-    <ClipLoader size={20} color={"#FFF"} loading={true} /> // Show button loader
-  ) : (
-    "Load More"
-  )}
-</button>
+                            <button
+                              onClick={handleLoadMore}
+                              disabled={loadingMore || orders.length >= totalOrders} // Disable if already loading or all data is loaded
+                              className={`px-4 py-2 bg-blue-600 text-white rounded ${orders.length >= totalOrders ? "opacity-50 cursor-not-allowed" : ""}`}
+                            >
+                              {loadingMore ? (
+                                <ClipLoader size={20} color={"#FFF"} loading={true} /> // Show button loader
+                              ) : (
+                                "Load More"
+                              )}
+                            </button>
 
                           </div>
                         </div>
@@ -1013,59 +1103,83 @@ useEffect(() => {
                   )}
                 </div>
               ) : (
-                <>
-                  {!loading && filteredOrders.length === 0 ? (
-                    <div className="flex justify-center items-center h-96 min-w-96">
-                      <img src={img1}></img>
+                <div className="overflow-x-auto">
+                  {loading ? (
+                    <div className="flex justify-center items-center h-96 min-w-fit">
+                      <ClipLoader
+                        size={50}
+                        color={"#AAFF00"}
+                        loading={loading}
+                      />
+
+                      {/* <DotLottieReact
+                      style={{ width: 270, height: 270 }}
+                      src="https://lottie.host/7de87f8c-e7c8-4679-bedd-6b810cb1892a/fJE3PRnEVK.lottie"
+                      loop
+                      autoplay
+                      loading={loading}
+                      
+                    /> */}
                     </div>
-                  ) : (
-                    <div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filteredOrders.map((order) => (
-    <OrderCard
-      key={order.brickosys_order_id}
-      order={order}
-      setSelectAllOrders={setSelectAllOrders}
-      selectedOrders={selectedOrders}
-      setSelectedOrders={setSelectedOrders}
-      filteredOrders={filteredOrders}
-    />
-                        ))}
-                      </div>
-                      <div className="flex justify-center mt-4">
-                        {/* <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
-                    >
-                      &lt; 
-                    </button>
-                    <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
-                    >
-                      &gt; 
-                    </button> */}
+                  ) :
+                    (
+                      <>
+                        {!loading && filteredOrders.length === 0 ? (
+                          <div className="flex justify-center items-center h-96 min-w-96">
+                            <img src={img1}></img>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {filteredOrders.map((order) => (
+                                <OrderCard
+                                  key={order.brickosys_order_id}
+                                  order={order}
+                                  setSelectAllOrders={setSelectAllOrders}
+                                  selectedOrders={selectedOrders}
+                                  setSelectedOrders={setSelectedOrders}
+                                  filteredOrders={filteredOrders}
+                                />
+                              ))}
+                            </div>
+                            <div className="flex justify-center mt-4">
+                              {/* <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
+                      >
+                        &lt; 
+                      </button>
+                      <span className="px-4 py-2">{`${currentPage} / ${totalPages}`}</span>
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 bg-transparent text-black rounded-r-lg disabled:text-slate-300"
+                      >
+                        &gt; 
+                      </button> */}
                               <button
                                 onClick={handleLoadMore}
                                 disabled={loadingMore || orders.length >= totalOrders} // Disable if already loading or all data is loaded
                                 className={`px-4 py-2 bg-blue-600 text-white rounded ${orders.length >= totalOrders ? "opacity-50 cursor-not-allowed" : ""}`}
                               >
-  {loadingMore ? (
-    <ClipLoader size={20} color={"#FFF"} loading={true} /> // Show button loader
-  ) : (
-    "Load More"
-  )}
-</button>
+                                {loadingMore ? (
+                                  <ClipLoader size={20} color={"#FFF"} loading={true} /> // Show button loader
+                                ) : (
+                                  "Load More"
+                                )}
+                              </button>
 
 
-                      </div>
-                    </div>
-                  )}
-                </>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                </div>
               )}
+
               {
                 selectedOrders.length > 0 && (
                   <StartPickUpButton onClick={handleStartPicking} />
@@ -1180,7 +1294,7 @@ useEffect(() => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

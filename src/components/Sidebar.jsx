@@ -64,7 +64,8 @@ function Sidebar({ isOpen, setIsOpen }) {
     try{
 
       await api.get('/auth/logout-log');
-      localStorage.removeItem("accessToken");
+      // localStorage.removeItem("accessToken");
+      localStorage.clear();
       sessionStorage.clear();
       navigate("/");
     }
@@ -88,7 +89,10 @@ function Sidebar({ isOpen, setIsOpen }) {
       >
         {/* Sidebar Header */}
         <Link to='/dashboard'>
-        <div className="flex items-center justify-between p-4 cursor-pointer">
+        <div className="flex items-center gap-4 p-4 cursor-pointer px-7">
+          <div>
+            <img src="/package.svg" alt="" />
+          </div>
           <span className="text-[20px] font-extrabold border-b-4 border-[#bbe90b]">BrickOsys</span>
           {/* {isMobile && (
             <button onClick={() => setIsOpen(false)}>

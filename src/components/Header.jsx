@@ -16,7 +16,8 @@ function Header({ handleSearch, searchTerm }) {
   const handleLogout = async () => {
     try{
       await api.get('/auth/logout-log');
-      localStorage.removeItem("accessToken");
+      // localStorage.removeItem("accessToken");
+      localStorage.clear();
       sessionStorage.clear();
       navigate("/");
     }
@@ -33,9 +34,9 @@ function Header({ handleSearch, searchTerm }) {
   return (
     <header className="dashboard-header rounded-xl card-shadow">
       {location.pathname === "/orders" ? (
-        <div className="relative">
+        <div className="relative px-4 text-xl font-medium items-center w-full">
           {/* <input type="text" value={searchTerm} onChange={(e) => onChange(e.target.value)} placeholder="Search..." className="search-input" /> */}
-          <Input
+          {/* <Input
             placeholder="Search Orders"
             value={searchTerm}
             onChange={handleSearch}
@@ -44,7 +45,8 @@ function Header({ handleSearch, searchTerm }) {
           <Search
             size={16}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
+          /> */}
+          Orders
         </div>
       ) : (<div className="text-lg font-bold">Welcome to Brickosys</div>)}
 

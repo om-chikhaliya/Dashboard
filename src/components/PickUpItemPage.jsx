@@ -899,7 +899,7 @@ export default function PickUpItemsPage() {
                                             <label className="mb-1 block text-xs font-medium text-gray-700">
                                               LOCATION
                                             </label>
-                                            <div className="rounded-lg border border-gray-300 bg-gray-50 py-3 px-3 text-lg text-gray-800 h-14">
+                                            <div className="rounded-lg border border-gray-300 bg-gray-50 py-5 px-3 text-3xl text-gray-800 h-20">
                                               {item.location}
                                             </div>
                                           </div>
@@ -910,10 +910,10 @@ export default function PickUpItemsPage() {
                                               PICK
                                             </label>
                                             <div className="flex items-center"> 
-                                              <span className="flex-[3] rounded-l-lg border border-gray-300 bg-gray-50 py-3 px-3 text-lg text-gray-800 w-full h-14">
+                                              <span className="flex-[3] rounded-l-lg border border-gray-300 bg-gray-50 py-2 px-3 text-6xl text-gray-800 w-full h-20">
                                                 {item.quantity}
                                               </span>
-                                              <span className={`flex-[2] text-lg border border-gray-300 font-medium ${colors[findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex % colors.length]} h-14 w-full py-3 px-3 text-center rounded-r-lg`}>
+                                              <span className={`flex-[2] text-6xl border border-gray-300 font-medium ${colors[findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex % colors.length]} h-20 w-full py-2 px-3 text-center rounded-r-lg`}>
                                                 {findOrderIndexForItem(allOrders, item.item_id, item.order_id)?.orderIndex + 1}
                                               </span>
                                             </div>
@@ -1004,7 +1004,7 @@ export default function PickUpItemsPage() {
                       <div className="fixed -inset-10 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={closeModal}>
                         <div className="relative bg-white p-4 rounded-lg shadow-lg max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
                           <button className="absolute -top-5 -right-5 text-white text-2xl bg-gray-800 rounded-full p-2" onClick={closeModal}>&times;</button>
-                          <img src={fomartImageSrcString(selectedItem.item_type, selectedItem.color_id, selectedItem.sku, selectedItem.brickosys_order_id) || selectedItem.image} alt={decodeHtmlEntities(selectedItem.item_name)} className="w-full h-auto rounded-lg" />
+                          <img src={fomartImageSrcString(selectedItem.item_type, selectedItem.color_id, selectedItem.sku, selectedItem.brickosys_order_id) || selectedItem.image} alt={decodeHtmlEntities(selectedItem.item_name)} className="w-full h-auto rounded-lg max-h-[70vh] object-contain" />
                           <h3 className="text-lg font-semibold text-center mt-4">{decodeHtmlEntities(selectedItem.item_name)}</h3>
                         </div>
                       </div>
@@ -1070,7 +1070,7 @@ export default function PickUpItemsPage() {
                             <div className="w-full">
                               <div className="flex items-center gap-2">
                                 <div className="bg-black text-white px-3 py-1 rounded-md text-xs sm:text-sm font-semibold">
-                                  {order.platform} - Order {order.order_id}
+                                  {order.platform} Order {order.order_id}
                                 </div>
                               </div>
                               <span className="text-xs sm:text-sm font-semibold block mt-2 ml-2"></span>
@@ -1107,7 +1107,7 @@ export default function PickUpItemsPage() {
 
                           {/* Order Number in Top Right */}
                           <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
-                            <span className="text-xs sm:text-sm font-medium text-gray-400">
+                            <span className={`text-xs sm:text-sm font-medium ${colors[index % colors.length]} px-3 py-1 rounded-full`}>
                               {index + 1}
                             </span>
                           </div>
