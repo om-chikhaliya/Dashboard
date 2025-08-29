@@ -130,7 +130,7 @@ const LoginSignup = () => {
       try {
         setLoadingLogin(true)
         // Login API Request
-        const loginResponse = await axios.post("http://localhost:4000/api/auth/login", {
+        const loginResponse = await axios.post("https://backend.brickosys.com/api/auth/login", {
           email: loginData.email,
           password: loginData.password,
         });
@@ -177,14 +177,14 @@ const LoginSignup = () => {
       setLoadingSignup(true);
 
         try {
-          const response = await axios.post('http://localhost:4000/api/auth/register-admin', {
+          const response = await axios.post('https://backend.brickosys.com/api/auth/register-admin', {
             email: signupData.email,
             password: signupData.password
           });
           toast.success(response.data.message);
           // setActiveTab('login');
 
-          const loginResponse = await axios.post("http://localhost:4000/api/auth/login", {
+          const loginResponse = await axios.post("https://backend.brickosys.com/api/auth/login", {
             email: signupData.email,
             password: signupData.password,
           });
@@ -237,7 +237,7 @@ const LoginSignup = () => {
     setForgotpwdLogin(true);
     try {
       // Call your backend forgot password API here
-      const response = await axios.post("http://localhost:4000/api/auth/forgot-password", { email });
+      const response = await axios.post("https://backend.brickosys.com/api/auth/forgot-password", { email });
       localStorage.setItem('passwordReset', 'true');
       toast.success(response.data.message);
     } catch (err) {
