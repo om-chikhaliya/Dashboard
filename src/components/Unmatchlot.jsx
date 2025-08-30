@@ -78,7 +78,7 @@ export function Unmatchlot() {
 
         let finalBoid = boid;
 
-        if (boid.indexOf('-') === -1 && item.type === 'part') {
+        if (boid.indexOf('-') === -1 && item.type === 'part' && item.color_id !== 0) {
             // If the BOID is like '1234', we need to map it to the corresponding BrickOwl color ID
             const brickLinkColorId = item.color_id; // Assuming color_id is available on the item
             const colorData = mappedColorData.find(color => color.BrickLink === brickLinkColorId.toString()); // Find the color data by BrickLink ID
@@ -189,24 +189,24 @@ export function Unmatchlot() {
                                 {/* Item Details section */}
                                 {/* <PickUpItems /> */}
                                 <div className="flex justify-end mr-6 gap-4">
-                                    
-                                        <label className="flex items-center space-x-2">
-                                            <input
-                                                type="checkbox"
-                                                checked={showItems}
-                                                onChange={() => setShowItems(prev => !prev)}
-                                            />
-                                            <span>Show Items</span>
-                                        </label>
-                                        <label className="flex items-center space-x-2">
-                                            <input
-                                                type="checkbox"
-                                                checked={showIgnoredItems}
-                                                onChange={() => setShowIgnoredItems(prev => !prev)}
-                                            />
-                                            <span>Show Ignored Items</span>
-                                        </label>
-                                    
+
+                                    <label className="flex items-center space-x-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={showItems}
+                                            onChange={() => setShowItems(prev => !prev)}
+                                        />
+                                        <span>Show Items</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={showIgnoredItems}
+                                            onChange={() => setShowIgnoredItems(prev => !prev)}
+                                        />
+                                        <span>Show Ignored Items</span>
+                                    </label>
+
 
                                     {/* <button
                                         onClick={Refreshpage}
