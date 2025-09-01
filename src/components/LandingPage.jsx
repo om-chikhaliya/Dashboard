@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Check, ChevronRight, Package, BarChart, Zap, Cloud, Smartphone, RefreshCw, Mail, ShoppingCart } from 'lucide-react';
+import logo from '../assets/BrickOsys.png'
 
 function LandingPage() {
   const featuresRef = useRef(null);
@@ -83,12 +84,13 @@ function LandingPage() {
     <div className="min-h-screen bg-white text-gray-800 flex flex-col">
       {/* Navigation */}
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 cursor-pointer">
           <div
-            className="w-10 h-10 rounded-full animate-pulse flex items-center justify-center"
-            style={{ backgroundColor: themeColor }}
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            // style={{ backgroundColor: themeColor }}
           >
-            <Package className="h-5 w-5 text-gray-800" />
+            <img src={logo} alt="" className="h-8 w-8"/>
+            {/* <Package className="h-5 w-5 text-gray-800" /> */}
           </div>
           <span className="font-bold text-2xl tracking-tight">Brickosys</span>
         </div>
@@ -421,12 +423,13 @@ function LandingPage() {
       <footer className="py-12 bg-gray-50 border-t border-gray-200">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-6 md:mb-0">
+            <div className="flex items-center space-x-3 mb-6 md:mb-0 cursor-pointer">
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: themeColor }}
+                // style={{ backgroundColor: themeColor }}
               >
-                <Package className="h-4 w-4 text-gray-800" />
+                <img src={logo} alt="" className="h-8 w-8"/>
+                {/* <Package className="h-4 w-4 text-gray-800" /> */}
               </div>
               <span className="font-bold text-xl">Brickosys</span>
             </div>
