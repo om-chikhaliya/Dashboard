@@ -15,7 +15,8 @@ import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate, Link } from "react-router-dom";
 import { User, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import api from "./helper/api";
-import logo from '../assets/BrickOsys.png'
+
+
 
 function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
@@ -92,7 +93,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         <Link to='/dashboard'>
         <div className="flex items-center gap-4 p-4 cursor-pointer px-7">
           <div>
-            <img src={logo} alt="" className="h-8 w-8"/>
+            <img src='/assets/Brickosys.png' alt="" className="h-8 w-8"/>
           </div>
           <span className="text-[20px] font-extrabold border-b-4 border-[#bbe90b]">BrickOsys</span>
           {/* {isMobile && (

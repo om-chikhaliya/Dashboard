@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Check, ChevronRight, Package, BarChart, Zap, Cloud, Smartphone, RefreshCw, Mail, ShoppingCart } from 'lucide-react';
-import logo from '../assets/BrickOsys.png'
+
 
 function LandingPage() {
   const featuresRef = useRef(null);
@@ -89,7 +89,7 @@ function LandingPage() {
             className="w-10 h-10 rounded-full flex items-center justify-center"
             // style={{ backgroundColor: themeColor }}
           >
-            <img src={logo} alt="" className="h-8 w-8"/>
+            <img src="/assets/Brickosys.png" alt="" className="h-8 w-8"/>
             {/* <Package className="h-5 w-5 text-gray-800" /> */}
           </div>
           <span className="font-bold text-2xl tracking-tight">Brickosys</span>
@@ -428,7 +428,7 @@ function LandingPage() {
                 className="w-8 h-8 rounded-full flex items-center justify-center"
                 // style={{ backgroundColor: themeColor }}
               >
-                <img src={logo} alt="" className="h-8 w-8"/>
+                <img src="/assets/Brickosys.png" alt="" className="h-8 w-8"/>
                 {/* <Package className="h-4 w-4 text-gray-800" /> */}
               </div>
               <span className="font-bold text-xl">Brickosys</span>
