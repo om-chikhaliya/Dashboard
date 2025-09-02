@@ -39,6 +39,7 @@ export default function PickUpItemsPage() {
   const [missingNoteloader, setMissingNoteloader] = useState(false);
   const [completedOrders, setCompletedOrders] = useState([]);
   const [sortedItems, setSortedItems] = useState([]);
+  const [isLoadingMissingItems, setIsLoadingMissingItems] = useState(false);
 
 
   const navigate = useNavigate()
@@ -672,6 +673,8 @@ export default function PickUpItemsPage() {
       if (operation === 'add') {
         setMissingNoteloader(true);
         toast.success("Missing note added successfully.")
+      }else{
+        setIsLoadingMissingItems(true);
       }
 
       // Step 1: Prepare the updated items array, only including items that were changed
@@ -710,6 +713,8 @@ export default function PickUpItemsPage() {
       toast.error("Something went wrong!");
     } finally {
       setMissingNoteloader(false);
+      setMissingItemInput((prev) => !prev);
+      setIsLoadingMissingItems(false);
     }
   };
 
@@ -742,7 +747,7 @@ export default function PickUpItemsPage() {
 
 
   return (
-    <div className="">
+    <div className={isLoadingMissingItems ? "blur-sm pointer-events-none select-none" : ""}>
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen}></Sidebar>
       <div className={isSidebarOpen ? "main-content sidebar-open" : " px-4 py-4"}>
         <div className="flex-1">
