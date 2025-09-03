@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Checkbox from "./ui/Checkbox";
-import { Settings, Grid, List, Search } from "react-feather";
+import { Settings, Grid, List, Search, Trash2 } from "react-feather";
 import { Box } from "react-feather";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -607,6 +607,44 @@ function OrderPageContent() {
   };
 
   const [showAlert, setShowAlert] = useState(true);
+  const [loadingItemId, setLoadingItemId] = useState(null);
+
+  const toggleMissingItems = async (brickosys_order_id, item_id, id) => {
+    try {
+      setLoadingItemId(id); // show loader for this item
+
+      let updatedItem = {
+        brickosysId: brickosys_order_id,
+        id: id,
+        itemId: item_id,
+        isPicked: "false",
+        note: "" // remove the note
+      };
+
+      await api.post("/order/update-item-progress", [updatedItem]);
+
+      // ✅ Update local state
+      setTasks((prevTasks) =>
+        prevTasks
+          .map((order) =>
+            order.order_id === brickosys_order_id.replace(/^bosys-[A-Z]+-/, "")
+              ? {
+                ...order,
+                notes: order.notes.filter((note) => note.id !== id) // remove deleted note
+              }
+              : order
+          )
+          .filter((order) => order.notes.length > 0) // remove order if no notes left
+      );
+
+      toast.success("Item deleted successfully.");
+    } catch (error) {
+      toast.error("Something went wrong!");
+    } finally {
+      setLoadingItemId(null);
+    }
+  };
+
 
   return (
     <div className="py-6 pt-0">
@@ -1261,35 +1299,55 @@ function OrderPageContent() {
 
               <div className="space-y-3">
                 {/* Show tasks if available */}
+                {tasks.length > 0 &&
+                  tasks.map((order) => (
+                    <div key={order.order_id} className="mb-6 border-b pb-4">
+                      {/* Order ID */}
+                      <h2 className="text-xl font-bold mb-2">Order ID: {order.order_id}</h2>
 
-                {tasks.length > 0 && tasks.map((order) => (
-                  <div key={order.order_id} className="mb-6 border-b pb-4">
-                    {/* Order ID */}
-                    <h2 className="text-xl font-bold mb-2">Order ID: {order.order_id}</h2>
+                      {/* Items under Order */}
+                      <ul className="space-y-2 list-disc pl-6">
+                        {order.notes.map((note) => (
+                          <li key={note.item_id} className="relative group flex items-center justify-between">
+                            <div>
+                              {/* Item Name & Note */}
+                              <p className="text-md font-semibold">
+                                {decodeHtmlEntities(note.item_name)}
+                              </p>
+                              <p className="text-gray-500 text-sm">{note.note}</p>
 
-                    {/* Items under Order */}
-                    <ul className="space-y-2 list-disc pl-6">
-                      {order.notes.map((note) => (
-                        <li key={note.item_id} className="relative group">
-                          {/* Item Name & Note */}
-                          <p className="text-md font-semibold">{decodeHtmlEntities(note.item_name)}</p>
-                          <p className="text-gray-500 text-sm">{note.note}</p>
+                              {/* Tooltip for Item ID (Visible on Hover) */}
+                              <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                Item ID: {note.item_id.slice(4)}
+                              </span>
+                            </div>
 
-                          {/* Tooltip for Item ID (Visible on Hover) */}
-                          <span className="absolute left-0 -top-6 bg-black text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                            Item ID: {note.item_id}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                            {/* Delete Button */}
+                            <button
+                              onClick={() =>
+                                toggleMissingItems(
+                                  note.brickosysId, // brickosys_order_id
+                                  note.item_id,     // item_id
+                                  note.id,          // id
+                                )
+                              }
+                              disabled={loadingItemId === note.id} // disable while deleting
+                              className="ml-4 flex items-center justify-center"
+                            >
+                              {loadingItemId === note.id ? (
+                                <ClipLoader size={14} color="#FF0000" />
+                              ) : (
+                                <Trash2 size={18} className="text-red-500 cursor-pointer" />
+                              )}
+                            </button>
+
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
 
               </div>
-
-              {/* <button className="w-full mt-4 bg-black text-white rounded-lg py-2">
-      Schedule Task
-    </button> */}
             </div>
           </div>
         </div>
