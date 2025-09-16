@@ -311,14 +311,14 @@ function StatsCard({ data }) {
         <span className="text-md font-semibold">Store Synchronisation</span>
         <div className="flex gap-6">
 
-          {localStorage.getItem("role") === 'admin' && <button
+          {/* {localStorage.getItem("role") === 'admin' && <button
             className="flex items-center gap-1 text-gray-400"
             onClick={changePrimaryStore}
             disabled={true}
           >
             <Repeat size={18} />
             <span className="text-sm">Change Primary Store</span>
-          </button>}
+          </button>} */}
           <button
             className="flex items-center gap-2 text-gray-400"
             onClick={syncInventory}
@@ -395,7 +395,7 @@ function StatsCard({ data }) {
             <span className="text-sm">Sync Order</span>
           </button> */}
 
-          {localStorage.getItem("role") === 'admin' &&
+          {/* {localStorage.getItem("role") === 'admin' &&
 
             <button
               className={`flex items-center gap-2  ${(syncInProgress || backgroundSync) ? 'text-gray-400' : 'text-black'}`}
@@ -404,7 +404,7 @@ function StatsCard({ data }) {
             >
               <Repeat size={18} />
               <span className="text-sm">Change Primary Store</span>
-            </button>}
+            </button>} */}
           <button
             className={`flex items-center gap-2  ${(syncInProgress || backgroundSync) ? 'text-gray-400' : 'text-black'}`}
             onClick={syncInventory}

@@ -146,7 +146,8 @@ export function Price() {
                         {/* Table for Detailed Breakdown */}
                         <div className="flex justify-between gap-8 mb-4 mx-auto mt-5 relative">
                             {/* Table Component */}
-                            <div className={`flex-1 ${selectedStore === "BrickOwl" ? "blur-sm pointer-events-none select-none" : ""}`}>
+                            {/* <div className={`flex-1 ${selectedStore === "BrickOwl" ? "blur-sm pointer-events-none select-none" : ""}`}> */}
+                            <div className={`flex-1 blur-sm pointer-events-none select-none`}>
                                 <table className="w-full table-auto border-collapse rounded-xl p-6 shadow-lg h-full">
                                     <thead>
                                         <tr className="bg-gray-100">
@@ -176,11 +177,11 @@ export function Price() {
                                     </tbody>
                                 </table>
                             </div>
-                            {selectedStore === "BrickOwl" && (
+                            {/* {selectedStore === "BrickOwl" && ( */}
                                 <div className="absolute inset-0 bg-white bg-opacity-80 backdrop-blur-sm flex items-center justify-center rounded-xl z-10">
                                     <p className="text-xl font-semibold text-gray-700">🚧 This Feature is coming soon...</p>
                                 </div>
-                            )}
+                            {/* )} */}
                             {/* Price Change Component */}
                             <div className="flex-1">
                                 <div className="bg-white rounded-xl p-6">

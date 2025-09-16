@@ -135,7 +135,7 @@ const ExpandingButtonForm = () => {
 
         // Redirect if user had already submitted Form 2 before
         if (form2Submitted || redirectAfterForm1) {
-          selectPrimaryStore();
+          // selectPrimaryStore();
         }
       } else {
         toast.error(`Bricklink keys verification failed.`);
@@ -162,7 +162,7 @@ const ExpandingButtonForm = () => {
         setForm2Submitted(true);
 
         if (form1Submitted) {
-          selectPrimaryStore();
+          // selectPrimaryStore();
         } else {
           // Form 1 not submitted yet, so we wait
           toast.info("Please complete the Bricklink keys setup to proceed.");
@@ -187,11 +187,11 @@ const ExpandingButtonForm = () => {
       <div className="absolute inset-0 bg-cover bg-center blur-lg" style={{ backgroundImage: `url(${img1})` }} />
       <div className="z-10 flex flex-col justify-center items-center h-full w-full p-6">
 
-      <PrimaryStoreModal
+      {/* <PrimaryStoreModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSelectStore={handleStoreSelection}
-      />
+      /> */}
 
 
         {/* Form 1: Bricklink */}

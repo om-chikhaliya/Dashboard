@@ -191,13 +191,13 @@ function Dashboard() {
               <div className="flex justify-between items-center mb-6 w-full">
                 <span className="text-md font-semibold">Store Synchronisation</span>
                 <div className="flex gap-6">
-                  {localStorage.getItem("role") === 'admin' && <button
+                  {/* {localStorage.getItem("role") === 'admin' && <button
                     className="flex items-center gap-1 text-gray-400"
                     disabled={true}
                   >
                     <Repeat size={18} />
                     <span className="text-sm">Change Primary Store</span>
-                  </button>}
+                  </button>} */}
                   <button
                     className="flex items-center gap-2 text-gray-400"
                     disabled={true}
