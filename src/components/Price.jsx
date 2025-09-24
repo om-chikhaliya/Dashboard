@@ -28,34 +28,34 @@ export function Price() {
             detailedPrice: {},
         },
     });
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     // Fetch detailed store data from the API
-    useEffect(() => {
-        const fetchStoreData = async () => {
-            try {
-                const response = await api.get("/inventory/bricklink-pricing-summary"); // Replace with the correct API endpoint
-                setStoreData({
-                    BrickLink: {
-                        detailedItem: response.data.bricklinkDetailedItem,
-                        detailedLot: response.data.bricklinkDetailedLot,
-                        detailedPrice: response.data.bricklinkDetailedPrice,
-                    },
-                    BrickOwl: {
-                        detailedItem: response.data.brickowlDetailedItem,
-                        detailedLot: response.data.brickowlDetailedLot,
-                        detailedPrice: response.data.brickowlDetailedPrice,
-                    },
-                });
-            } catch (error) {
-                console.error("Error fetching store data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchStoreData = async () => {
+    //         try {
+    //             const response = await api.get("/inventory/bricklink-pricing-summary"); // Replace with the correct API endpoint
+    //             setStoreData({
+    //                 BrickLink: {
+    //                     detailedItem: response.data.bricklinkDetailedItem,
+    //                     detailedLot: response.data.bricklinkDetailedLot,
+    //                     detailedPrice: response.data.bricklinkDetailedPrice,
+    //                 },
+    //                 BrickOwl: {
+    //                     detailedItem: response.data.brickowlDetailedItem,
+    //                     detailedLot: response.data.brickowlDetailedLot,
+    //                     detailedPrice: response.data.brickowlDetailedPrice,
+    //                 },
+    //             });
+    //         } catch (error) {
+    //             console.error("Error fetching store data:", error);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
-        fetchStoreData();
-    }, []);
+    //     fetchStoreData();
+    // }, []);
 
     // Handle row selection
     const handleRowSelect = (rowType, isChecked) => {

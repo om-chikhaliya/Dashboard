@@ -162,7 +162,18 @@ function Dashboard() {
         <ToastContainer position="top-right" autoClose={false}
           closeOnClick={false}
           closeButton={true} />
+
         <Header />
+
+        <div className="bg-yellow-50 border border-yellow-200 text-blue-800 p-3 rounded-lg shadow-md flex items-center justify-between mb-4">
+          <div className="flex items-center">
+
+            {/* Info Text */}
+            <p className="text-sm font-medium">
+              Beta Launch: Enjoy full access with no fees through December 31, 2025.
+            </p>
+          </div>
+        </div>
 
         {showAlert && <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-lg shadow-md flex items-center justify-between mb-4">
           <div className="flex items-center">

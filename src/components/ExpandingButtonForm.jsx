@@ -136,6 +136,7 @@ const ExpandingButtonForm = () => {
         // Redirect if user had already submitted Form 2 before
         if (form2Submitted || redirectAfterForm1) {
           // selectPrimaryStore();
+          redirectToDashboard();
         }
       } else {
         toast.error(`Bricklink keys verification failed.`);
@@ -163,6 +164,7 @@ const ExpandingButtonForm = () => {
 
         if (form1Submitted) {
           // selectPrimaryStore();
+          redirectToDashboard();
         } else {
           // Form 1 not submitted yet, so we wait
           toast.info("Please complete the Bricklink keys setup to proceed.");
