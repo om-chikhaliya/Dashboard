@@ -335,7 +335,7 @@ function OrderPageContent() {
         setSerarchList(res.data);
       } catch (err) {
         if (err.name === "CanceledError" || err.name === "AbortError") {
-          console.log("Search request aborted");
+          // console.log("Search request aborted");
         } else {
           console.error("Search error:", err);
         }

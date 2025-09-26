@@ -21,7 +21,7 @@ export function WishList() {
         const fetchData = async () => {
             try {
                 const response = await api.get("/order/wishlist");
-                console.log('wishlist items: ', response.data)
+                // console.log('wishlist items: ', response.data)
                 setItems(response.data)
 
             } catch (err) {

@@ -47,7 +47,7 @@ const HelpPanel = () => {
 
                 <div className="w-full mx-auto p-6 bg-white font-sans">
                     {/* Custom Font */}
-                    <style jsx global>{`
+                    <style global='true'>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
         body {

@@ -30,7 +30,7 @@ export function Unmatchlot() {
             // Call the API with the extracted order IDs
             const response = await api.get(`/inventory/failed-syncs`);
 
-            console.log('mismatch: ', response.data)
+            // console.log('mismatch: ', response.data)
 
             const updatedUnmatchlots = response.data.failedItems.map((lot) => {
                 const colorName = colorMap[lot.color_id] || "Not Applicable"; // Lookup color name by BrickLink ID
@@ -150,13 +150,13 @@ export function Unmatchlot() {
             };
 
             // Send the item data to your API
-            console.log('Ignored Item: ', itemData);
+            // console.log('Ignored Item: ', itemData);
 
             const response = await api.post("/inventory/update-failed-sync", {
                 failed_items: [itemData]
             });
 
-            console.log('response: ', response.data)
+            // console.log('response: ', response.data)
             setUnmatchlots(prevLots =>
                 prevLots.map(lot =>
                     lot.inventory_id === item.inventory_id ? { ...lot, is_ignored: lot.is_ignored ? false : true } : lot

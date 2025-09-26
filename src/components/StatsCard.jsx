@@ -89,7 +89,7 @@ function StatsCard({ data }) {
 
         const response = await api.get("/inventory/primary-store");
   
-        console.log('primary store:', response.data.primary_store)
+        // console.log('primary store:', response.data.primary_store)
   
         setPrimaryStore(response.data.primary_store);
 
@@ -298,7 +298,7 @@ function StatsCard({ data }) {
 
         const reponse = await api.get("/order/sync");
     
-        console.log(response.data);
+        // console.log(response.data);
     }
     catch(e){
       console.log('error', e);
