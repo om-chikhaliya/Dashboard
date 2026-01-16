@@ -15,6 +15,10 @@ import { Unmatchlot } from "./components/Unmatchlot";
 import Users from "./components/Users";
 import { WishList } from "./components/WishList";
 import {Price} from './components/Price';
+import Footer from "./components/Footer";
+import Privacy from "./components/Privacy";
+import Terms from "./components/Terms";
+import { SidebarProvider } from "./components/helper/SidebarContext";
 
 import AdminLogs from "./components/AdminLogs";
 import ProfilePage from "./components/Profile";
@@ -71,28 +75,33 @@ const ProtectedRouteKeys = ({ element }) => {
 
 function App() {
   return (
-    <Router>
-      <div className="max-h-screen">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginSignup />} />
-          <Route path="/addkeys" element={<ProtectedRouteKeys element={<ExpandingButtonForm />}/>} />
-          <Route path="/createuser" element={<ProtectedRoute element={<CreateUserForm />} requiredRole="admin" />} />
-          <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
-          <Route path="/orders" element={<ProtectedRoute element={<OrderPage />} />} />
-          <Route path="/mismatchlot" element={<ProtectedRoute element={<Unmatchlot />} />} />
-          <Route path="/pickorders" element={<ProtectedRoute element={<PickUpItemsPage />} />} />
-          {/* <Route path="/addkeys" element={<ProtectedRoute element={<ExpandingButtonForm />} />} /> */}
-          <Route path="/setting" element={<ProtectedRoute element={<Setting />} requiredRole="admin" />} />
-          <Route path="/users" element={<ProtectedRoute element={<Users />} requiredRole="admin" />} />
-          {/* <Route path="/wishlist" element={<ProtectedRoute element={<WishList />}  />} /> */}
-          <Route path="/price" element={<ProtectedRoute element={<Price />} requiredRole="admin" />} />
-          <Route path="/logs" element={<ProtectedRoute element={<AdminLogs />} requiredRole="admin" />} />
-          <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
-          <Route path="/help" element={<ProtectedRoute element={<HelpPanel />} />} />
-        </Routes>
-      </div>
-    </Router>
+    <SidebarProvider>
+      <Router>
+        <div className="max-h-screen">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/login" element={<LoginSignup />} />
+            <Route path="/addkeys" element={<ProtectedRouteKeys element={<ExpandingButtonForm />}/>} />
+            <Route path="/createuser" element={<ProtectedRoute element={<CreateUserForm />} requiredRole="admin" />} />
+            <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+            <Route path="/orders" element={<ProtectedRoute element={<OrderPage />} />} />
+            <Route path="/mismatchlot" element={<ProtectedRoute element={<Unmatchlot />} />} />
+            <Route path="/pickorders" element={<ProtectedRoute element={<PickUpItemsPage />} />} />
+            {/* <Route path="/addkeys" element={<ProtectedRoute element={<ExpandingButtonForm />} />} /> */}
+            <Route path="/setting" element={<ProtectedRoute element={<Setting />} requiredRole="admin" />} />
+            <Route path="/users" element={<ProtectedRoute element={<Users />} requiredRole="admin" />} />
+            {/* <Route path="/wishlist" element={<ProtectedRoute element={<WishList />}  />} /> */}
+            <Route path="/price" element={<ProtectedRoute element={<Price />} requiredRole="admin" />} />
+            <Route path="/logs" element={<ProtectedRoute element={<AdminLogs />} requiredRole="admin" />} />
+            <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
+            <Route path="/help" element={<ProtectedRoute element={<HelpPanel />} />} />
+          </Routes>
+          <Footer />
+        </div>
+      </Router>
+    </SidebarProvider>
   );
 }
 
