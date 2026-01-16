@@ -40,6 +40,12 @@ export default function PickUpItemsPage() {
   const [completedOrders, setCompletedOrders] = useState([]);
   const [sortedItems, setSortedItems] = useState([]);
   const [isLoadingMissingItems, setIsLoadingMissingItems] = useState(false);
+  const [visibleItemsCount, setVisibleItemsCount] = useState(50); // Pagination state
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  const handleLoadMoreItems = () => {
+    setVisibleItemsCount((prev) => prev + Number(itemsPerPage));
+  };
 
 
   const navigate = useNavigate()
@@ -818,9 +824,22 @@ export default function PickUpItemsPage() {
                     </div>
                     <div className="space-y-3">
 
-                      {sortedItems.map((item, index) => (
-                        
-                        item.id === currentActiveItem?.id ? (
+                      {(() => {
+                        const filteredItems = showProcessed
+                          ? sortedItems
+                          : sortedItems.filter(
+                              (item) =>
+                                !processedItems?.some(
+                                  (processedItem) =>
+                                    processedItem.id === item.id &&
+                                    processedItem.order_id === item.order_id
+                                )
+                            );
+
+                        return filteredItems
+                          .slice(0, visibleItemsCount)
+                          .map((item, index) =>
+                            item.id === currentActiveItem?.id ? (
                           <div
                             className="space-y-4 click_element_smooth_hover"
                             key={index}
@@ -969,12 +988,7 @@ export default function PickUpItemsPage() {
                           </div>
 
 
-                        ) : !showProcessed &&
-                          processedItems?.some(
-                            (processedItem) =>
-                              processedItem.id === item.id &&
-                              processedItem.order_id === item.order_id
-                          ) ? null : (
+                          ) : (
                           <DisplayItems
                             pool={
                               processedItems?.some(
@@ -1000,10 +1014,45 @@ export default function PickUpItemsPage() {
                             toggleMissingItems={toggleMissingItems}
                           />
                         )
-                      ))
-                      }
-
+                          );
+                      })()}
+ 
                     </div>
+
+                    {(() => {
+                      const filteredItems = showProcessed
+                        ? sortedItems
+                        : sortedItems.filter(
+                            (item) =>
+                              !processedItems?.some(
+                                (processedItem) =>
+                                  processedItem.id === item.id &&
+                                  processedItem.order_id === item.order_id
+                              )
+                          );
+
+                      return (
+                        visibleItemsCount < filteredItems.length && (
+                          <div className="flex justify-center mt-6 items-center gap-4">
+                            <select
+                              className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm"
+                              value={itemsPerPage}
+                              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                            >
+                              <option value={50}>Load 50</option>
+                              <option value={100}>Load 100</option>
+                              <option value={200}>Load 200</option>
+                            </select>
+                            <button
+                              onClick={handleLoadMoreItems}
+                              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md"
+                            >
+                              Load More ({Math.max(0, filteredItems.length - visibleItemsCount)} remaining)
+                            </button>
+                          </div>
+                        )
+                      );
+                    })()}
 
                     {modalOpen && selectedItem && (
                       <div className="fixed -inset-10 flex items-center justify-center bg-black bg-opacity-50 z-50" onClick={closeModal}>

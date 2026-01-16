@@ -18,7 +18,10 @@ import api from "./helper/api";
 
 
 
-function Sidebar({ isOpen, setIsOpen }) {
+import { useSidebar } from "./helper/SidebarContext";
+
+function Sidebar() {
+  const { isSidebarOpen: isOpen, setIsSidebarOpen: setIsOpen } = useSidebar();
   const menuItems = [
     { icon: Monitor, label: "Dashboard", path: "/dashboard" },
     { icon: ShoppingCart, label: "Orders", path: "/orders" },

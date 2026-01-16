@@ -18,9 +18,11 @@ import { toast } from "react-toastify";
 
 
 
+import { useSidebar } from "./helper/SidebarContext";
+
 function Dashboard() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const [months, setMonths] = useState(6)
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
@@ -156,7 +158,7 @@ function Dashboard() {
   return (
 
     <div className="">
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <Sidebar />
 
       <div className={isSidebarOpen ? "main-content sidebar-open" : " px-4 py-4"}>
         <ToastContainer position="top-right" autoClose={false}
