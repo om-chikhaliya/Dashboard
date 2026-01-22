@@ -20,10 +20,11 @@ import Sidebar from "./Sidebar";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import colors from '../data/color-pick-item'
+import { useSidebar } from "./helper/SidebarContext";
 
 
 export default function PickUpItemsPage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { isSidebarOpen } = useSidebar();
   const [allOrders, setAllOrders] = useState([]); // all the orders we chose to pick
   const [currentActiveItem, setcurrentActiveItem] = useState(); //for detailed view of an item next to pick.
   const [processedItems, setProcessedItems] = useState([]); //Ids of items that are picked
@@ -754,8 +755,8 @@ export default function PickUpItemsPage() {
 
   return (
     <div className={isLoadingMissingItems ? "blur-sm pointer-events-none select-none" : ""}>
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen}></Sidebar>
-      <div className={isSidebarOpen ? "main-content sidebar-open" : " px-4 py-4"}>
+      <Sidebar></Sidebar>
+      <div className={isSidebarOpen ? "main-content" : "main-content sidebar-closed"}>
         <div className="flex-1">
           <Header />
           <ToastContainer position="bottom-center" />

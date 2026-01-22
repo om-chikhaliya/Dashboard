@@ -1,14 +1,14 @@
 import OrderPageContent from "./OrderContentPage";
 import Sidebar from "./Sidebar";
-import { useState } from "react";
+import { useSidebar } from "./helper/SidebarContext";
 
 
 function MainLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { isSidebarOpen } = useSidebar();
   return (
     <div className="app">
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen}></Sidebar>
-      <div className={isSidebarOpen ? "main-content sidebar-open" : "px-4 py-4"}>
+      <Sidebar></Sidebar>
+      <div className={isSidebarOpen ? "main-content" : "main-content sidebar-closed"}>
         <OrderPageContent />
       </div>
     </div>
