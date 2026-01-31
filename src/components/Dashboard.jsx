@@ -10,7 +10,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import { BarChart } from "lucide-react";
+import { BarChart, AlertCircle } from "lucide-react";
 import api from "./helper/api";
 import { ClipLoader } from "react-spinners";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -49,6 +49,25 @@ function Dashboard() {
       },
     },
   ]);
+  const [unpaidInvoice, setUnpaidInvoice] = useState(null);
+
+  useEffect(() => {
+    const checkUnpaidInvoice = async () => {
+      try {
+        const res = await api.get('/payment/invoices?limit=1');
+        if (res.data?.invoices?.length > 0) {
+          const latestInvoice = res.data.invoices[0];
+          // Check if invoice is open (unpaid)
+          if (latestInvoice.status === 'open') {
+            setUnpaidInvoice(latestInvoice);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check invoices:", err);
+      }
+    };
+    checkUnpaidInvoice();
+  }, []);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -197,6 +216,26 @@ function Dashboard() {
             ×
           </button>
         </div>}
+
+        {unpaidInvoice && (
+            <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg shadow-md flex items-center justify-between mb-4">
+            <div className="flex items-center">
+                <AlertCircle className="h-6 w-6 mr-3" />
+                <div className="flex flex-col">
+                <span className="font-semibold">Payment Overdue</span>
+                <p className="text-sm">
+                    Your invoice for {unpaidInvoice.billing_month} of ${unpaidInvoice.amount} is due. Please check your payment settings.
+                </p>
+                </div>
+            </div>
+            <button
+                onClick={() => navigate('/payment')}
+                className="bg-red-100 hover:bg-red-200 text-red-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+                Pay Now
+            </button>
+            </div>
+        )}
 
         <div className="py-6 pt-0">
           {loading ? (

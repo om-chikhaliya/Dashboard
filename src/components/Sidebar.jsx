@@ -13,7 +13,7 @@ import {
 } from "react-feather";
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate, Link } from "react-router-dom";
-import { User, ChevronLeft, ChevronRight, Info } from "lucide-react";
+import { User, ChevronLeft, ChevronRight, Info, CreditCard } from "lucide-react";
 import api from "./helper/api";
 
 
@@ -31,6 +31,7 @@ function Sidebar() {
     { icon: Info, label: "Logs", path: "/logs" },
     { icon: User, label: "Users", path: "/users" },
     { icon: Settings, label: "Settings", path: "/setting" },
+    { icon: CreditCard, label: "Payment", path: "/payment" },
     { icon: HelpCircle, label: "Help and Guide", path: "/help" },
   ];
 
